@@ -173,7 +173,7 @@ void FavoritesMenuManager::RefreshFavorites() {
 		}
 
 		if (lastFavoritesCommand != command) {
-			SpeechRecognitionClient::getInstance()->WriteLine(command);
+			SpeechRecognitionClient::getInstance()->EnqueueRequest(command);
 			lastFavoritesCommand = command;
 		}
 	}

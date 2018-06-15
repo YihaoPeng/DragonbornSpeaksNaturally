@@ -37,7 +37,7 @@ SpeechRecognitionClient::~SpeechRecognitionClient()
 }
 
 void SpeechRecognitionClient::StopDialogue() {
-	WriteLine("STOP_DIALOGUE");
+	EnqueueRequest("STOP_DIALOGUE");
 }
 
 void SpeechRecognitionClient::StartDialogue(DialogueList list) {
@@ -49,7 +49,7 @@ void SpeechRecognitionClient::StartDialogue(DialogueList list) {
 		command.append("|");
 		command.append(list.lines[i]);
 	}
-	this->WriteLine(command);
+	EnqueueRequest(command);
 }
 
 int SpeechRecognitionClient::ReadSelectedIndex() {
@@ -90,6 +90,22 @@ std::string SpeechRecognitionClient::PopEquip() {
 	}
 }
 
+std::string SpeechRecognitionClient::PopRequest() {
+	if (queuedRequestedCommands.empty())
+	{
+		return "";
+	}
+	else
+	{
+		reqQueueLock.lock();
+		std::string retcommand = queuedRequestedCommands.front();
+		queuedRequestedCommands.pop();
+		reqQueueLock.unlock();
+
+		return retcommand;
+	}
+}
+
 void SpeechRecognitionClient::EnqueueCommand(std::string command) {
 	queueLock.lock();
 	queuedCommands.push(command);
@@ -100,6 +116,12 @@ void SpeechRecognitionClient::EnqueueEquip(std::string equip) {
 	queueLock.lock();
 	queuedEquips.push(equip);
 	queueLock.unlock();
+}
+
+void SpeechRecognitionClient::EnqueueRequest(std::string requestedCommand) {
+	reqQueueLock.lock();
+	queuedRequestedCommands.push(requestedCommand);
+	reqQueueLock.unlock();
 }
 
 void SpeechRecognitionClient::AwaitResponses() {
@@ -221,6 +243,7 @@ static DWORD WINAPI SpeechRecognitionClientThreadStart(void* ctx) {
 	{
 		Log::info("Initialized speech recognition service");
 		SpeechRecognitionClient::getInstance()->SetHandles(g_hChildStd_IN_Wr, g_hChildStd_OUT_Rd);
+		SpeechRecognitionClient::getInstance()->StartSendingCommandThread();
 		SpeechRecognitionClient::getInstance()->AwaitResponses();
 	}
 	else
@@ -231,6 +254,28 @@ static DWORD WINAPI SpeechRecognitionClientThreadStart(void* ctx) {
 	return 0;
 }
 
+// Used to ease dropping frames when sending commands to dsn_service.
+static DWORD WINAPI SpeechRecognitionSendingCommandThread(void* ctx) {
+	Log::info("Speech recognition client: sending command thread started");
+
+	SpeechRecognitionClient *instance = SpeechRecognitionClient::getInstance();
+
+	for (;;) {
+		std::string reqCommand = instance->PopRequest();
+
+		if (reqCommand == "") {
+			Sleep(50); // Sleep 50ms. Refresh 20 times per second.
+			continue;
+		}
+
+		instance->WriteLine(reqCommand);
+		Sleep(10);
+	}
+}
+
+void SpeechRecognitionClient::StartSendingCommandThread() {
+	CreateThread(NULL, 0, SpeechRecognitionSendingCommandThread, NULL, 0L, NULL);
+}
 
 void SpeechRecognitionClient::Initialize() {
 	CreateThread(NULL, 0, SpeechRecognitionClientThreadStart, NULL, 0L, NULL);
