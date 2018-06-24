@@ -1,11 +1,14 @@
 #include "Hooks.h"
 #include <string.h>
+#include <fstream>
+#include <iomanip>
 #include "Log.h"
 #include "common/IPrefix.h"
 #include "skse64_common/SafeWrite.h"
 #include "skse64/ScaleformMovie.h"
 #include "skse64/ScaleformValue.h"
 #include "skse64_common/BranchTrampoline.h"
+#include "skse64/GameInput.h"
 #include "xbyak.h"
 #include "SkyrimType.h"
 #include "ConsoleCommandRunner.h"
@@ -51,10 +54,77 @@ static void __cdecl Hook_Invoke(GFxMovieView* movie, char * gfxMethod, GFxValue*
 	}
 }
 
+uint32_t GetTickDiff() {
+	static uint32_t last = 0;
+	uint32_t now = GetTickCount();
+	uint32_t diff = now - last;
+	last = now;
+	return diff;
+}
+
+class LogEventSink : public BSTEventSink<InputEvent> {
+	EventResult ReceiveEvent(InputEvent ** evnArr, InputEventDispatcher * dispatcher) override {
+		std::ofstream log("./dsn.log", std::ios::app);
+
+		if (evnArr == NULL) {
+			log << "[" << std::setw(2) << GetTickDiff() << "] "
+				<< "InputEvent**: null" << std::endl;
+			log.close();
+			return kEvent_Continue;
+		}
+
+		InputEvent *evn = *evnArr;
+
+		if (evn == NULL) {
+			log << "[" << std::setw(2) << GetTickDiff() << "] "
+				<< "InputEvent*: null" << std::endl;
+			log.close();
+			return kEvent_Continue;
+		}
+
+		while (evn != NULL) {
+
+			if (evn->eventType == InputEvent::kEventType_Button) {
+				ButtonEvent *btn = dynamic_cast<ButtonEvent *>(evn);
+
+				log << "[" << std::setw(2) << GetTickDiff() << "] "
+					<< "deviceType: " << evn->deviceType
+					<< ", eventType: " << evn->eventType
+					<< ", this: " << std::hex << (uint64_t)evn
+					<< ", next: " << std::hex << (uint64_t)evn->next
+					<< ", keyMask: " << btn->keyMask
+					<< ", pad24: " << btn->pad24
+					<< ", flags: " << std::hex << (btn->flags + 1)
+					<< ", timer: " << std::hex << btn->timer
+					<< ", controlID: " << btn->controlID
+					<< std::endl;
+			}
+			else {
+				log << "[" << std::setw(2) << GetTickDiff() << "] "
+					<< "deviceType: " << evn->deviceType
+					<< ", eventType: " << evn->eventType
+					<< ", this: " << std::hex << (uint64_t)evn
+					<< ", next: " << std::hex << (uint64_t)evn->next
+					<< std::endl;
+			}
+
+			evn = evn->next;
+		}
+
+		log.close();
+		return kEvent_Continue;
+	}
+};
+
+LogEventSink *gLogEventSink;
+
 static void __cdecl Hook_PostLoad() {
 	if (g_SkyrimType == VR) {
 		FavoritesMenuManager::getInstance()->RefreshFavorites();
 	}
+	gLogEventSink = new LogEventSink;
+	InputEventDispatcher *inputEventDispatcher = InputEventDispatcher::GetSingleton();
+	inputEventDispatcher->AddEventSink(gLogEventSink);
 }
 
 static void __cdecl Hook_Loop()

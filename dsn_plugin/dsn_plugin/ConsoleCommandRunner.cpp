@@ -2,6 +2,7 @@
 #include "skse64/GameMenus.h"
 #include "DSNMenuManager.h"
 #include "skse64/GameTypes.h"
+#include "skse64/GameInput.h"
 #include "Log.h"
 
 #include <sstream>
@@ -127,13 +128,35 @@ void ConsoleCommandRunner::Initialize() {
 	CreateThread(NULL, 0, ConsoleCommandRunner::RunCustomCommandThread, NULL, 0L, NULL);
 }
 
-void ConsoleCommandRunner::RunCustomCommandPress(const std::vector<std::string>& params) {
-	std::vector<int /*key*/> keyDown;
-	std::map<int /*time*/, int /*key*/> keyUp;
+const size_t kEnvCount = 100;
+static ButtonEvent evn[kEnvCount];
+static InputEvent *pEvn[kEnvCount];
 
+void ConsoleCommandRunner::RunCustomCommandPress(const std::vector<std::string>& params) {
+	//std::vector<int /*key*/> keyDown;
+	//std::map<int /*time*/, int /*key*/> keyUp;
+
+	for (int i = 0; i < kEnvCount; i++) {
+		pEvn[i] = &evn[i];
+
+		evn[i].controlID = InputStringHolder::GetSingleton()->shout;
+		evn[i].deviceType = 3;
+		evn[i].eventType = 0;
+		evn[i].keyMask = 2;
+		evn[i].pad24 = 0;
+		evn[i].flags = 3;
+		evn[i].timer = 0;
+		evn[i].next = NULL;
+	}
+
+	for (size_t i = 0; i < kEnvCount; i++) {
+		InputEventDispatcher *inputEventDispatcher = InputEventDispatcher::GetSingleton();
+		inputEventDispatcher->SendEvent(&(pEvn[i]));
+		Sleep(5);
+	}
 	// command: press <key> <time> <key> <time> ...
 	//           [0]   [1]   [2]    [3]   [4]
-	for (size_t i = 1; i + 1 < params.size(); i += 2) {
+	/*for (size_t i = 1; i + 1 < params.size(); i += 2) {
 		const std::string &keyStr = params[i];
 		const std::string &timeStr = params[i + 1];
 		int key = 0;
@@ -204,5 +227,5 @@ void ConsoleCommandRunner::RunCustomCommandPress(const std::vector<std::string>&
 			input.ki.dwFlags = KEYEVENTF_KEYUP;
 			SendInput(1, &input, sizeof(INPUT));
 		}
-	}
+	}*/
 }

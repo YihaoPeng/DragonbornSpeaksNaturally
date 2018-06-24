@@ -58,9 +58,9 @@ public:
 		kEventType_Kinect
 	};
 
-	virtual					~InputEvent();
-	virtual bool			IsIDEvent();
-	virtual BSFixedString *	GetControlID();
+	virtual					~InputEvent() {};
+	virtual bool			IsIDEvent() = 0;
+	virtual BSFixedString *	GetControlID() = 0;
 
 //	void			** _vtbl;	// 00
 	UInt32			deviceType;	// 08
@@ -78,9 +78,9 @@ public:
 class ButtonEvent : public IDEvent, public InputEvent
 {
 public:
-	virtual					~ButtonEvent();
-	virtual bool			IsIDEvent();
-	virtual BSFixedString *	GetControlID();
+	virtual					~ButtonEvent() {};
+	virtual bool			IsIDEvent() { return controlID != NULL; };
+	virtual BSFixedString *	GetControlID() { return &controlID; };
 
 	// 18 -> controlID from IDEvent
 	UInt32			keyMask;	// 20 (00000038 when ALT is pressed, 0000001D when STRG is pressed)
