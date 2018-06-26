@@ -357,7 +357,7 @@ int SpeechRecognizer::startRecognize()
 		 grm_build_path = %s, local_grammar = %s, \
 		 result_type = json, result_encoding = UTF-8, \
 		 vad_enable = 1, vad_bos = 10000, vad_eos = 50, \
-         asr_denoise = 1, ",
+         asr_denoise = 0, ",
 		ASR_RES_PATH,
 		SAMPLE_RATE_16K,
 		GRM_BUILD_PATH,
