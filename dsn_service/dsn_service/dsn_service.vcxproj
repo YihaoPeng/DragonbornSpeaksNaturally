@@ -177,6 +177,7 @@ copy $(ProjectDir)..\..\bin\msc_x64.dll $(SolutionDir)$(Platform)\$(Configuratio
     <ClInclude Include="src\SpeechRecognizer.h" />
     <ClInclude Include="src\api_speech_recognizer.h" />
     <ClInclude Include="src\api_recording.h" />
+    <ClInclude Include="src\utilities_js.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\DSNService.cpp" />

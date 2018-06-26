@@ -9,6 +9,7 @@
 #include <process.h>
 
 #include "api_speech_recognizer.h"
+#include "utilities_js.hpp"
 
 const char * SpeechRecognizer::API_LOGIN_INFO = "appid = 5b30794f";
 const char * SpeechRecognizer::ASR_RES_PATH   = "fo|res/asr/common.jet";  //离线语法识别资源路径
@@ -170,14 +171,59 @@ int SpeechRecognizer::api_login()
 	return ret;
 }
 
+
 void SpeechRecognizer::on_result(const char *result, char is_last, void *udata)
 {
 	SpeechRecognizer *sr = (SpeechRecognizer *)udata;
 
-	printf("\nResult: [ %s ]\n", result);
+	JsonNode r;
+	if (!JsonNode::parse(result, result + strlen(result), r)) {
+		printf("result JSON parse failed!\n");
+		return;
+	}
+
+	/* Result Format:
+	{
+	  "sn":1, "ls":true, "bg":0, "ed":0,
+	  "ws":[{
+		  "bg":0,
+		  "cw":[{
+			  "gm":0,
+			  "w":"Fus,Ro,Dah",
+			  "id":4,
+			  "sc":29
+			}],
+		  "slot":"<cmd>"
+		}],
+	  "sc":36
+	} */
+	if (r.type() != Utilities::JS::type::Obj ||
+		r["ws"].type() != Utilities::JS::type::Array ||
+		r["ws"].children()->size() < 1) {
+		printf("result check fields failure!\n");
+	}
+	JsonNode ws = r["ws"].children()->at(0);
+	if (ws.type() != Utilities::JS::type::Obj ||
+		ws["cw"].type() != Utilities::JS::type::Array ||
+		ws["cw"].children()->size() < 1) {
+		printf("result check fields failure!\n");
+	}
+	JsonNode cw = ws["cw"].children()->at(0);
+	if (cw.type() != Utilities::JS::type::Obj ||
+		cw["w"].type()  != Utilities::JS::type::Str ||
+		cw["id"].type() != Utilities::JS::type::Int ||
+		cw["sc"].type() != Utilities::JS::type::Int) {
+		printf("result check fields failure!\n");
+	}
+
+	int id = cw["id"].int32();
+	int confidence = cw["sc"].int32();
+	std::string words = cw["w"].str();
+
+	printf("id: %d, confidence: %d, words: %s\n", id, confidence, words);
 
 	if (sr->resultCallback) {
-		sr->resultCallback(0, 0);
+		sr->resultCallback(id, confidence);
 	}
 }
 void SpeechRecognizer::on_speech_begin(void *udata)
@@ -309,7 +355,7 @@ int SpeechRecognizer::startRecognize()
 		"engine_type = local, \
 		 asr_res_path = %s, sample_rate = %d, \
 		 grm_build_path = %s, local_grammar = %s, \
-		 result_type = xml, result_encoding = UTF-8, \
+		 result_type = json, result_encoding = UTF-8, \
 		 vad_enable = 1, vad_bos = 10000, vad_eos = 50, \
          asr_denoise = 1, ",
 		ASR_RES_PATH,

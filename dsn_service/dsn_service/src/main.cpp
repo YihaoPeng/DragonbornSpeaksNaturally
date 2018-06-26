@@ -30,7 +30,12 @@ int main(int argc, char* argv[])
 		"time goes by",
 		"hello world",
 		"this is dragonborn",
-		"Fus Ro Dah"
+		"Fus Ro Dah",
+		"装备血吟刃",
+		"装备黑檀弓",
+		"我需要治疗",
+		"把那龙打下来",
+		"做好战斗准备"
 	});
 	if (MSP_SUCCESS != ret) {
 		printf("更新词典调用失败！\n");
