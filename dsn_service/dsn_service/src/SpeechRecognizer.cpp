@@ -57,33 +57,7 @@ int SpeechRecognizer::updateCommandList(const std::vector<std::string>& commandL
 
 int SpeechRecognizer::init()
 {
-	FILE *grm_file                           = NULL;
-	char *grm_content                        = NULL;
-	unsigned int grm_cnt_len                 = 0;
 	char grm_build_params[MAX_PARAMS_LEN]    = {'\0'};
-
-	grm_file = fopen(GRM_FILE, "rb");	
-	if(NULL == grm_file) {
-		printf("打开\"%s\"文件失败！[%s]\n", GRM_FILE, strerror(errno));
-		return -1; 
-	}
-
-	fseek(grm_file, 0, SEEK_END);
-	grm_cnt_len = ftell(grm_file);
-	fseek(grm_file, 0, SEEK_SET);
-
-	grm_content = (char *)malloc(grm_cnt_len + 1);
-	if (NULL == grm_content)
-	{
-		printf("内存分配失败!\n");
-		fclose(grm_file);
-		grm_file = NULL;
-		return -1;
-	}
-	fread((void*)grm_content, 1, grm_cnt_len, grm_file);
-	grm_content[grm_cnt_len] = '\0';
-	fclose(grm_file);
-	grm_file = NULL;
 
 	_snprintf(grm_build_params, MAX_PARAMS_LEN - 1, 
 		"engine_type = local, \
@@ -96,10 +70,14 @@ int SpeechRecognizer::init()
 
 	eventBuildFinish = CreateEvent(NULL, FALSE, FALSE, NULL);
 
-	int ret = QISRBuildGrammar("bnf", grm_content, grm_cnt_len, grm_build_params, build_grm_cb, this);
+	std::string grm_content =
+		"#BNF+IAT 1.0 UTF-8;\n"
+		"!grammar cmd;\n"
+		"!slot <cmd>;\n"
+		"!start <cmd>;\n"
+		"<cmd>:init!id(0);";
 
-	free(grm_content);
-	grm_content = NULL;
+	int ret = QISRBuildGrammar("bnf", grm_content.c_str(), (int)grm_content.size(), grm_build_params, build_grm_cb, this);
 
 	if (MSP_SUCCESS == ret) {
 		WaitForSingleObject(eventBuildFinish, INFINITE);
