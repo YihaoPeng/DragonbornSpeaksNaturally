@@ -10,7 +10,7 @@
 
 #include "api_speech_recognizer.h"
 
-
+const char * SpeechRecognizer::API_LOGIN_INFO = "appid = 5b30794f";
 const char * SpeechRecognizer::ASR_RES_PATH   = "fo|res/asr/common.jet";  //离线语法识别资源路径
 #ifdef _WIN64
 const char * SpeechRecognizer::GRM_BUILD_PATH = "res/asr/GrmBuild_x64";  //构建离线语法识别网络生成数据保存路径
@@ -19,6 +19,8 @@ const char * SpeechRecognizer::GRM_BUILD_PATH = "res/asr/GrmBuild";  //构建离
 #endif
 const char * SpeechRecognizer::GRM_FILE       = "dsn.bnf"; //构建离线识别语法网络所用的语法文件
 const char * SpeechRecognizer::LEX_NAME       = "cmd"; //更新离线识别语法的cmd槽
+
+bool SpeechRecognizer::apiIsLogin = false; // 是否已登录API（第一次调用语音识别API时需要登录）
 
 
 int SpeechRecognizer::build_grm_cb(int ecode, const char *info, void *udata)
@@ -57,6 +59,13 @@ int SpeechRecognizer::updateCommandList(const std::vector<std::string>& commandL
 
 int SpeechRecognizer::init()
 {
+	int ret;
+
+	ret = api_login();
+	if (MSP_SUCCESS != ret) {
+		return ret;
+	}
+
 	char grm_build_params[MAX_PARAMS_LEN]    = {'\0'};
 
 	_snprintf(grm_build_params, MAX_PARAMS_LEN - 1, 
@@ -77,7 +86,7 @@ int SpeechRecognizer::init()
 		"!start <cmd>;\n"
 		"<cmd>:init!id(0);";
 
-	int ret = QISRBuildGrammar("bnf", grm_content.c_str(), (int)grm_content.size(), grm_build_params, build_grm_cb, this);
+	ret = QISRBuildGrammar("bnf", grm_content.c_str(), (int)grm_content.size(), grm_build_params, build_grm_cb, this);
 
 	if (MSP_SUCCESS == ret) {
 		WaitForSingleObject(eventBuildFinish, INFINITE);
@@ -135,6 +144,22 @@ int SpeechRecognizer::update_lexicon(const char *lex_content)
 	if (eventUpdateFinish) {
 		CloseHandle(eventUpdateFinish);
 		eventUpdateFinish = NULL;
+	}
+
+	return ret;
+}
+
+int SpeechRecognizer::api_login()
+{
+	// 已登录，不用重复登陆
+	if (apiIsLogin) {
+		return MSP_SUCCESS;
+	}
+
+	int ret = MSPLogin(NULL, NULL, API_LOGIN_INFO); //第一个参数为用户名，第二个参数为密码，传NULL即可，第三个参数是登录参数
+
+	if (MSP_SUCCESS == ret) {
+		apiIsLogin = true;
 	}
 
 	return ret;

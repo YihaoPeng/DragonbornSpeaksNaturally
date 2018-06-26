@@ -11,15 +11,8 @@
 */
 int main(int argc, char* argv[])
 {
-	const char *login_config = "appid = 5b30794f"; //登录参数
 	SpeechRecognizer SpeechRecognizer;
 	int ret = 0;
-
-	ret = MSPLogin(NULL, NULL, login_config); //第一个参数为用户名，第二个参数为密码，传NULL即可，第三个参数是登录参数
-	if (MSP_SUCCESS != ret) {
-		printf("登录失败：%d\n", ret);
-		goto exit;
-	}
 
 	printf("构建离线识别语法网络...\n");
 	ret = SpeechRecognizer.init();  //第一次使用某语法进行识别，需要先构建语法网络，获取语法ID，之后使用此语法进行识别，无需再次构建
@@ -52,7 +45,6 @@ int main(int argc, char* argv[])
 	}
 
 exit:
-	MSPLogout();
 	printf("\n请按任意键退出...\n");
 
 	while (_getch() != '\r');
