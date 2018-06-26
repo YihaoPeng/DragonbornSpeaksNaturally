@@ -9,4 +9,13 @@
 
 #include "SpeechRecognizer.h"
 
+class DSNService {
+public:
+	void start();
+protected:
+	void result_callback(int id, int confidence);
+
+	SpeechRecognizer speechRecognizer;
+};
+
 #endif
