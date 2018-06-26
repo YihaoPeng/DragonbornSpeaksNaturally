@@ -32,9 +32,13 @@ int main(int argc, char* argv[])
 	printf("更新离线语法词典...\n");
 
 	//当语法词典槽中的词条需要更新时，调用QISRUpdateLexicon接口完成更新
-	ret = SpeechRecognizer.update_lexicon("time,is,money!id(1)\n\
-time,goes,by!id(2)\nhello,world!id(3)\n\
-this,is,dragonborn!id(4)\nFus,Ro,Dah!id(5)");
+	ret = SpeechRecognizer.updateCommandList({
+		"time is money",
+		"time goes by",
+		"hello world",
+		"this is dragonborn",
+		"Fus Ro Dah"
+	});
 	if (MSP_SUCCESS != ret) {
 		printf("更新词典调用失败！\n");
 		goto exit;

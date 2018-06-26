@@ -41,6 +41,20 @@ int SpeechRecognizer::build_grm_cb(int ecode, const char *info, void *udata)
 	return 0;
 }
 
+int SpeechRecognizer::updateCommandList(const std::vector<std::string>& commandList)
+{
+	std::string commands;
+
+	for (size_t i = 0; i < commandList.size(); i++) {
+		if (i > 0) {
+			commands += '\n';
+		}
+		commands += formatCommandWords(commandList[i], (int)i);
+	}
+
+	return update_lexicon(commands.c_str());
+}
+
 int SpeechRecognizer::build_grammar()
 {
 	FILE *grm_file                           = NULL;
@@ -166,6 +180,21 @@ void SpeechRecognizer::on_speech_end(int reason, void *udata)
 		printf("\nRecognizer error %d\n", reason);
 
 	SetEvent(sr->events[EVT_STOP]);
+}
+
+std::string SpeechRecognizer::formatCommandWords(std::string command, int id)
+{
+	for (size_t i = 0; i < command.size(); i++) {
+		if (command[i] == ' ' || command[i] == '\r' || command[i] == '\n' ||
+			command[i] == '\t' || command[i] == '\0' || command[i] == '\x0b' ||
+			command[i] == '!' || command[i] == '(' || command[i] == ')') {
+			command[i] = ',';
+		}
+	}
+	command += "!id(";
+	command += std::to_string(id);
+	command += ')';
+	return command;
 }
 
 /* demo recognize the audio from microphone */
