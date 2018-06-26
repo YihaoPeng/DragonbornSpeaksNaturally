@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @file    qisr.h
  * @brief   iFLY Speech Recognizer Header File
  * 

@@ -1,4 +1,4 @@
-#ifndef __MSP_ERRORS_H__
+ï»¿#ifndef __MSP_ERRORS_H__
 #define __MSP_ERRORS_H__
 
 #define MSP_HTTP_ERROR(x) ((x) + MSP_ERROR_HTTP_BASE )
@@ -16,23 +16,23 @@ enum
 	MSP_ERROR_NOT_SUPPORT					= 10103, 	/* 0x2777 */
 	MSP_ERROR_NOT_IMPLEMENT					= 10104, 	/* 0x2778 */
 	MSP_ERROR_ACCESS						= 10105, 	/* 0x2779 */
-	MSP_ERROR_INVALID_PARA					= 10106, 	/* 0x277A */  /* È±ÉÙ²ÎÊý */
-	MSP_ERROR_INVALID_PARA_VALUE			= 10107, 	/* 0x277B */  /* ÎÞÐ§²ÎÊýÖµ */
+	MSP_ERROR_INVALID_PARA					= 10106, 	/* 0x277A */  /* ç¼ºå°‘å‚æ•° */
+	MSP_ERROR_INVALID_PARA_VALUE			= 10107, 	/* 0x277B */  /* æ— æ•ˆå‚æ•°å€¼ */
 	MSP_ERROR_INVALID_HANDLE				= 10108, 	/* 0x277C */
 	MSP_ERROR_INVALID_DATA					= 10109, 	/* 0x277D */
-	MSP_ERROR_NO_LICENSE					= 10110, 	/* 0x277E */  /* ÒýÇæÊÚÈ¨²»×ã */
-	MSP_ERROR_NOT_INIT						= 10111, 	/* 0x277F */  /* ÒýÇæÎ´³õÊ¼»¯,¿ÉÄÜÊÇÒýÇæ±ÀÀ£ */
+	MSP_ERROR_NO_LICENSE					= 10110, 	/* 0x277E */  /* å¼•æ“ŽæŽˆæƒä¸è¶³ */
+	MSP_ERROR_NOT_INIT						= 10111, 	/* 0x277F */  /* å¼•æ“Žæœªåˆå§‹åŒ–,å¯èƒ½æ˜¯å¼•æ“Žå´©æºƒ */
 	MSP_ERROR_NULL_HANDLE					= 10112, 	/* 0x2780 */
-    MSP_ERROR_OVERFLOW						= 10113, 	/* 0x2781 */  /* µ¥ÓÃ»§ÏÂÄ£ÐÍÊý³¬ÉÏÏÞ(10¸ö), */
-                                                                      /* Ö»³öÏÖÔÚ²âÊÔÊ±¶ÔÒ»¸öÓÃ»§½øÐÐ²¢·¢×¢²á */
-	MSP_ERROR_TIME_OUT						= 10114, 	/* 0x2782 */  /* ³¬Ê± */
+    MSP_ERROR_OVERFLOW						= 10113, 	/* 0x2781 */  /* å•ç”¨æˆ·ä¸‹æ¨¡åž‹æ•°è¶…ä¸Šé™(10ä¸ª), */
+                                                                      /* åªå‡ºçŽ°åœ¨æµ‹è¯•æ—¶å¯¹ä¸€ä¸ªç”¨æˆ·è¿›è¡Œå¹¶å‘æ³¨å†Œ */
+	MSP_ERROR_TIME_OUT						= 10114, 	/* 0x2782 */  /* è¶…æ—¶ */
 	MSP_ERROR_OPEN_FILE						= 10115, 	/* 0x2783 */
-	MSP_ERROR_NOT_FOUND						= 10116, 	/* 0x2784 */  /* Êý¾Ý¿âÖÐÄ£ÐÍ²»´æÔÚ */
+	MSP_ERROR_NOT_FOUND						= 10116, 	/* 0x2784 */  /* æ•°æ®åº“ä¸­æ¨¡åž‹ä¸å­˜åœ¨ */
 	MSP_ERROR_NO_ENOUGH_BUFFER				= 10117, 	/* 0x2785 */
-	MSP_ERROR_NO_DATA						= 10118, 	/* 0x2786 */  /* ´Ó¿Í»§¶Ë¶ÁÒôÆµ»ò´ÓÒýÇæ¶Î»ñÈ¡½á¹ûÊ±ÎÞÊý¾Ý */
+	MSP_ERROR_NO_DATA						= 10118, 	/* 0x2786 */  /* ä»Žå®¢æˆ·ç«¯è¯»éŸ³é¢‘æˆ–ä»Žå¼•æ“Žæ®µèŽ·å–ç»“æžœæ—¶æ— æ•°æ® */
 	MSP_ERROR_NO_MORE_DATA					= 10119, 	/* 0x2787 */
 	MSP_ERROR_NO_RESPONSE_DATA				= 10120, 	/* 0x2788 */
-	MSP_ERROR_ALREADY_EXIST					= 10121, 	/* 0x2789 */  /* Êý¾Ý¿âÖÐÄ£ÐÍÒÑ´æÔÚ */
+	MSP_ERROR_ALREADY_EXIST					= 10121, 	/* 0x2789 */  /* æ•°æ®åº“ä¸­æ¨¡åž‹å·²å­˜åœ¨ */
 	MSP_ERROR_LOAD_MODULE					= 10122, 	/* 0x278A */
 	MSP_ERROR_BUSY							= 10123, 	/* 0x278B */
 	MSP_ERROR_INVALID_CONFIG				= 10124, 	/* 0x278C */
@@ -50,10 +50,10 @@ enum
 	MSP_ERROR_USER_ACTIVE_ABORT             = 10136,    /* 0x2798 */   /* user abort */
 	MSP_ERROR_BUSY_GRMBUILDING              = 10137,    /* 0x2799 */
 	MSP_ERROR_BUSY_LEXUPDATING              = 10138,    /* 0x279A */
-	MSP_ERROR_SESSION_RESET	                = 10139,    /* 0x279B */   /* mscÖ÷¶¯ÖÕÖ¹»á»°£¬×¼±¸ÖØ´« */
-	MSP_ERROR_BOS_TIMEOUT                   = 10140,    /* 0x279C */   /* VADÇ°¶Ëµã³¬Ê± */
-	MSP_ERROR_STREAM_FILTER					= 10141,	/* 0X279D */   /* AIUIµ±Ç°Stream±»¹ýÂË */
-	MSP_ERROR_STREAM_CLEAR				    = 10142,    /* 0X279E */   /* AIUIµ±Ç°Stream±»ÇåÀí */
+	MSP_ERROR_SESSION_RESET	                = 10139,    /* 0x279B */   /* mscä¸»åŠ¨ç»ˆæ­¢ä¼šè¯ï¼Œå‡†å¤‡é‡ä¼  */
+	MSP_ERROR_BOS_TIMEOUT                   = 10140,    /* 0x279C */   /* VADå‰ç«¯ç‚¹è¶…æ—¶ */
+	MSP_ERROR_STREAM_FILTER					= 10141,	/* 0X279D */   /* AIUIå½“å‰Streamè¢«è¿‡æ»¤ */
+	MSP_ERROR_STREAM_CLEAR				    = 10142,    /* 0X279E */   /* AIUIå½“å‰Streamè¢«æ¸…ç† */
 
 	/* Error codes of network 10200(0x27D8)*/
 	MSP_ERROR_NET_GENERAL					= 10200, 	/* 0x27D8 */
@@ -100,8 +100,8 @@ enum
 	MSP_ERROR_MSG_INVALID_CONTENT_ENCODE	= 10307, 	/* 0x2843 */
 	MSP_ERROR_MSG_INVALID_KEY				= 10308, 	/* 0x2844 */
 	MSP_ERROR_MSG_KEY_EMPTY					= 10309, 	/* 0x2845 */
-	MSP_ERROR_MSG_SESSION_ID_EMPTY			= 10310, 	/* 0x2846 */   /* »á»°IDÎª¿Õ */
-	MSP_ERROR_MSG_LOGIN_ID_EMPTY			= 10311, 	/* 0x2847 */   /* ÒôÆµÐòÁÐIDÎª¿Õ */
+	MSP_ERROR_MSG_SESSION_ID_EMPTY			= 10310, 	/* 0x2846 */   /* ä¼šè¯IDä¸ºç©º */
+	MSP_ERROR_MSG_LOGIN_ID_EMPTY			= 10311, 	/* 0x2847 */   /* éŸ³é¢‘åºåˆ—IDä¸ºç©º */
 	MSP_ERROR_MSG_SYNC_ID_EMPTY				= 10312, 	/* 0x2848 */
 	MSP_ERROR_MSG_APP_ID_EMPTY				= 10313, 	/* 0x2849 */
 	MSP_ERROR_MSG_EXTERN_ID_EMPTY			= 10314, 	/* 0x284A */
@@ -114,13 +114,13 @@ enum
 	MSP_ERROR_MSG_MSSP_EMPTY				= 10321, 	/* 0x2851 */
 	MSP_ERROR_MSG_NEW_RESPONSE				= 10322, 	/* 0x2852 */
 	MSP_ERROR_MSG_NEW_CONTENT				= 10323, 	/* 0x2853 */
-	MSP_ERROR_MSG_INVALID_SESSION_ID		= 10324, 	/* 0x2854 */   /* ÎÞÐ§µÄ»á»°ID(sid) */
+	MSP_ERROR_MSG_INVALID_SESSION_ID		= 10324, 	/* 0x2854 */   /* æ— æ•ˆçš„ä¼šè¯ID(sid) */
 	MSP_ERROR_MSG_INVALID_CONTENT			= 10325, 	/* 0x2855 */
 
 	/* Error codes of DataBase 10400(0x28A0)*/
-	MSP_ERROR_DB_GENERAL					= 10400, 	/* 0x28A0 */   /* Êý¾Ý¿âÒì³£ */
+	MSP_ERROR_DB_GENERAL					= 10400, 	/* 0x28A0 */   /* æ•°æ®åº“å¼‚å¸¸ */
 	MSP_ERROR_DB_EXCEPTION					= 10401, 	/* 0x28A1 */
-	MSP_ERROR_DB_NO_RESULT					= 10402, 	/* 0x28A2 */   /* redisÖÐÃ»ÓÐÕÒµ½»á»°ID(sid) */
+	MSP_ERROR_DB_NO_RESULT					= 10402, 	/* 0x28A2 */   /* redisä¸­æ²¡æœ‰æ‰¾åˆ°ä¼šè¯ID(sid) */
 	MSP_ERROR_DB_INVALID_USER				= 10403, 	/* 0x28A3 */
 	MSP_ERROR_DB_INVALID_PWD				= 10404, 	/* 0x28A4 */
 	MSP_ERROR_DB_CONNECT					= 10405, 	/* 0x28A5 */
@@ -149,7 +149,7 @@ enum
 	MSP_ERROR_TTS_LTTS_ERROR				= 10603, 	/* 0x296B */
 
 	/* Error codes of Recognizer 10700(0x29CC) */
-	MSP_ERROR_REC_GENERAL					= 10700, 	/* 0x29CC */  /* ÒýÇæÒì³£ */
+	MSP_ERROR_REC_GENERAL					= 10700, 	/* 0x29CC */  /* å¼•æ“Žå¼‚å¸¸ */
 	MSP_ERROR_REC_INACTIVE					= 10701, 	/* 0x29CD */
 	MSP_ERROR_REC_GRAMMAR_ERROR				= 10702, 	/* 0x29CE */
 	MSP_ERROR_REC_NO_ACTIVE_GRAMMARS		= 10703, 	/* 0x29CF */
@@ -177,14 +177,14 @@ enum
 	MSP_ERROR_TUV_VERFAIL      			    = 10905, 	/* 0x2A99 */   /* Verify failure */
 
 	/* Error codes of IMTV */
-	MSP_ERROR_LOGIN_SUCCESS					= 11000, 	/* 0x2AF8 */   /* ³É¹¦ */
-	MSP_ERROR_LOGIN_NO_LICENSE        	    = 11001, 	/* 0x2AF9 */   /* ÊÔÓÃ´ÎÊý½áÊø£¬ÓÃ»§ÐèÒª¸¶·Ñ */
-	MSP_ERROR_LOGIN_SESSIONID_INVALID		= 11002, 	/* 0x2AFA */   /* SessionIdÊ§Ð§£¬ÐèÒªÖØÐÂµÇÂ¼Í¨ÐÐÖ¤ */ 
-	MSP_ERROR_LOGIN_SESSIONID_ERROR			= 11003, 	/* 0x2AFB */   /* SessionIdÎª¿Õ£¬»òÕß·Ç·¨ */
-	MSP_ERROR_LOGIN_UNLOGIN		  			= 11004, 	/* 0x2AFC */   /* Î´µÇÂ¼Í¨ÐÐÖ¤ */
-	MSP_ERROR_LOGIN_INVALID_USER	  		= 11005, 	/* 0x2AFD */   /* ÓÃ»§IDÎÞÐ§ */
-	MSP_ERROR_LOGIN_INVALID_PWD		  		= 11006, 	/* 0x2AFE */   /* ÓÃ»§ÃÜÂëÎÞÐ§ */
-	MSP_ERROR_LOGIN_SYSTEM_ERROR            = 11099, 	/* 0x2B5B */   /* ÏµÍ³´íÎó */
+	MSP_ERROR_LOGIN_SUCCESS					= 11000, 	/* 0x2AF8 */   /* æˆåŠŸ */
+	MSP_ERROR_LOGIN_NO_LICENSE        	    = 11001, 	/* 0x2AF9 */   /* è¯•ç”¨æ¬¡æ•°ç»“æŸï¼Œç”¨æˆ·éœ€è¦ä»˜è´¹ */
+	MSP_ERROR_LOGIN_SESSIONID_INVALID		= 11002, 	/* 0x2AFA */   /* SessionIdå¤±æ•ˆï¼Œéœ€è¦é‡æ–°ç™»å½•é€šè¡Œè¯ */ 
+	MSP_ERROR_LOGIN_SESSIONID_ERROR			= 11003, 	/* 0x2AFB */   /* SessionIdä¸ºç©ºï¼Œæˆ–è€…éžæ³• */
+	MSP_ERROR_LOGIN_UNLOGIN		  			= 11004, 	/* 0x2AFC */   /* æœªç™»å½•é€šè¡Œè¯ */
+	MSP_ERROR_LOGIN_INVALID_USER	  		= 11005, 	/* 0x2AFD */   /* ç”¨æˆ·IDæ— æ•ˆ */
+	MSP_ERROR_LOGIN_INVALID_PWD		  		= 11006, 	/* 0x2AFE */   /* ç”¨æˆ·å¯†ç æ— æ•ˆ */
+	MSP_ERROR_LOGIN_SYSTEM_ERROR            = 11099, 	/* 0x2B5B */   /* ç³»ç»Ÿé”™è¯¯ */
 
 	/* Error codes of HCR */
 	MSP_ERROR_HCR_GENERAL					= 11100,
@@ -200,22 +200,22 @@ enum
 	MSP_ERROR_HCR_RESOURCE		            = 11110,
 	
 	/* Error Codes using in local engine */
-	MSP_ERROR_AUTH_NO_LICENSE				= 11200,	/* 0x2BC0 */   /* ÎÞÊÚÈ¨ */
-	MSP_ERROR_AUTH_NO_ENOUGH_LICENSE		= 11201,	/* 0x2BC1 */   /* ÊÚÈ¨²»×ã */
-	MSP_ERROR_AUTH_INVALID_LICENSE		    = 11202,	/* 0x2BC2 */   /* ÎÞÐ§µÄÊÚÈ¨ */
-	MSP_ERROR_AUTH_LICENSE_EXPIRED			= 11203,	/* 0x2BC3 */   /* ÊÚÈ¨¹ýÆÚ */
-	MSP_ERROR_AUTH_NEED_MORE_DATA           = 11204,    /* 0x2BC4 */   /* ÎÞÉè±¸ÐÅÏ¢ */
-	MSP_ERROR_AUTH_LICENSE_TO_BE_EXPIRED	= 11205,	/* 0x2BC5 */   /* ÊÚÈ¨¼´½«¹ýÆÚ£¬¾¯¸æÐÔ´íÎóÂë */
-	MSP_ERROR_AUTH_INVALID_MACHINE_ID       = 11206,    /* 0x2BC6 */   /* ÎÞÐ§µÄ»úÆ÷Âë */
-	MSP_ERROR_AUTH_LOCAL_ASR_FORBIDDEN 	    = 11207,    /* 0x2BC7 */   /* ½ûÖ¹Ê¹ÓÃ±¾µØÊ¶±ðÒýÇæ */
-	MSP_ERROR_AUTH_LOCAL_TTS_FORBIDDEN      = 11208,    /* 0x2BC8 */   /* ½ûÖ¹Ê¹ÓÃ±¾µØºÏ³ÉÒýÇæ */
-	MSP_ERROR_AUTH_LOCAL_IVW_FORBIDDEN      = 11209,    /* 0x2BC9 */   /* ½ûÖ¹Ê¹ÓÃ±¾µØ»½ÐÑÒýÇæ */
-	MSP_ERROR_AUTH_APPID_NOT_MATCH			= 11210,	/* 0x2BCA */   /* ×ÊÔ´appidºÍÓ¦ÓÃappid²»Æ¥Åä */
-	MSP_ERROR_AUTH_UID_NOT_MATCH			= 11211,	/* 0x2BCB */   /* ×ÊÔ´uidºÍµÇÂ¼ÓÃ»§uid²»Æ¥Åä */
-	MSP_ERROR_AUTH_TRIAL_EXPIRED			= 11212,	/* 0x2BCC */   /* ÊÔÓÃ×ÊÔ´¹ýÆÚ */
-	MSP_ERROR_AUTH_LOCAL_IFD_FORBIDDEN      = 11213,    /* 0x2BC9 */   /* ½ûÖ¹Ê¹ÓÃ±¾µØÈËÁ³ÒýÇæ */
+	MSP_ERROR_AUTH_NO_LICENSE				= 11200,	/* 0x2BC0 */   /* æ— æŽˆæƒ */
+	MSP_ERROR_AUTH_NO_ENOUGH_LICENSE		= 11201,	/* 0x2BC1 */   /* æŽˆæƒä¸è¶³ */
+	MSP_ERROR_AUTH_INVALID_LICENSE		    = 11202,	/* 0x2BC2 */   /* æ— æ•ˆçš„æŽˆæƒ */
+	MSP_ERROR_AUTH_LICENSE_EXPIRED			= 11203,	/* 0x2BC3 */   /* æŽˆæƒè¿‡æœŸ */
+	MSP_ERROR_AUTH_NEED_MORE_DATA           = 11204,    /* 0x2BC4 */   /* æ— è®¾å¤‡ä¿¡æ¯ */
+	MSP_ERROR_AUTH_LICENSE_TO_BE_EXPIRED	= 11205,	/* 0x2BC5 */   /* æŽˆæƒå³å°†è¿‡æœŸï¼Œè­¦å‘Šæ€§é”™è¯¯ç  */
+	MSP_ERROR_AUTH_INVALID_MACHINE_ID       = 11206,    /* 0x2BC6 */   /* æ— æ•ˆçš„æœºå™¨ç  */
+	MSP_ERROR_AUTH_LOCAL_ASR_FORBIDDEN 	    = 11207,    /* 0x2BC7 */   /* ç¦æ­¢ä½¿ç”¨æœ¬åœ°è¯†åˆ«å¼•æ“Ž */
+	MSP_ERROR_AUTH_LOCAL_TTS_FORBIDDEN      = 11208,    /* 0x2BC8 */   /* ç¦æ­¢ä½¿ç”¨æœ¬åœ°åˆæˆå¼•æ“Ž */
+	MSP_ERROR_AUTH_LOCAL_IVW_FORBIDDEN      = 11209,    /* 0x2BC9 */   /* ç¦æ­¢ä½¿ç”¨æœ¬åœ°å”¤é†’å¼•æ“Ž */
+	MSP_ERROR_AUTH_APPID_NOT_MATCH			= 11210,	/* 0x2BCA */   /* èµ„æºappidå’Œåº”ç”¨appidä¸åŒ¹é… */
+	MSP_ERROR_AUTH_UID_NOT_MATCH			= 11211,	/* 0x2BCB */   /* èµ„æºuidå’Œç™»å½•ç”¨æˆ·uidä¸åŒ¹é… */
+	MSP_ERROR_AUTH_TRIAL_EXPIRED			= 11212,	/* 0x2BCC */   /* è¯•ç”¨èµ„æºè¿‡æœŸ */
+	MSP_ERROR_AUTH_LOCAL_IFD_FORBIDDEN      = 11213,    /* 0x2BC9 */   /* ç¦æ­¢ä½¿ç”¨æœ¬åœ°äººè„¸å¼•æ“Ž */
 
-	MSP_ERROR_AIUI_NO_ENOUGH_LICENSE		= 11216,	/* 0x2BD0 */   /* AIUIÊÚÈ¨²»×ã */
+	MSP_ERROR_AIUI_NO_ENOUGH_LICENSE		= 11216,	/* 0x2BD0 */   /* AIUIæŽˆæƒä¸è¶³ */
 	/*Error Codes of Authorization*/
 	MSP_ERROR_AUTH_DVC_NO_LICENSE				= 11300,
 	MSP_ERROR_AUTH_DVC_NO_ENOUGH_LICENSE		= 11301,
@@ -246,32 +246,32 @@ enum
 	MSP_ERROR_IOT_DID_NOT_FOUND					= 11506,		// not found device id in semantic
 
     /* Error codes of IVP */
-    MSP_ERROR_IVP_GENERAL                   = 11600,            //  ÄÚºËÒì³£
-    MSP_ERROR_IVP_EXTRA_RGN_SOPPORT         = 11601,            //  ×¢²áÊ±ÏòÒýÇæËùÐ´ÒôÆµÌõÊý³¬¹ýÉÏÏÞ(9´Î)
-    MSP_ERROR_IVP_TRUNCATED                 = 11602,            //  ÒôÆµ½Ø·ù(ÒòÐÅºÅ²¨ÐÎµÄ·ù¶ÈÌ«´ó£¬¶ø³¬³öÏµÍ³µÄÏßÐÔ·¶Î§)£¬Èç¼ÇÂ¼¼â½ÐÉùµÄÒôÆµ
-    MSP_ERROR_IVP_MUCH_NOISE                = 11603,            //  ÒôÆµÐÅÔë±È¹ýµÍ
-    MSP_ERROR_IVP_TOO_LOW                   = 11604,            //  ÒôÆµÄÜÁ¿¹ýµÍ
-    MSP_ERROR_IVP_ZERO_AUDIO                = 11605,            //  ÎÞÒôÆµ
-    MSP_ERROR_IVP_UTTER_TOO_SHORT           = 11606,            //  ÒôÆµÌ«¶Ì
-    MSP_ERROR_IVP_TEXT_NOT_MATCH            = 11607,            //  1.ÒôÆµºÍÎÄ±¾²»Æ¥Åä£¬³£¼ûÔ­Òò1.ÇÀ¶Á(ÔÚ°´ÏÂÂ¼Òô¼üÖ®Ç°¶Á)
-                                                                //  2.Â¼Òô»úµÄÆô¶¯µçÁ÷±»Â¼Èë±íÏÖÔÚÒôÆµÉÏÊÇÔÚÒôÆµÊ×ÓÐ³å»÷µçÁ÷ 3.È·Êµ²»Æ¥Åä"
-    MSP_ERROR_IVP_NO_ENOUGH_AUDIO           = 11608,            //  ÒôÆµ²»¹»£¬×¢²á×ÔÓÉËµ£¬¶øÐ´ÈëµÄÒôÆµÓÖ²»¹»³¤Ê±»á±¨£¬¸æËßµ÷ÓÃÕß¼ÌÐø´«ÒôÆµ
-    MSP_ERROR_IVP_MODEL_NOT_FOUND_IN_HBASE  = 11610,            //  Ä£ÐÍÔÚhbaseÖÐÃ»ÕÒµ½
+    MSP_ERROR_IVP_GENERAL                   = 11600,            //  å†…æ ¸å¼‚å¸¸
+    MSP_ERROR_IVP_EXTRA_RGN_SOPPORT         = 11601,            //  æ³¨å†Œæ—¶å‘å¼•æ“Žæ‰€å†™éŸ³é¢‘æ¡æ•°è¶…è¿‡ä¸Šé™(9æ¬¡)
+    MSP_ERROR_IVP_TRUNCATED                 = 11602,            //  éŸ³é¢‘æˆªå¹…(å› ä¿¡å·æ³¢å½¢çš„å¹…åº¦å¤ªå¤§ï¼Œè€Œè¶…å‡ºç³»ç»Ÿçš„çº¿æ€§èŒƒå›´)ï¼Œå¦‚è®°å½•å°–å«å£°çš„éŸ³é¢‘
+    MSP_ERROR_IVP_MUCH_NOISE                = 11603,            //  éŸ³é¢‘ä¿¡å™ªæ¯”è¿‡ä½Ž
+    MSP_ERROR_IVP_TOO_LOW                   = 11604,            //  éŸ³é¢‘èƒ½é‡è¿‡ä½Ž
+    MSP_ERROR_IVP_ZERO_AUDIO                = 11605,            //  æ— éŸ³é¢‘
+    MSP_ERROR_IVP_UTTER_TOO_SHORT           = 11606,            //  éŸ³é¢‘å¤ªçŸ­
+    MSP_ERROR_IVP_TEXT_NOT_MATCH            = 11607,            //  1.éŸ³é¢‘å’Œæ–‡æœ¬ä¸åŒ¹é…ï¼Œå¸¸è§åŽŸå› 1.æŠ¢è¯»(åœ¨æŒ‰ä¸‹å½•éŸ³é”®ä¹‹å‰è¯»)
+                                                                //  2.å½•éŸ³æœºçš„å¯åŠ¨ç”µæµè¢«å½•å…¥è¡¨çŽ°åœ¨éŸ³é¢‘ä¸Šæ˜¯åœ¨éŸ³é¢‘é¦–æœ‰å†²å‡»ç”µæµ 3.ç¡®å®žä¸åŒ¹é…"
+    MSP_ERROR_IVP_NO_ENOUGH_AUDIO           = 11608,            //  éŸ³é¢‘ä¸å¤Ÿï¼Œæ³¨å†Œè‡ªç”±è¯´ï¼Œè€Œå†™å…¥çš„éŸ³é¢‘åˆä¸å¤Ÿé•¿æ—¶ä¼šæŠ¥ï¼Œå‘Šè¯‰è°ƒç”¨è€…ç»§ç»­ä¼ éŸ³é¢‘
+    MSP_ERROR_IVP_MODEL_NOT_FOUND_IN_HBASE  = 11610,            //  æ¨¡åž‹åœ¨hbaseä¸­æ²¡æ‰¾åˆ°
     
     /* Error codes of Face */
     
-	MSP_ERROR_IFR_NOT_FACE_IMAGE			= 11700,			//	¡¾ÎÞÈËÁ³£¬¶ÔÓ¦µÄÒýÇæ´íÎóÂëÊÇ20200 ¡¿      
-	MSP_ERROR_FACE_IMAGE_FULL_LEFT			= 11701,			//	¡¾ÈËÁ³Ïò×ó£¬¶ÔÓ¦µÄÒýÇæ´íÎóÂëÊÇ20201¡¿
-	MSP_ERROR_FACE_IMAGE_FULL_RIGHT			= 11702,			//	¡¾ÈËÁ³ÏòÓÒ£¬¶ÔÓ¦µÄÒýÇæ´íÎóÂëÊÇ20202¡¿
-	MSP_ERROR_IMAGE_CLOCKWISE_WHIRL			= 11703,			//	¡¾Ë³Ê±ÕëÐý×ª£¬¶ÔÓ¦µÄÒýÇæ´íÎóÂëÊÇ20203¡¿
-	MSP_ERROR_IMAGE_COUNTET_CLOCKWISE_WHIRL	= 11704,			//	¡¾ÄæÊ±ÕëÐý×ª£¬¶ÔÓ¦µÄÒýÇæ´íÎóÂëÊÇ20204¡¿
-	MSP_ERROR_VALID_IMAGE_SIZE				= 11705,			//	¡¾Í¼Æ¬´óÐ¡Òì³£ £¬¶ÔÓ¦µÄÒýÇæ´íÎóÂëÊÇ20205¡¿
-	MSP_ERROR_ILLUMINATION					= 11706,			//	¡¾¹âÕÕÒì³££¬¶ÔÓ¦µÄÒýÇæ´íÎóÂëÊÇ20206¡¿
-	MSP_ERROR_FACE_OCCULTATION				= 11707,		    //	¡¾ÈËÁ³±»ÕÚµ²£¬¶ÔÓ¦µÄÒýÇæ´íÎóÂëÊÇ20207¡¿
-	MSP_ERROR_FACE_INVALID_MODEL			= 11708,			//	¡¾·Ç·¨Ä£ÐÍÊý¾Ý£¬¶ÔÓ¦µÄÒýÇæ´íÎóÂëÊÇ20208¡¿
-	MSP_ERROR_FUSION_INVALID_INPUT_TYPE		= 11709,			//	¡¾ÊäÈëÊý¾ÝÀàÐÍ·Ç·¨£¬¶ÔÓ¦µÄÒýÇæ´íÎóÂëÊÇ20300¡¿
-	MSP_ERROR_FUSION_NO_ENOUGH_DATA			= 11710,			//	¡¾ÊäÈëµÄÊý¾Ý²»ÍêÕû£¬¶ÔÓ¦µÄÒýÇæ´íÎóÂëÊÇ20301¡¿
-	MSP_ERROR_FUSION_ENOUGH_DATA			= 11711,			//	¡¾ÊäÈëµÄÊý¾Ý¹ý¶à£¬¶ÔÓ¦µÄÒýÇæ´íÎóÂëÊÇ20302¡¿
+	MSP_ERROR_IFR_NOT_FACE_IMAGE			= 11700,			//	ã€æ— äººè„¸ï¼Œå¯¹åº”çš„å¼•æ“Žé”™è¯¯ç æ˜¯20200 ã€‘      
+	MSP_ERROR_FACE_IMAGE_FULL_LEFT			= 11701,			//	ã€äººè„¸å‘å·¦ï¼Œå¯¹åº”çš„å¼•æ“Žé”™è¯¯ç æ˜¯20201ã€‘
+	MSP_ERROR_FACE_IMAGE_FULL_RIGHT			= 11702,			//	ã€äººè„¸å‘å³ï¼Œå¯¹åº”çš„å¼•æ“Žé”™è¯¯ç æ˜¯20202ã€‘
+	MSP_ERROR_IMAGE_CLOCKWISE_WHIRL			= 11703,			//	ã€é¡ºæ—¶é’ˆæ—‹è½¬ï¼Œå¯¹åº”çš„å¼•æ“Žé”™è¯¯ç æ˜¯20203ã€‘
+	MSP_ERROR_IMAGE_COUNTET_CLOCKWISE_WHIRL	= 11704,			//	ã€é€†æ—¶é’ˆæ—‹è½¬ï¼Œå¯¹åº”çš„å¼•æ“Žé”™è¯¯ç æ˜¯20204ã€‘
+	MSP_ERROR_VALID_IMAGE_SIZE				= 11705,			//	ã€å›¾ç‰‡å¤§å°å¼‚å¸¸ ï¼Œå¯¹åº”çš„å¼•æ“Žé”™è¯¯ç æ˜¯20205ã€‘
+	MSP_ERROR_ILLUMINATION					= 11706,			//	ã€å…‰ç…§å¼‚å¸¸ï¼Œå¯¹åº”çš„å¼•æ“Žé”™è¯¯ç æ˜¯20206ã€‘
+	MSP_ERROR_FACE_OCCULTATION				= 11707,		    //	ã€äººè„¸è¢«é®æŒ¡ï¼Œå¯¹åº”çš„å¼•æ“Žé”™è¯¯ç æ˜¯20207ã€‘
+	MSP_ERROR_FACE_INVALID_MODEL			= 11708,			//	ã€éžæ³•æ¨¡åž‹æ•°æ®ï¼Œå¯¹åº”çš„å¼•æ“Žé”™è¯¯ç æ˜¯20208ã€‘
+	MSP_ERROR_FUSION_INVALID_INPUT_TYPE		= 11709,			//	ã€è¾“å…¥æ•°æ®ç±»åž‹éžæ³•ï¼Œå¯¹åº”çš„å¼•æ“Žé”™è¯¯ç æ˜¯20300ã€‘
+	MSP_ERROR_FUSION_NO_ENOUGH_DATA			= 11710,			//	ã€è¾“å…¥çš„æ•°æ®ä¸å®Œæ•´ï¼Œå¯¹åº”çš„å¼•æ“Žé”™è¯¯ç æ˜¯20301ã€‘
+	MSP_ERROR_FUSION_ENOUGH_DATA			= 11711,			//	ã€è¾“å…¥çš„æ•°æ®è¿‡å¤šï¼Œå¯¹åº”çš„å¼•æ“Žé”™è¯¯ç æ˜¯20302ã€‘
 
 	/*Error Codes of AIUI*/	
 	MSP_ERROR_AIUI_CID_EXPIRED				= 11800,
@@ -323,91 +323,91 @@ enum
 	MSP_ERROR_MMP_REDIS_INITFAIL			= 15002,	/* 0x3A9A */
 	MSP_ERROR_MMP_NETDSS_INITFAIL			= 15003,	/* 0x3A9B */
 	MSP_ERROR_MMP_TAIR_INITFAIL				= 15004,	/* 0x3A9C */	
-	MSP_ERROR_MMP_MAIL_SESSION_FAIL			= 15006,	/* 0x3A9E */	/* ÓÊ¼þµÇÂ½·þÎñÆ÷Ê±£¬»á»°´íÎó¡£*/
-	MSP_ERROR_MMP_MAIL_LOGON_FAIL			= 15007,	/* 0x3A9F */	/* ÓÊ¼þµÇÂ½·þÎñÆ÷Ê±£¬¾Ü¾øµÇÂ½¡£*/
-	MSP_ERROR_MMP_MAIL_USER_ILLEGAL			= 15008,	/* 0x3AA0 */	/* ÓÊ¼þµÇÂ½·þÎñÆ÷Ê±£¬ÓÃ»§Ãû·Ç·¨¡£*/
-	MSP_ERROR_MMP_MAIL_PWD_ERR				= 15009,	/* 0x3AA1 */	/* ÓÊ¼þµÇÂ½·þÎñÆ÷Ê±£¬ÃÜÂë´íÎó¡£*/
-	MSP_ERROR_MMP_MAIL_SOCKET_ERR			= 15010,	/* 0x3AA2 */	/* ÓÊ¼þ·¢ËÍ¹ý³ÌÖÐÌ×½Ó×Ö´íÎó*/
-	MSP_ERROR_MMP_MAIL_INIT_FAIL			= 15011,	/* 0x3AA3 */	/* ÓÊ¼þ³õÊ¼»¯´íÎó*/
-	MSP_ERROR_MMP_STORE_MNR_NO_INIT			= 15012,	/* 0x3AA4 */	/* store_managerÎ´³õÊ¼»¯£¬»ò³õÊ¼»¯Ê§°Ü*/
-	MSP_ERROR_MMP_STORE_MNR_POOL_FULL		= 15013,	/* 0x3AA5 */	/* store_managerµÄÁ¬½Ó³ØÂúÁË*/
-	MSP_ERROR_MMP_STRATGY_PARAM_ILLEGAL		= 15014,	/* 0x3AA6 */	/* ±¨¾¯²ßÂÔ±í´ïÊ½·Ç·¨*/
-	MSP_ERROR_MMP_STRATGY_PARAM_TOOLOOG		= 15015,	/* 0x3AA7 */	/* ±¨¾¯²ßÂÔ±í´ïÊ½Ì«³¤*/
-	MSP_ERROR_MMP_PARAM_NULL				= 15016,	/* 0x3AA8 */	/* º¯Êý²ÎÊýÎª¿Õ*/
-	MSP_ERROR_MMP_ERR_MORE_TOTAL			= 15017,	/* 0x3AA9 */	/* pms²åÈëÊý¾Ý¿âÖÐ´íÎó»ã×Ü±íµÄÊý¾Ý£¬´íÎó´ÎÊý > ×Ü´ÎÊý¡£*/
-	MSP_ERROR_MMP_PROC_THRESHOLD			= 15018,	/* 0x3AAA */	/* ½ø³Ì¼à¿Ø·§ÖµÉèÖÃ´íÎó*/
-	MSP_ERROR_MMP_SERVER_THRESHOLD			= 15019,	/* 0x3AAB */	/* ·þÎñÆ÷¼à¿Ø·§ÖµÉèÖÃ´íÎó*/
-	MSP_ERROR_MMP_PYTHON_NO_EXIST			= 15020,    /* 0x3AAC */	/* python½Å±¾ÎÄ¼þ²»´æÔÚ */
-	MSP_ERROR_MMP_PYTHON_IMPORT_FAILED		= 15021,	/* 0x3AAD */	/* python½Å±¾µ¼Èë³ö´í */
-	MSP_ERROR_MMP_PYTHON_BAD_FUNC			= 15022,	/* 0x3AAE */	/* python½Å±¾º¯Êý¸ñÊ½´íÎó */
-	MSP_ERROR_MMP_DB_DATA_ILLEGAL			= 15023,	/* 0x3AAF */	/* ²åÈëÊý¾Ý¿âÖÐµÄÊý¾Ý¸ñÊ½ÓÐÎó */
-	MSP_ERROR_MMP_REDIS_NOT_CONN			= 15024,	/* 0x3AB0 */	/* redisÃ»ÓÐÁ¬½Óµ½·þÎñ¶Ë */
-	MSP_ERROR_MMP_PMA_NOT_FOUND_STRATEGY	= 15025,	/* 0x3AB1 */	/* Ã»ÓÐÕÒµ½±¨¾¯²ßÂÔ */
-	MSP_ERROR_MMP_TAIR_CONNECT				= 15026,	/* 0x3AB2 */	/* Á¬½Ótair¼¯ÈºÊ§°Ü */
-	MSP_ERROR_MMP_PMC_SERVINFO_INVALID		= 15027,	/* Ox3AB3 */	/* ´ËpmcµÄ·þÎñÆ÷ÐÅÏ¢ÒÑ¾­ÎÞÐ§ */
-	MSP_ERROR_MMP_ALARM_GROUP_NULL			= 15028,	/* Ox3AB4 */	/* ·þÎñÆ÷±¨¾¯µÄ¶ÌÐÅ±¨¾¯×éÓëÓÊ¼þ±¨¾¯×é¾ùÎª¿Õ */
-	MSP_ERROR_MMP_ALARM_CONTXT_NULL			= 15029,	/* Ox3AB5 */	/* ·þÎñÆ÷±¨¾¯µÄ±¨¾¯ÄÚÈÝÎª¿Õ */	
+	MSP_ERROR_MMP_MAIL_SESSION_FAIL			= 15006,	/* 0x3A9E */	/* é‚®ä»¶ç™»é™†æœåŠ¡å™¨æ—¶ï¼Œä¼šè¯é”™è¯¯ã€‚*/
+	MSP_ERROR_MMP_MAIL_LOGON_FAIL			= 15007,	/* 0x3A9F */	/* é‚®ä»¶ç™»é™†æœåŠ¡å™¨æ—¶ï¼Œæ‹’ç»ç™»é™†ã€‚*/
+	MSP_ERROR_MMP_MAIL_USER_ILLEGAL			= 15008,	/* 0x3AA0 */	/* é‚®ä»¶ç™»é™†æœåŠ¡å™¨æ—¶ï¼Œç”¨æˆ·åéžæ³•ã€‚*/
+	MSP_ERROR_MMP_MAIL_PWD_ERR				= 15009,	/* 0x3AA1 */	/* é‚®ä»¶ç™»é™†æœåŠ¡å™¨æ—¶ï¼Œå¯†ç é”™è¯¯ã€‚*/
+	MSP_ERROR_MMP_MAIL_SOCKET_ERR			= 15010,	/* 0x3AA2 */	/* é‚®ä»¶å‘é€è¿‡ç¨‹ä¸­å¥—æŽ¥å­—é”™è¯¯*/
+	MSP_ERROR_MMP_MAIL_INIT_FAIL			= 15011,	/* 0x3AA3 */	/* é‚®ä»¶åˆå§‹åŒ–é”™è¯¯*/
+	MSP_ERROR_MMP_STORE_MNR_NO_INIT			= 15012,	/* 0x3AA4 */	/* store_manageræœªåˆå§‹åŒ–ï¼Œæˆ–åˆå§‹åŒ–å¤±è´¥*/
+	MSP_ERROR_MMP_STORE_MNR_POOL_FULL		= 15013,	/* 0x3AA5 */	/* store_managerçš„è¿žæŽ¥æ± æ»¡äº†*/
+	MSP_ERROR_MMP_STRATGY_PARAM_ILLEGAL		= 15014,	/* 0x3AA6 */	/* æŠ¥è­¦ç­–ç•¥è¡¨è¾¾å¼éžæ³•*/
+	MSP_ERROR_MMP_STRATGY_PARAM_TOOLOOG		= 15015,	/* 0x3AA7 */	/* æŠ¥è­¦ç­–ç•¥è¡¨è¾¾å¼å¤ªé•¿*/
+	MSP_ERROR_MMP_PARAM_NULL				= 15016,	/* 0x3AA8 */	/* å‡½æ•°å‚æ•°ä¸ºç©º*/
+	MSP_ERROR_MMP_ERR_MORE_TOTAL			= 15017,	/* 0x3AA9 */	/* pmsæ’å…¥æ•°æ®åº“ä¸­é”™è¯¯æ±‡æ€»è¡¨çš„æ•°æ®ï¼Œé”™è¯¯æ¬¡æ•° > æ€»æ¬¡æ•°ã€‚*/
+	MSP_ERROR_MMP_PROC_THRESHOLD			= 15018,	/* 0x3AAA */	/* è¿›ç¨‹ç›‘æŽ§é˜€å€¼è®¾ç½®é”™è¯¯*/
+	MSP_ERROR_MMP_SERVER_THRESHOLD			= 15019,	/* 0x3AAB */	/* æœåŠ¡å™¨ç›‘æŽ§é˜€å€¼è®¾ç½®é”™è¯¯*/
+	MSP_ERROR_MMP_PYTHON_NO_EXIST			= 15020,    /* 0x3AAC */	/* pythonè„šæœ¬æ–‡ä»¶ä¸å­˜åœ¨ */
+	MSP_ERROR_MMP_PYTHON_IMPORT_FAILED		= 15021,	/* 0x3AAD */	/* pythonè„šæœ¬å¯¼å…¥å‡ºé”™ */
+	MSP_ERROR_MMP_PYTHON_BAD_FUNC			= 15022,	/* 0x3AAE */	/* pythonè„šæœ¬å‡½æ•°æ ¼å¼é”™è¯¯ */
+	MSP_ERROR_MMP_DB_DATA_ILLEGAL			= 15023,	/* 0x3AAF */	/* æ’å…¥æ•°æ®åº“ä¸­çš„æ•°æ®æ ¼å¼æœ‰è¯¯ */
+	MSP_ERROR_MMP_REDIS_NOT_CONN			= 15024,	/* 0x3AB0 */	/* redisæ²¡æœ‰è¿žæŽ¥åˆ°æœåŠ¡ç«¯ */
+	MSP_ERROR_MMP_PMA_NOT_FOUND_STRATEGY	= 15025,	/* 0x3AB1 */	/* æ²¡æœ‰æ‰¾åˆ°æŠ¥è­¦ç­–ç•¥ */
+	MSP_ERROR_MMP_TAIR_CONNECT				= 15026,	/* 0x3AB2 */	/* è¿žæŽ¥tairé›†ç¾¤å¤±è´¥ */
+	MSP_ERROR_MMP_PMC_SERVINFO_INVALID		= 15027,	/* Ox3AB3 */	/* æ­¤pmcçš„æœåŠ¡å™¨ä¿¡æ¯å·²ç»æ— æ•ˆ */
+	MSP_ERROR_MMP_ALARM_GROUP_NULL			= 15028,	/* Ox3AB4 */	/* æœåŠ¡å™¨æŠ¥è­¦çš„çŸ­ä¿¡æŠ¥è­¦ç»„ä¸Žé‚®ä»¶æŠ¥è­¦ç»„å‡ä¸ºç©º */
+	MSP_ERROR_MMP_ALARM_CONTXT_NULL			= 15029,	/* Ox3AB5 */	/* æœåŠ¡å™¨æŠ¥è­¦çš„æŠ¥è­¦å†…å®¹ä¸ºç©º */	
 
 	/* Error codes of MSC(lmod loader) */
 	MSP_ERROR_LMOD_BASE						= 16000,	/* 0x3E80 */
-	MSP_ERROR_LMOD_NOT_FOUND				= 16001,	/* 0x3E81 */	/* Ã»ÕÒµ½lmodÎÄ¼þ */
-	MSP_ERROR_LMOD_UNEXPECTED_BIN			= 16002,	/* 0x3E82 */	/* ÎÞÐ§µÄlmod */
-	MSP_ERROR_LMOD_LOADCODE					= 16003,	/* 0x3E83 */	/* ¼ÓÔØlmodÖ¸ÁîÊ§°Ü */
-	MSP_ERROR_LMOD_PRECALL					= 16004,	/* 0x3E84 */	/* ³õÊ¼»¯lmodÊ§°Ü */
-	MSP_ERROR_LMOD_RUNTIME_EXCEPTION		= 16005,	/* 0x3E85 */	/* lmodÔËÐÐÊ±Òì³£ */
-	MSP_ERROR_LMOD_ALREADY_LOADED			= 16006,	/* 0x3E86 */	/* lmodÖØ¸´¼ÓÔØ */
+	MSP_ERROR_LMOD_NOT_FOUND				= 16001,	/* 0x3E81 */	/* æ²¡æ‰¾åˆ°lmodæ–‡ä»¶ */
+	MSP_ERROR_LMOD_UNEXPECTED_BIN			= 16002,	/* 0x3E82 */	/* æ— æ•ˆçš„lmod */
+	MSP_ERROR_LMOD_LOADCODE					= 16003,	/* 0x3E83 */	/* åŠ è½½lmodæŒ‡ä»¤å¤±è´¥ */
+	MSP_ERROR_LMOD_PRECALL					= 16004,	/* 0x3E84 */	/* åˆå§‹åŒ–lmodå¤±è´¥ */
+	MSP_ERROR_LMOD_RUNTIME_EXCEPTION		= 16005,	/* 0x3E85 */	/* lmodè¿è¡Œæ—¶å¼‚å¸¸ */
+	MSP_ERROR_LMOD_ALREADY_LOADED			= 16006,	/* 0x3E86 */	/* lmodé‡å¤åŠ è½½ */
 
 	// Error code of Third Business
-	MSP_ERROR_BIZ_BASE						 = 17000,	/* 0x4268 */	/* Èý·½ÒµÎñ´íÎóÂë */
+	MSP_ERROR_BIZ_BASE						 = 17000,	/* 0x4268 */	/* ä¸‰æ–¹ä¸šåŠ¡é”™è¯¯ç  */
 	
 	//Error of Nginx errlog file increase exception
-	MSP_ERROR_NGX_LOG_MORE_TOTEL_SIZE        = 18000,				    /*nginx´íÎóÈÕÖ¾´óÐ¡Òì³£*/
+	MSP_ERROR_NGX_LOG_MORE_TOTEL_SIZE        = 18000,				    /*nginxé”™è¯¯æ—¥å¿—å¤§å°å¼‚å¸¸*/
 	
 	//Error of Flash client when network checking
-	MSP_ERROR_FLASH_NETWORK_CONNECT_FIALED   = 19000,					/*flash·þÎñ¶ËÍøÂçÁ¬½ÓÊ§°Ü*/
-	MSP_ERROR_FLASH_NETWORK_CHECK_FIALED     = 19001,					/*flash·þÎñ¶ËÏìÓ¦ÁËÒì³£ÏûÏ¢*/
-	MSP_ERROR_FLASH_NETWORK_CHECK_TIMEOUT    = 19002,				    /*flash·þÎñ¶ËÍøÂç³¬Ê±*/
-	MSP_ERROR_FLASH_NETWORK_CLOSED_EXCEPTION = 19003,                   /*flash·þÎñ¶ËÍøÂçÒì³£¹Ø±Õ*/
+	MSP_ERROR_FLASH_NETWORK_CONNECT_FIALED   = 19000,					/*flashæœåŠ¡ç«¯ç½‘ç»œè¿žæŽ¥å¤±è´¥*/
+	MSP_ERROR_FLASH_NETWORK_CHECK_FIALED     = 19001,					/*flashæœåŠ¡ç«¯å“åº”äº†å¼‚å¸¸æ¶ˆæ¯*/
+	MSP_ERROR_FLASH_NETWORK_CHECK_TIMEOUT    = 19002,				    /*flashæœåŠ¡ç«¯ç½‘ç»œè¶…æ—¶*/
+	MSP_ERROR_FLASH_NETWORK_CLOSED_EXCEPTION = 19003,                   /*flashæœåŠ¡ç«¯ç½‘ç»œå¼‚å¸¸å…³é—­*/
 	
 	/*Error Code Of Speech plus*/
 	
-	SPEECH_ERROR_NO_NETWORK 				               = 20001, /* ÎÞÓÐÐ§µÄÍøÂçÁ¬½Ó*/
-	SPEECH_ERROR_NETWORK_TIMEOUT 			               = 20002, /* ÍøÂçÁ¬½Ó³¬Ê±*/
-	SPEECH_ERROR_NET_EXPECTION				               = 20003, /* ÍøÂçÒì³£*/
-	SPEECH_ERROR_INVALID_RESULT			                   = 20004, /* ÎÞÓÐÐ§µÄ½á¹û*/
-	SPEECH_ERROR_NO_MATCH 					               = 20005, /* ÎÞÆ¥Åä½á¹û */
-	SPEECH_ERROR_AUDIO_RECORD 				               = 20006, /* Â¼ÒôÊ§°Ü */
-	SPEECH_ERROR_NO_SPPECH 				                   = 20007, /* Î´¼ì²âµ½ÓïÒô*/
+	SPEECH_ERROR_NO_NETWORK 				               = 20001, /* æ— æœ‰æ•ˆçš„ç½‘ç»œè¿žæŽ¥*/
+	SPEECH_ERROR_NETWORK_TIMEOUT 			               = 20002, /* ç½‘ç»œè¿žæŽ¥è¶…æ—¶*/
+	SPEECH_ERROR_NET_EXPECTION				               = 20003, /* ç½‘ç»œå¼‚å¸¸*/
+	SPEECH_ERROR_INVALID_RESULT			                   = 20004, /* æ— æœ‰æ•ˆçš„ç»“æžœ*/
+	SPEECH_ERROR_NO_MATCH 					               = 20005, /* æ— åŒ¹é…ç»“æžœ */
+	SPEECH_ERROR_AUDIO_RECORD 				               = 20006, /* å½•éŸ³å¤±è´¥ */
+	SPEECH_ERROR_NO_SPPECH 				                   = 20007, /* æœªæ£€æµ‹åˆ°è¯­éŸ³*/
                                                            
-	SPEECH_ERROR_SPEECH_TIMEOUT 			               = 20008, /* ÒôÆµÊäÈë³¬Ê±*/
-	SPEECH_ERROR_EMPTY_UTTERANCE 			               = 20009, /* ÎÞÐ§µÄÎÄ±¾ÊäÈë */
-	SPEECH_ERROR_FILE_ACCESS 				               = 20010, /* ÎÄ¼þ¶ÁÐ´Ê§°Ü */
-	SPEECH_ERROR_PLAY_MEDIA 				               = 20011, /* ÒôÆµ²¥·ÅÊ§°Ü */
+	SPEECH_ERROR_SPEECH_TIMEOUT 			               = 20008, /* éŸ³é¢‘è¾“å…¥è¶…æ—¶*/
+	SPEECH_ERROR_EMPTY_UTTERANCE 			               = 20009, /* æ— æ•ˆçš„æ–‡æœ¬è¾“å…¥ */
+	SPEECH_ERROR_FILE_ACCESS 				               = 20010, /* æ–‡ä»¶è¯»å†™å¤±è´¥ */
+	SPEECH_ERROR_PLAY_MEDIA 				               = 20011, /* éŸ³é¢‘æ’­æ”¾å¤±è´¥ */
                                                            
-	SPEECH_ERROR_INVALID_PARAM 			                   = 20012, /* ÎÞÐ§µÄ²ÎÊý*/
-	SPEECH_ERROR_TEXT_OVERFLOW				               = 20013, /* ÎÄ±¾Òç³ö */
-	SPEECH_ERROR_INVALID_DATA 				               = 20014, /* ÎÞÐ§Êý¾Ý */
-	SPEECH_ERROR_LOGIN						               = 20015, /* ÓÃ»§Î´µÇÂ½*/
-	SPEECH_ERROR_PERMISSION_DENIED 		                   = 20016, /* ÎÞÐ§ÊÚÈ¨ */
-	SPEECH_ERROR_INTERRUPT 				                   = 20017, /* ±»Òì³£´ò¶Ï */
+	SPEECH_ERROR_INVALID_PARAM 			                   = 20012, /* æ— æ•ˆçš„å‚æ•°*/
+	SPEECH_ERROR_TEXT_OVERFLOW				               = 20013, /* æ–‡æœ¬æº¢å‡º */
+	SPEECH_ERROR_INVALID_DATA 				               = 20014, /* æ— æ•ˆæ•°æ® */
+	SPEECH_ERROR_LOGIN						               = 20015, /* ç”¨æˆ·æœªç™»é™†*/
+	SPEECH_ERROR_PERMISSION_DENIED 		                   = 20016, /* æ— æ•ˆæŽˆæƒ */
+	SPEECH_ERROR_INTERRUPT 				                   = 20017, /* è¢«å¼‚å¸¸æ‰“æ–­ */
                                                            
-    SPEECH_ERROR_VERSION_LOWER                             = 20018, /* °æ±¾¹ýµÍ */
-	SPEECH_CLIENT_ERROR_ISUSING							   = 20019, /* Â¼Òô»ú±»Õ¼ÓÃ(iOSÆ½Ì¨) */
-	SPEECH_ERROR_SYSTEM_PREINSTALL                         = 20020, /* ÏµÍ³Ô¤ÖÃ°æ±¾ */
-	SPEECH_ERROR_UNSATISFIED_LINK 						   = 20021, /* Î´ÊµÏÖµÄNativeº¯ÊýÒýÓÃ */
-   	SPEECH_ERROR_UNKNOWN                                   = 20999, /* Î´Öª´íÎó */
+    SPEECH_ERROR_VERSION_LOWER                             = 20018, /* ç‰ˆæœ¬è¿‡ä½Ž */
+	SPEECH_CLIENT_ERROR_ISUSING							   = 20019, /* å½•éŸ³æœºè¢«å ç”¨(iOSå¹³å°) */
+	SPEECH_ERROR_SYSTEM_PREINSTALL                         = 20020, /* ç³»ç»Ÿé¢„ç½®ç‰ˆæœ¬ */
+	SPEECH_ERROR_UNSATISFIED_LINK 						   = 20021, /* æœªå®žçŽ°çš„Nativeå‡½æ•°å¼•ç”¨ */
+   	SPEECH_ERROR_UNKNOWN                                   = 20999, /* æœªçŸ¥é”™è¯¯ */
                                                            
 	                                                       
-	SPEECH_ERROR_COMPONENT_NOT_INSTALLED                   = 21001, /* Ã»ÓÐ°²×°ÓïÒô×é¼þ */
-	SPEECH_ERROR_ENGINE_NOT_SUPPORTED                      = 21002, /* ÒýÇæ²»Ö§³Ö */
-	SPEECH_ERROR_ENGINE_INIT_FAIL                          = 21003, /* ³õÊ¼»¯Ê§°Ü */
-	SPEECH_ERROR_ENGINE_CALL_FAIL                          = 21004, /* µ÷ÓÃÊ§°Ü */
-	SPEECH_ERROR_ENGINE_BUSY	                           = 21005, /* ÒýÇæ·±Ã¦ */ 
+	SPEECH_ERROR_COMPONENT_NOT_INSTALLED                   = 21001, /* æ²¡æœ‰å®‰è£…è¯­éŸ³ç»„ä»¶ */
+	SPEECH_ERROR_ENGINE_NOT_SUPPORTED                      = 21002, /* å¼•æ“Žä¸æ”¯æŒ */
+	SPEECH_ERROR_ENGINE_INIT_FAIL                          = 21003, /* åˆå§‹åŒ–å¤±è´¥ */
+	SPEECH_ERROR_ENGINE_CALL_FAIL                          = 21004, /* è°ƒç”¨å¤±è´¥ */
+	SPEECH_ERROR_ENGINE_BUSY	                           = 21005, /* å¼•æ“Žç¹å¿™ */ 
                                                            
-	SPEECH_ERROR_LOCAL_NO_INIT                             = 22001, /* ±¾µØÒýÇæÎ´³õÊ¼»¯ */              
-	SPEECH_ERROR_LOCAL_RESOURCE                            = 22002, /* ±¾µØÒýÇæÎÞ×ÊÔ´ */   	              
-	SPEECH_ERROR_LOCAL_ENGINE                              = 22003, /* ±¾µØÒýÇæÄÚ²¿´íÎó */   	       
-	SPEECH_ERROR_IVW_INTERRUPT 			                   = 22004, /* ±¾µØ»½ÐÑÒýÇæ±»Òì³£´ò¶Ï */ 
+	SPEECH_ERROR_LOCAL_NO_INIT                             = 22001, /* æœ¬åœ°å¼•æ“Žæœªåˆå§‹åŒ– */              
+	SPEECH_ERROR_LOCAL_RESOURCE                            = 22002, /* æœ¬åœ°å¼•æ“Žæ— èµ„æº */   	              
+	SPEECH_ERROR_LOCAL_ENGINE                              = 22003, /* æœ¬åœ°å¼•æ“Žå†…éƒ¨é”™è¯¯ */   	       
+	SPEECH_ERROR_IVW_INTERRUPT 			                   = 22004, /* æœ¬åœ°å”¤é†’å¼•æ“Žè¢«å¼‚å¸¸æ‰“æ–­ */ 
 	
 	
 	/*Error Code Of Local iflytek Engines*/
@@ -415,20 +415,20 @@ enum
 	/*Error Code Of AiTalk*/
 	
 	/*Error Code Of AiTalk Operation*/
-	SPEECH_SUCCESS                                         = 0    , // ivErr_OK                  = 0 /*³É¹¦×´Ì¬*/ 
+	SPEECH_SUCCESS                                         = 0    , // ivErr_OK                  = 0 /*æˆåŠŸçŠ¶æ€*/ 
 
-	SPEECH_ERROR_ASR_CLIENT                                = 23000, /*¿Í»§¶ËÓ¦ÓÃ³ÌÐò´íÎó*///?????????
-	SPEECH_ERROR_ASR_INVALID_PARA                          = 23001, /*ÎÞÐ§µÄ²ÎÊý*/
-	SPEECH_ERROR_ASR_INVALID_PARA_VALUE                    = 23002, /*ÎÞÐ§µÄ²ÎÊýÖµ*/
-	SPEECH_ERROR_ASR_OUT_OF_MEMORY                         = 23003, /*ÄÚ´æºÄ¾¡*/
-	SPEECH_ERROR_ASR_CREATE_HANDLE_FAILED                  = 23004, /*´´½¨¾ä±úÊ§°Ü*/
-	SPEECH_ERROR_ASR_ENGINE_INIT_FAILED                    = 23005, /*ÒýÇæ³õÊ¼»¯Ê§°Ü*/
-	SPEECH_ERROR_ASR_ENGINE_STARTED                        = 23006, /*ÒýÇæÒÑ¾­Æô¶¯*/
-	SPEECH_ERROR_ASR_ENGINE_UNINIT                         = 23007, /*ÒýÇæÎ´³õÊ¼»¯*/
-	SPEECH_ERROR_ASR_SPEECH_TIMEOUT                        = 23008, /*Ê¶±ð³¬Ê±£¨VADÃ»¿ªÆô»òÃ»ÓÐ¼ì²âµ½ºó¶Ëµã£©*/
-	SPEECH_ERROR_ASR_NO_RECOGNIZED_RESULT                  = 23009, /*ÎÞÊ¶±ð½á¹û*/
-	SPEECH_ERROR_ASR_INVALID_HANDLE                        = 23010, /*ÎÞÐ§µÄ¾ä±ú*/
-	SPEECH_ERROR_ASR_FILE_ACCESS                           = 23011, /*´ò¿ªÎÄ¼þÊ§°Ü*/
+	SPEECH_ERROR_ASR_CLIENT                                = 23000, /*å®¢æˆ·ç«¯åº”ç”¨ç¨‹åºé”™è¯¯*///?????????
+	SPEECH_ERROR_ASR_INVALID_PARA                          = 23001, /*æ— æ•ˆçš„å‚æ•°*/
+	SPEECH_ERROR_ASR_INVALID_PARA_VALUE                    = 23002, /*æ— æ•ˆçš„å‚æ•°å€¼*/
+	SPEECH_ERROR_ASR_OUT_OF_MEMORY                         = 23003, /*å†…å­˜è€—å°½*/
+	SPEECH_ERROR_ASR_CREATE_HANDLE_FAILED                  = 23004, /*åˆ›å»ºå¥æŸ„å¤±è´¥*/
+	SPEECH_ERROR_ASR_ENGINE_INIT_FAILED                    = 23005, /*å¼•æ“Žåˆå§‹åŒ–å¤±è´¥*/
+	SPEECH_ERROR_ASR_ENGINE_STARTED                        = 23006, /*å¼•æ“Žå·²ç»å¯åŠ¨*/
+	SPEECH_ERROR_ASR_ENGINE_UNINIT                         = 23007, /*å¼•æ“Žæœªåˆå§‹åŒ–*/
+	SPEECH_ERROR_ASR_SPEECH_TIMEOUT                        = 23008, /*è¯†åˆ«è¶…æ—¶ï¼ˆVADæ²¡å¼€å¯æˆ–æ²¡æœ‰æ£€æµ‹åˆ°åŽç«¯ç‚¹ï¼‰*/
+	SPEECH_ERROR_ASR_NO_RECOGNIZED_RESULT                  = 23009, /*æ— è¯†åˆ«ç»“æžœ*/
+	SPEECH_ERROR_ASR_INVALID_HANDLE                        = 23010, /*æ— æ•ˆçš„å¥æŸ„*/
+	SPEECH_ERROR_ASR_FILE_ACCESS                           = 23011, /*æ‰“å¼€æ–‡ä»¶å¤±è´¥*/
 	
 	/*Error Code Of AiTalk Engine*/                                      
 	SPEECH_ERROR_AITALK_FALSE                              = 23100, // ivErr_FALSE               = 1                                                                                                              
@@ -438,16 +438,16 @@ enum
                                                                                                  
 	/* General */                                                                                
 	SPEECH_ERROR_AITALK_INVALID_PARA                       = 23102, // ivErr_InvArg              = 3
-	SPEECH_ERROR_AITALK_BUFFER_OVERFLOW                    = 23103, // ivErr_BufferFull          = 4  /*ÒôÆµÊý¾Ý»º³åÇøÒÑÂú*/
+	SPEECH_ERROR_AITALK_BUFFER_OVERFLOW                    = 23103, // ivErr_BufferFull          = 4  /*éŸ³é¢‘æ•°æ®ç¼“å†²åŒºå·²æ»¡*/
 	SPEECH_ERROR_AITALK_FAILED                             = 23104, // ivErr_Failed              = 5
-	SPEECH_ERROR_AITALK_NOT_SUPPORTED                      = 23105, // ivErr_NotSupport          = 6  /*ÒýÇæ²»Ö§³Ö*/
+	SPEECH_ERROR_AITALK_NOT_SUPPORTED                      = 23105, // ivErr_NotSupport          = 6  /*å¼•æ“Žä¸æ”¯æŒ*/
 	SPEECH_ERROR_AITALK_OUT_OF_MEMORY                      = 23106, // ivErr_OutOfMemory         = 7
-	SPEECH_ERROR_AITALK_INVALID_RESOURCE                   = 23107, // ivErr_InvResource         = 8  /*×ÊÔ´ÎÞÐ§*/
-	SPEECH_ERROR_AITALK_NOT_FOUND                          = 23108, // ivErr_NotFound            = 9  /*´ò¿ªÎÄ¼þÊ§°Ü*/
-	SPEECH_ERROR_AITALK_INVALID_GRAMMAR                    = 23109, // ivErr_InvGrmr             = 10 /*Ê¶±ðÓï·¨´íÎó*/
+	SPEECH_ERROR_AITALK_INVALID_RESOURCE                   = 23107, // ivErr_InvResource         = 8  /*èµ„æºæ— æ•ˆ*/
+	SPEECH_ERROR_AITALK_NOT_FOUND                          = 23108, // ivErr_NotFound            = 9  /*æ‰“å¼€æ–‡ä»¶å¤±è´¥*/
+	SPEECH_ERROR_AITALK_INVALID_GRAMMAR                    = 23109, // ivErr_InvGrmr             = 10 /*è¯†åˆ«è¯­æ³•é”™è¯¯*/
                                                                                                  
 	/* For object status */                                                                      
-	SPEECH_ERROR_AITALK_INVALID_CALL                       = 23110, // ivErr_InvCall             = 11 /*ÎÞÐ§µ÷ÓÃ*/
+	SPEECH_ERROR_AITALK_INVALID_CALL                       = 23110, // ivErr_InvCall             = 11 /*æ— æ•ˆè°ƒç”¨*/
                                                                                                  
 	/* For ASR Input */                                                                          
 	SPEECH_ERROR_AITALK_SYNTAX_ERROR                       = 23111, // ivErr_InvCall             = 12
@@ -459,49 +459,49 @@ enum
 	SPEECH_ERROR_AITALK_CANNOT_SAVE_FILE                   = 23115, // ivErr_CanNotSaveFile      = 16
                                                                                                  
 	/* For Lexicon name */                                                                       
-	SPEECH_ERROR_AITALK_INVALID_GRAMMAR_NAME               = 23116, // ivErr_InvName             = 17 /*ÎÄ·¨»ò´ÊµäÃû³Æ·Ç·¨*/
+	SPEECH_ERROR_AITALK_INVALID_GRAMMAR_NAME               = 23116, // ivErr_InvName             = 17 /*æ–‡æ³•æˆ–è¯å…¸åç§°éžæ³•*/
                                                                                                  
 	SPEECH_ERROR_AITALK_BUFFER_EMPTY                       = 23117, // ivErr_BufferEmpty         = 18
                                                                                                  
 	SPEECH_ERROR_AITALK_GET_RESULT                         = 23118, // ivErr_GetResult           = 19
                                                                                                  
-	SPEECH_ERROR_AITALK_REACT_OUT_TIME                     = 23119, // ivErr_ReactOutTime        = 20 /*·´Ó¦³¬Ê±*/
-	SPEECH_ERROR_AITALK_SPEECH_OUT_TIME                    = 23120, // ivErr_SpeechOutTime       = 21 /*ÓïÒô³¬Ê±*/
+	SPEECH_ERROR_AITALK_REACT_OUT_TIME                     = 23119, // ivErr_ReactOutTime        = 20 /*ååº”è¶…æ—¶*/
+	SPEECH_ERROR_AITALK_SPEECH_OUT_TIME                    = 23120, // ivErr_SpeechOutTime       = 21 /*è¯­éŸ³è¶…æ—¶*/
                                                                                                  
-	SPEECH_ERROR_AITALK_AUDIO_CUT                          = 23121, // ivErr_CUT                 = 22 /*Â¼ÒôÖÊÁ¿¹ý¸ß*/
-	SPEECH_ERROR_AITALK_AUDIO_LOWER                        = 23122, // ivErr_LOWER               = 23 /*Â¼ÒôÖÊÁ¿¹ýµÍ*/
+	SPEECH_ERROR_AITALK_AUDIO_CUT                          = 23121, // ivErr_CUT                 = 22 /*å½•éŸ³è´¨é‡è¿‡é«˜*/
+	SPEECH_ERROR_AITALK_AUDIO_LOWER                        = 23122, // ivErr_LOWER               = 23 /*å½•éŸ³è´¨é‡è¿‡ä½Ž*/
                                                                                                  
-	SPEECH_ERROR_AITALK_INSUFFICIENT_PERMISSIONS           = 23123, // ivErr_Limitted            = 24 /*ÊÚÈ¨²»¹»*/
-	SPEECH_ERROR_AITALK_RESULT_ERROR                       = 23124, // ivErr_ResultError         = 25 /*½âÂëÆ÷WfstÊä³öºó£¬ÒÀÈ»ÓÐcmdÊä³ö*/
+	SPEECH_ERROR_AITALK_INSUFFICIENT_PERMISSIONS           = 23123, // ivErr_Limitted            = 24 /*æŽˆæƒä¸å¤Ÿ*/
+	SPEECH_ERROR_AITALK_RESULT_ERROR                       = 23124, // ivErr_ResultError         = 25 /*è§£ç å™¨Wfstè¾“å‡ºåŽï¼Œä¾ç„¶æœ‰cmdè¾“å‡º*/
 	SPEECH_ERROR_AITALK_SHORT_PAUSE                        = 23125, // ivErr_ShortPause          = 26
 	SPEECH_ERROR_AITALK_BUSY                               = 23126, // ivErr_Busy                = 27
-	SPEECH_ERROR_AITALK_GRM_NOT_UPDATE                     = 23127, // ivErr_GrmNotUpdate        = 28 /*Óï·¨Î´¸üÐÂ*/
+	SPEECH_ERROR_AITALK_GRM_NOT_UPDATE                     = 23127, // ivErr_GrmNotUpdate        = 28 /*è¯­æ³•æœªæ›´æ–°*/
 	SPEECH_ERROR_AITALK_STARTED                            = 23128, // ivErr_Started             = 29
 	SPEECH_ERROR_AITALK_STOPPED                            = 23129, // ivErr_Stopped             = 30
 	SPEECH_ERROR_AITALK_ALREADY_STARTED                    = 23130, // ivErr_AlreadyStarted      = 31
 	SPEECH_ERROR_AITALK_ALREADY_STOPPED                    = 23131, // ivErr_AlreadyStopped      = 32
 	SPEECH_ERROR_AITALK_TOO_MANY_COMMAND                   = 23132, // ivErr_TooManyCmd          = 33
-	SPEECH_ERROR_AITALK_WAIT                               = 23133, // ivErr_Wait                = 34 /*³ÌÐò¿ÉÄÜÔÚ×öÒ»Ð©²Ù×÷£¬Ö÷Ïß³ÌÐèÒªµÈ´ý*/
+	SPEECH_ERROR_AITALK_WAIT                               = 23133, // ivErr_Wait                = 34 /*ç¨‹åºå¯èƒ½åœ¨åšä¸€äº›æ“ä½œï¼Œä¸»çº¿ç¨‹éœ€è¦ç­‰å¾…*/
 	SPEECH_ERROR_AITALK_MAE_RIGHT                          = 23134, // ivErr_MAERight            = 35 
 	SPEECH_ERROR_AITALK_MAE_WRONG                          = 23135, // ivErr_MAEWrong            = 36
     
-	SPEECH_ERROR_AITALK_GRM_ERR                            = 23300,  // Óï·¨´íÎó
+	SPEECH_ERROR_AITALK_GRM_ERR                            = 23300,  // è¯­æ³•é”™è¯¯
 	
 	
 	
 	/*Error Code Of AiSound*/
 	
 	/*Error Code Of AiSound Operation*/
-	SPEECH_ERROR_TTS_INVALID_PARA                          = 24000, /* ´íÎó²ÎÊý */
-	SPEECH_ERROR_TTS_INVALID_PARA_VALUE                    = 24001, /* ÎÞÐ§µÄ²ÎÊýÖµ*/
-	SPEECH_ERROR_TTS_OUT_OF_MEMORY	                       = 24002, /* ÄÚ´æ²»×ã*/
-	SPEECH_ERROR_TTS_INVALID_HANDLE                        = 24003, /* ÎÞÐ§µÄ¾ä±ú*/
-	SPEECH_ERROR_TTS_CREATE_HANDLE_FAILED			       = 24004, /* ´´½¨¾ä±úÊ§°Ü*/
-	SPEECH_ERROR_TTS_INVALID_RESOURCE	                   = 24005,	/* ÎÞÐ§×ÊÔ´ */
-	SPEECH_ERROR_TTS_INVALID_VOICE_NAME	                   = 24006,	/* ÎÞÐ§·¢ÑÔÈË*/
-	SPEECH_ERROR_TTS_ENGINE_UNINIT			               = 24007, /* ÒýÇæÎ´³õÊ¼»¯ */
-	SPEECH_ERROR_TTS_ENGINE_INIT_FAILED	                   = 24008,	/* ÒýÇæ³õÊ¼»¯Ê§°Ü */
-	SPEECH_ERROR_TTS_ENGINE_BUSY			               = 24009, /* ÒýÇæÃ¦ */
+	SPEECH_ERROR_TTS_INVALID_PARA                          = 24000, /* é”™è¯¯å‚æ•° */
+	SPEECH_ERROR_TTS_INVALID_PARA_VALUE                    = 24001, /* æ— æ•ˆçš„å‚æ•°å€¼*/
+	SPEECH_ERROR_TTS_OUT_OF_MEMORY	                       = 24002, /* å†…å­˜ä¸è¶³*/
+	SPEECH_ERROR_TTS_INVALID_HANDLE                        = 24003, /* æ— æ•ˆçš„å¥æŸ„*/
+	SPEECH_ERROR_TTS_CREATE_HANDLE_FAILED			       = 24004, /* åˆ›å»ºå¥æŸ„å¤±è´¥*/
+	SPEECH_ERROR_TTS_INVALID_RESOURCE	                   = 24005,	/* æ— æ•ˆèµ„æº */
+	SPEECH_ERROR_TTS_INVALID_VOICE_NAME	                   = 24006,	/* æ— æ•ˆå‘è¨€äºº*/
+	SPEECH_ERROR_TTS_ENGINE_UNINIT			               = 24007, /* å¼•æ“Žæœªåˆå§‹åŒ– */
+	SPEECH_ERROR_TTS_ENGINE_INIT_FAILED	                   = 24008,	/* å¼•æ“Žåˆå§‹åŒ–å¤±è´¥ */
+	SPEECH_ERROR_TTS_ENGINE_BUSY			               = 24009, /* å¼•æ“Žå¿™ */
 
                                                              
 	/*Error Code Of AiSound Engine*/                         
@@ -526,11 +526,11 @@ enum
 	/*Error Code Of ivw*/
 
 	/*Error Code Of ivw Operation*/
-	SPEECH_ERROR_IVW_ENGINE_UNINI             = 25000,  /* ÒýÇæÎ´³õÊ¼»¯ */
-	SPEECH_ERROR_IVW_RESVER_NOMATCH           = 25001,  /* ×ÊÔ´°æ±¾²»Æ¥Åä */
-	SPEECH_ERROR_IVW_BUFFERED_AUDIOD_LITTLE   = 25002,  /* »½ÐÑ¼ÓÊ¶±ð»º´æÒôÆµ¹ýÉÙ */
-	SPEECH_ERROR_IVW_INVALID_RESTYPE          = 25003,  /* ²»ºÏ·¨µÄ×ÊÔ´ÀàÐÍ */
-	SPEECH_ERROR_IVW_INVALID_RESHEADVER       = 25004,  /* ²»ºÏ·¨µÄ×ÊÔ´Í·²¿°æ±¾ºÅ */
+	SPEECH_ERROR_IVW_ENGINE_UNINI             = 25000,  /* å¼•æ“Žæœªåˆå§‹åŒ– */
+	SPEECH_ERROR_IVW_RESVER_NOMATCH           = 25001,  /* èµ„æºç‰ˆæœ¬ä¸åŒ¹é… */
+	SPEECH_ERROR_IVW_BUFFERED_AUDIOD_LITTLE   = 25002,  /* å”¤é†’åŠ è¯†åˆ«ç¼“å­˜éŸ³é¢‘è¿‡å°‘ */
+	SPEECH_ERROR_IVW_INVALID_RESTYPE          = 25003,  /* ä¸åˆæ³•çš„èµ„æºç±»åž‹ */
+	SPEECH_ERROR_IVW_INVALID_RESHEADVER       = 25004,  /* ä¸åˆæ³•çš„èµ„æºå¤´éƒ¨ç‰ˆæœ¬å· */
 
 	/*Error Code Of ivw Engine*/
 	SPEECH_ERROR_IVW_INVALID_CALL             = 25101,   // IvwErr_InvCal       = 1					   
@@ -556,8 +556,8 @@ enum
     SPEECH_ERROR_IVW_SPEECH_TOO_SHORT         = 25120,   // IvwErr_SpeechTooShort  = 20            
     SPEECH_ERROR_IVW_SPEECH_STOP              = 25121,   // IvwErr_SpeechStop      = 21             
 
-	/* ·ÇÊµÊ±×ªÐ´´íÎóÂë£º26000~26999 */
-	SPEECH_ERROR_LFASR_BASE					  = 26000,	/* ·ÇÊµÊ±×ªÐ´´íÎóÂë»ùÂë */
+	/* éžå®žæ—¶è½¬å†™é”™è¯¯ç ï¼š26000~26999 */
+	SPEECH_ERROR_LFASR_BASE					  = 26000,	/* éžå®žæ—¶è½¬å†™é”™è¯¯ç åŸºç  */
 };
 
 #endif /* __MSP_ERRORS_H__ */

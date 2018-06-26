@@ -1,4 +1,4 @@
-#ifndef __MSP_TYPES_H__
+﻿#ifndef __MSP_TYPES_H__
 #define __MSP_TYPES_H__
 
 #if !defined(MSPAPI)

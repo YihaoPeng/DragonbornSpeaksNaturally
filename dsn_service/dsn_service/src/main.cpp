@@ -1,5 +1,5 @@
-/*
-* ¡°ÁúÒá×ÔÈ»¶Ô»°¡±·şÎñ¶ËÖ÷³ÌĞò
+ï»¿/*
+* â€œé¾™è£”è‡ªç„¶å¯¹è¯â€æœåŠ¡ç«¯ä¸»ç¨‹åº
 */
 
 #include <conio.h>
@@ -11,53 +11,53 @@
 */
 int main(int argc, char* argv[])
 {
-	const char *login_config = "appid = 5b30794f"; //µÇÂ¼²ÎÊı
+	const char *login_config = "appid = 5b30794f"; //ç™»å½•å‚æ•°
 	DSNService dsnService;
 	int ret = 0;
 
-	ret = MSPLogin(NULL, NULL, login_config); //µÚÒ»¸ö²ÎÊıÎªÓÃ»§Ãû£¬µÚ¶ş¸ö²ÎÊıÎªÃÜÂë£¬´«NULL¼´¿É£¬µÚÈı¸ö²ÎÊıÊÇµÇÂ¼²ÎÊı
+	ret = MSPLogin(NULL, NULL, login_config); //ç¬¬ä¸€ä¸ªå‚æ•°ä¸ºç”¨æˆ·åï¼Œç¬¬äºŒä¸ªå‚æ•°ä¸ºå¯†ç ï¼Œä¼ NULLå³å¯ï¼Œç¬¬ä¸‰ä¸ªå‚æ•°æ˜¯ç™»å½•å‚æ•°
 	if (MSP_SUCCESS != ret) {
-		printf("µÇÂ¼Ê§°Ü£º%d\n", ret);
+		printf("ç™»å½•å¤±è´¥ï¼š%d\n", ret);
 		goto exit;
 	}
 
-	printf("¹¹½¨ÀëÏßÊ¶±ğÓï·¨ÍøÂç...\n");
-	ret = dsnService.build_grammar();  //µÚÒ»´ÎÊ¹ÓÃÄ³Óï·¨½øĞĞÊ¶±ğ£¬ĞèÒªÏÈ¹¹½¨Óï·¨ÍøÂç£¬»ñÈ¡Óï·¨ID£¬Ö®ºóÊ¹ÓÃ´ËÓï·¨½øĞĞÊ¶±ğ£¬ÎŞĞèÔÙ´Î¹¹½¨
+	printf("æ„å»ºç¦»çº¿è¯†åˆ«è¯­æ³•ç½‘ç»œ...\n");
+	ret = dsnService.build_grammar();  //ç¬¬ä¸€æ¬¡ä½¿ç”¨æŸè¯­æ³•è¿›è¡Œè¯†åˆ«ï¼Œéœ€è¦å…ˆæ„å»ºè¯­æ³•ç½‘ç»œï¼Œè·å–è¯­æ³•IDï¼Œä¹‹åä½¿ç”¨æ­¤è¯­æ³•è¿›è¡Œè¯†åˆ«ï¼Œæ— éœ€å†æ¬¡æ„å»º
 	if (MSP_SUCCESS != ret) {
-		printf("¹¹½¨Óï·¨µ÷ÓÃÊ§°Ü£¡\n");
+		printf("æ„å»ºè¯­æ³•è°ƒç”¨å¤±è´¥ï¼\n");
 		goto exit;
 	}
 	while (1 != dsnService.is_build_fini())
 		Sleep(100);
 	if (MSP_SUCCESS != dsnService.status())
 		goto exit;
-	printf("ÀëÏßÊ¶±ğÓï·¨ÍøÂç¹¹½¨Íê³É\n");
+	printf("ç¦»çº¿è¯†åˆ«è¯­æ³•ç½‘ç»œæ„å»ºå®Œæˆ\n");
 
-	printf("¸üĞÂÀëÏßÓï·¨´Êµä...\n");
+	printf("æ›´æ–°ç¦»çº¿è¯­æ³•è¯å…¸...\n");
 
-	//µ±Óï·¨´Êµä²ÛÖĞµÄ´ÊÌõĞèÒª¸üĞÂÊ±£¬µ÷ÓÃQISRUpdateLexicon½Ó¿ÚÍê³É¸üĞÂ
+	//å½“è¯­æ³•è¯å…¸æ§½ä¸­çš„è¯æ¡éœ€è¦æ›´æ–°æ—¶ï¼Œè°ƒç”¨QISRUpdateLexiconæ¥å£å®Œæˆæ›´æ–°
 	ret = dsnService.update_lexicon("time,is,money!id(1)\n\
 time,goes,by!id(2)\nhello,world!id(3)\n\
 this,is,dragonborn!id(4)\nFus,Ro,Dah!id(5)");
 	if (MSP_SUCCESS != ret) {
-		printf("¸üĞÂ´Êµäµ÷ÓÃÊ§°Ü£¡\n");
+		printf("æ›´æ–°è¯å…¸è°ƒç”¨å¤±è´¥ï¼\n");
 		goto exit;
 	}
 	while (1 != dsnService.is_update_fini())
 		Sleep(100);
 	if (MSP_SUCCESS != dsnService.status())
 		goto exit;
-	printf("¸üĞÂÀëÏßÓï·¨´ÊµäÍê³É£¬¿ªÊ¼Ê¶±ğ...\n");
+	printf("æ›´æ–°ç¦»çº¿è¯­æ³•è¯å…¸å®Œæˆï¼Œå¼€å§‹è¯†åˆ«...\n");
 
 	ret = dsnService.run_asr();
 	if (MSP_SUCCESS != ret) {
-		printf("ÀëÏßÓï·¨Ê¶±ğ³ö´í: %d \n", ret);
+		printf("ç¦»çº¿è¯­æ³•è¯†åˆ«å‡ºé”™: %d \n", ret);
 		goto exit;
 	}
 
 exit:
 	MSPLogout();
-	printf("\nÇë°´ÈÎÒâ¼üÍË³ö...\n");
+	printf("\nè¯·æŒ‰ä»»æ„é”®é€€å‡º...\n");
 
 	while (_getch() != '\r');
 	return 0;

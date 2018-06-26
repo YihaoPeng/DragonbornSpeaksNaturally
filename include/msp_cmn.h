@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @file    msp_cmn.h
  * @brief   Mobile Speech Platform Common Interface Header File
  * 

@@ -1,5 +1,5 @@
-/*
-* ¡°ÁúÒá×ÔÈ»¶Ô»°¡±·şÎñ¶Ë£¨¸ºÔğÓïÒôÊ¶±ğ£©
+ï»¿/*
+* â€œé¾™è£”è‡ªç„¶å¯¹è¯â€æœåŠ¡ç«¯ï¼ˆè´Ÿè´£è¯­éŸ³è¯†åˆ«ï¼‰
 */
 #ifndef __DSN_SERVICE__
 #define __DSN_SERVICE__
@@ -30,9 +30,9 @@ public:
 	static void on_speech_begin(void *udata);
 	static void on_speech_end(int reason, void *udata);
 
-	int build_grammar(); //¹¹½¨ÀëÏßÊ¶±ğÓï·¨ÍøÂç
-	int update_lexicon(const char *content); //¸üĞÂÀëÏßÊ¶±ğÓï·¨´Êµä
-	int run_asr(); //½øĞĞÀëÏßÓï·¨Ê¶±ğ
+	int build_grammar(); //æ„å»ºç¦»çº¿è¯†åˆ«è¯­æ³•ç½‘ç»œ
+	int update_lexicon(const char *content); //æ›´æ–°ç¦»çº¿è¯†åˆ«è¯­æ³•è¯å…¸
+	int run_asr(); //è¿›è¡Œç¦»çº¿è¯­æ³•è¯†åˆ«
 	int is_build_fini() { return build_fini; }
 	int is_update_fini() { return update_fini; }
 	int status() { return errcode; }
@@ -45,17 +45,17 @@ protected:
 	static const int MAX_GRAMMARID_LEN = 32;
 	static const int MAX_PARAMS_LEN = 1024;
 
-	static const char *ASR_RES_PATH; //ÀëÏßÓï·¨Ê¶±ğ×ÊÔ´Â·¾¶
-	static const char *GRM_BUILD_PATH; //¹¹½¨ÀëÏßÓï·¨Ê¶±ğÍøÂçÉú³ÉÊı¾İ±£´æÂ·¾¶
-	static const char *GRM_FILE; //¹¹½¨ÀëÏßÊ¶±ğÓï·¨ÍøÂçËùÓÃµÄÓï·¨ÎÄ¼ş
-	static const char *LEX_NAME; //ĞÂÀëÏßÊ¶±ğÓï·¨µÄcmd²Û
+	static const char *ASR_RES_PATH; //ç¦»çº¿è¯­æ³•è¯†åˆ«èµ„æºè·¯å¾„
+	static const char *GRM_BUILD_PATH; //æ„å»ºç¦»çº¿è¯­æ³•è¯†åˆ«ç½‘ç»œç”Ÿæˆæ•°æ®ä¿å­˜è·¯å¾„
+	static const char *GRM_FILE; //æ„å»ºç¦»çº¿è¯†åˆ«è¯­æ³•ç½‘ç»œæ‰€ç”¨çš„è¯­æ³•æ–‡ä»¶
+	static const char *LEX_NAME; //æ–°ç¦»çº¿è¯†åˆ«è¯­æ³•çš„cmdæ§½
 
 	HANDLE events[EVT_TOTAL] = { NULL,NULL,NULL };
 
-	int     build_fini = 0;  //±êÊ¶Óï·¨¹¹½¨ÊÇ·ñÍê³É
-	int     update_fini = 0; //±êÊ¶¸üĞÂ´ÊµäÊÇ·ñÍê³É
-	int     errcode = 0; //¼ÇÂ¼Óï·¨¹¹½¨»ò¸üĞÂ´Êµä»Øµ÷´íÎóÂë
-	char    grammar_id[MAX_GRAMMARID_LEN] = { '\0' }; //±£´æÓï·¨¹¹½¨·µ»ØµÄÓï·¨ID
+	int     build_fini = 0;  //æ ‡è¯†è¯­æ³•æ„å»ºæ˜¯å¦å®Œæˆ
+	int     update_fini = 0; //æ ‡è¯†æ›´æ–°è¯å…¸æ˜¯å¦å®Œæˆ
+	int     errcode = 0; //è®°å½•è¯­æ³•æ„å»ºæˆ–æ›´æ–°è¯å…¸å›è°ƒé”™è¯¯ç 
+	char    grammar_id[MAX_GRAMMARID_LEN] = { '\0' }; //ä¿å­˜è¯­æ³•æ„å»ºè¿”å›çš„è¯­æ³•ID
 
 };
 
