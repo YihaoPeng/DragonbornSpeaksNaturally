@@ -121,12 +121,13 @@ int SpeechRecognizer::update_lex_cb(int ecode, const char *info, void *udata)
 
 int SpeechRecognizer::update_lexicon(const char *lex_content)
 {
+	// QISRUpdateLexicon() looks like thread-safe so don't need pause the recognition thread.
 	// pause the recognition thread if it running
-	if (isRecognizing) {
+	/*if (isRecognizing) {
 		ResetEvent(eventPauseFinish);
 		SetEvent(events[EVT_PAUSE]);
 		WaitForSingleObject(eventPauseFinish, INFINITE);
-	}
+	}*/
 
 	unsigned int lex_cnt_len                  = (unsigned int)strlen(lex_content);
 	char update_lex_params[MAX_PARAMS_LEN]    = {'\0'}; 
@@ -149,9 +150,9 @@ int SpeechRecognizer::update_lexicon(const char *lex_content)
 	}
 
 	// resume the recognition thread if it running
-	if (isRecognizing) {
+	/*if (isRecognizing) {
 		SetEvent(eventCanResume);
-	}
+	}*/
 
 	return ret;
 }
