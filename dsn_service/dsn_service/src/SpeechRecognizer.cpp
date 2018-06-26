@@ -26,8 +26,8 @@ int SpeechRecognizer::build_grm_cb(int ecode, const char *info, void *udata)
 	SpeechRecognizer *sr = (SpeechRecognizer *)udata;
 
 	if (NULL != sr) {
-		sr->build_fini = 1;
 		sr->errcode = ecode;
+		SetEvent(sr->eventBuildFinish);
 	}
 
 	if (MSP_SUCCESS == ecode && NULL != info) {
@@ -47,7 +47,6 @@ int SpeechRecognizer::build_grammar()
 	char *grm_content                        = NULL;
 	unsigned int grm_cnt_len                 = 0;
 	char grm_build_params[MAX_PARAMS_LEN]    = {'\0'};
-	int ret                                  = 0;
 
 	grm_file = fopen(GRM_FILE, "rb");	
 	if(NULL == grm_file) {
@@ -80,10 +79,23 @@ int SpeechRecognizer::build_grammar()
 		SAMPLE_RATE_16K,
 		GRM_BUILD_PATH
 		);
-	ret = QISRBuildGrammar("bnf", grm_content, grm_cnt_len, grm_build_params, build_grm_cb, this);
+
+	eventBuildFinish = CreateEvent(NULL, FALSE, FALSE, NULL);
+
+	int ret = QISRBuildGrammar("bnf", grm_content, grm_cnt_len, grm_build_params, build_grm_cb, this);
 
 	free(grm_content);
 	grm_content = NULL;
+
+	if (MSP_SUCCESS == ret) {
+		WaitForSingleObject(eventBuildFinish, INFINITE);
+		ret = this->errcode;
+	}
+
+	if (eventUpdateFinish) {
+		CloseHandle(eventBuildFinish);
+		eventBuildFinish = NULL;
+	}
 
 	return ret;
 }
@@ -93,8 +105,8 @@ int SpeechRecognizer::update_lex_cb(int ecode, const char *info, void *udata)
 	SpeechRecognizer *sr = (SpeechRecognizer *)udata;
 
 	if (NULL != sr) {
-		sr->update_fini = 1;
 		sr->errcode = ecode;
+		SetEvent(sr->eventUpdateFinish);
 	}
 
 	if (MSP_SUCCESS == ecode)
@@ -118,7 +130,22 @@ int SpeechRecognizer::update_lexicon(const char *lex_content)
 		SAMPLE_RATE_16K,
 		GRM_BUILD_PATH,
 		this->grammar_id);
-	return QISRUpdateLexicon(LEX_NAME, lex_content, lex_cnt_len, update_lex_params, update_lex_cb, this);
+
+	eventUpdateFinish = CreateEvent(NULL, FALSE, FALSE, NULL);
+
+	int ret = QISRUpdateLexicon(LEX_NAME, lex_content, lex_cnt_len, update_lex_params, update_lex_cb, this);
+
+	if (MSP_SUCCESS == ret) {
+		WaitForSingleObject(eventUpdateFinish, INFINITE);
+		ret = this->errcode;
+	}
+
+	if (eventUpdateFinish) {
+		CloseHandle(eventUpdateFinish);
+		eventUpdateFinish = NULL;
+	}
+
+	return ret;
 }
 
 void SpeechRecognizer::on_result(const char *result, char is_last)
@@ -177,16 +204,14 @@ void SpeechRecognizer::start_recognize(const char* session_begin_params)
  	while (!isquit) {
 		waitres = WaitForMultipleObjects(EVT_TOTAL, events, FALSE, INFINITE);
 		switch (waitres) {
-		case WAIT_FAILED:
-		case WAIT_TIMEOUT:
-			printf("Why it happened !?\n");
-			break;
-		case WAIT_OBJECT_0 + EVT_STOP:		
+		case WAIT_OBJECT_0 + EVT_STOP:
 			if (errcode = sr_stop_listening(&asr)) {
 				printf("stop listening failed %d\n", errcode);
 				isquit = 1;
 			}
 			sr_uninit(&asr);
+
+			// auto restart speech recognizer
 			if (errcode = sr_init(&asr, session_begin_params, SR_MIC, DEFAULT_INPUT_DEVID, &recnotifier)) {
 				printf("speech recognizer init failed\n");
 				isquit = 1;
@@ -196,14 +221,23 @@ void SpeechRecognizer::start_recognize(const char* session_begin_params)
 				isquit = 1;
 			}
 			break;
+		case WAIT_OBJECT_0 + EVT_QUIT:
+			isquit = 1;
+			if (errcode = sr_stop_listening(&asr)) {
+				printf("stop listening failed %d\n", errcode);
+			}
+			break;
 		default:
+			printf("Why it happened !?\n");
 			break;
 		}
 	}
 
 	for (i = 0; i < EVT_TOTAL; ++i) {
-		if (events[i])
+		if (events[i]) {
 			CloseHandle(events[i]);
+			events[i] = NULL;
+		}
 	}
 
 	sr_uninit(&asr);

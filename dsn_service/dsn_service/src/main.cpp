@@ -27,10 +27,6 @@ int main(int argc, char* argv[])
 		printf("构建语法调用失败！\n");
 		goto exit;
 	}
-	while (1 != SpeechRecognizer.is_build_fini())
-		Sleep(100);
-	if (MSP_SUCCESS != SpeechRecognizer.status())
-		goto exit;
 	printf("离线识别语法网络构建完成\n");
 
 	printf("更新离线语法词典...\n");
@@ -43,10 +39,6 @@ this,is,dragonborn!id(4)\nFus,Ro,Dah!id(5)");
 		printf("更新词典调用失败！\n");
 		goto exit;
 	}
-	while (1 != SpeechRecognizer.is_update_fini())
-		Sleep(100);
-	if (MSP_SUCCESS != SpeechRecognizer.status())
-		goto exit;
 	printf("更新离线语法词典完成，开始识别...\n");
 
 	ret = SpeechRecognizer.run_asr();

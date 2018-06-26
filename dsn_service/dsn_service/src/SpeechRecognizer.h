@@ -23,19 +23,22 @@ public:
 		EVT_TOTAL
 	};
 
+	enum {
+	};
+
+	// callback functions of result
 	static int build_grm_cb(int ecode, const char *info, void *udata);
 	static int update_lex_cb(int ecode, const char *info, void *udata);
 
+	// callback functions of event
 	static void on_result(const char *result, char is_last);
 	static void on_speech_begin(void *udata);
 	static void on_speech_end(int reason, void *udata);
 
+	// normal public functions
 	int build_grammar(); //构建离线识别语法网络
 	int update_lexicon(const char *content); //更新离线识别语法词典
 	int run_asr(); //进行离线语法识别
-	int is_build_fini() { return build_fini; }
-	int is_update_fini() { return update_fini; }
-	int status() { return errcode; }
 
 protected:
 	void start_recognize(const char* session_begin_params);
@@ -51,11 +54,11 @@ protected:
 	static const char *LEX_NAME; //新离线识别语法的cmd槽
 
 	HANDLE events[EVT_TOTAL] = { NULL,NULL,NULL };
+	HANDLE eventBuildFinish = NULL; //语法构建完成事件
+	HANDLE eventUpdateFinish = NULL; //更新词典完成事件
 
-	int     build_fini = 0;  //标识语法构建是否完成
-	int     update_fini = 0; //标识更新词典是否完成
-	int     errcode = 0; //记录语法构建或更新词典回调错误码
-	char    grammar_id[MAX_GRAMMARID_LEN] = { '\0' }; //保存语法构建返回的语法ID
+	volatile int errcode = 0; //记录语法构建或更新词典回调错误码
+	char grammar_id[MAX_GRAMMARID_LEN] = { '\0' }; //保存语法构建返回的语法ID
 
 };
 
