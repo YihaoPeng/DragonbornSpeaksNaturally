@@ -38,9 +38,9 @@ public:
 	static void on_speech_end(int reason, void *udata);
 
 	// normal public functions
-	int updateCommandList(const std::vector<std::string> &commandList);
-	int build_grammar(); //构建离线识别语法网络
-	int run_asr(); //进行离线语法识别
+	int init(); //构建离线识别语法网络
+	int updateCommandList(const std::vector<std::string> &commandList); // 更新待识别的命令词
+	int startRecognize(); //进行离线语法识别
 
 protected:
 	static std::string formatCommandWords(std::string command, int id);

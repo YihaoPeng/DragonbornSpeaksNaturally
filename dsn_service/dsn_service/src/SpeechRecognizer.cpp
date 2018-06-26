@@ -55,7 +55,7 @@ int SpeechRecognizer::updateCommandList(const std::vector<std::string>& commandL
 	return update_lexicon(commands.c_str());
 }
 
-int SpeechRecognizer::build_grammar()
+int SpeechRecognizer::init()
 {
 	FILE *grm_file                           = NULL;
 	char *grm_content                        = NULL;
@@ -272,7 +272,7 @@ void SpeechRecognizer::start_recognize(const char* session_begin_params)
 	sr_uninit(&asr);
 }
 
-int SpeechRecognizer::run_asr()
+int SpeechRecognizer::startRecognize()
 {
 	char asr_params[MAX_PARAMS_LEN]    = {'\0'};
 	const char *rec_rslt               = NULL;

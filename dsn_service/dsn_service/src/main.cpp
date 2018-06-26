@@ -22,7 +22,7 @@ int main(int argc, char* argv[])
 	}
 
 	printf("构建离线识别语法网络...\n");
-	ret = SpeechRecognizer.build_grammar();  //第一次使用某语法进行识别，需要先构建语法网络，获取语法ID，之后使用此语法进行识别，无需再次构建
+	ret = SpeechRecognizer.init();  //第一次使用某语法进行识别，需要先构建语法网络，获取语法ID，之后使用此语法进行识别，无需再次构建
 	if (MSP_SUCCESS != ret) {
 		printf("构建语法调用失败！\n");
 		goto exit;
@@ -45,7 +45,7 @@ int main(int argc, char* argv[])
 	}
 	printf("更新离线语法词典完成，开始识别...\n");
 
-	ret = SpeechRecognizer.run_asr();
+	ret = SpeechRecognizer.startRecognize();
 	if (MSP_SUCCESS != ret) {
 		printf("离线语法识别出错: %d \n", ret);
 		goto exit;
