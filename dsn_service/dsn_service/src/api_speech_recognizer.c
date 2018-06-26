@@ -139,7 +139,7 @@ static void end_sr_on_vad(struct speech_rec *sr)
 	while(sr->rec_stat != MSP_REC_STATUS_COMPLETE ){
 		rslt = QISRGetResult(sr->session_id, &sr->rec_stat, 0, &errcode);
 		if (rslt && sr->notif.on_result)
-			sr->notif.on_result(rslt, sr->rec_stat == MSP_REC_STATUS_COMPLETE ? 1 : 0);
+			sr->notif.on_result(rslt, sr->rec_stat == MSP_REC_STATUS_COMPLETE ? 1 : 0, sr->notif.udata);
 
 		Sleep(50); /* for cpu occupy, should sleep here */
 	}
@@ -367,7 +367,7 @@ int sr_stop_listening(struct speech_rec *sr)
 			return ret;
 		}
 		if (NULL != rslt && sr->notif.on_result)
-			sr->notif.on_result(rslt, sr->rec_stat == MSP_REC_STATUS_COMPLETE ? 1 : 0);
+			sr->notif.on_result(rslt, sr->rec_stat == MSP_REC_STATUS_COMPLETE ? 1 : 0, sr->notif.udata);
 		Sleep(100);
 	}
 
@@ -397,7 +397,7 @@ int sr_write_audio_data(struct speech_rec *sr, char *data, unsigned int len)
 	if (MSP_REC_STATUS_SUCCESS == sr->rec_stat) {
 		rslt = QISRGetResult(sr->session_id, &sr->rec_stat, 0, &errcode);
 		if (rslt && sr->notif.on_result)
-			sr->notif.on_result(rslt, 0);
+			sr->notif.on_result(rslt, 0, sr->notif.udata);
 	}
 
 	sr->audio_status = MSP_AUDIO_SAMPLE_CONTINUE;

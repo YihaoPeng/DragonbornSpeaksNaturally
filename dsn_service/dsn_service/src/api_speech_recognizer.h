@@ -31,7 +31,7 @@ enum sr_audsrc
 
 struct speech_rec_notifier {
 	void * udata;
-	void (*on_result)(const char *result, char is_last);
+	void (*on_result)(const char *result, char is_last, void *udata);
 	void (*on_speech_begin)(void *udata);
 	void (*on_speech_end)(int reason, void*udata);	/* 0 if VAD.  others, error : see E_SR_xxx and msp_errors.h  */
 };

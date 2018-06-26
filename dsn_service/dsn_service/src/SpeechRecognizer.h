@@ -11,6 +11,7 @@
 #include <string>
 #include <map>
 #include <vector>
+#include <functional>
 
 #include "../../../include/qisr.h"
 #include "../../../include/msp_cmn.h"
@@ -25,17 +26,20 @@ public:
 		EVT_TOTAL
 	};
 
+	using ResultCallback = std::function<void (int /*id*/, int /*confidence*/)>;
+
 	// callback functions of result
 	static int build_grm_cb(int ecode, const char *info, void *udata);
 	static int update_lex_cb(int ecode, const char *info, void *udata);
 
 	// callback functions of event
-	static void on_result(const char *result, char is_last);
+	static void on_result(const char *result, char is_last, void *udata);
 	static void on_speech_begin(void *udata);
 	static void on_speech_end(int reason, void *udata);
 
 	// normal public functions
 	int init(); //构建离线识别语法网络
+	void setResultCallback(ResultCallback callback);
 	int updateCommandList(const std::vector<std::string> &commandList); // 更新待识别的命令词
 	int startRecognize(); //进行离线语法识别
 
@@ -67,6 +71,7 @@ protected:
 	volatile int errcode = 0; //记录语法构建或更新词典回调错误码
 	char grammar_id[MAX_GRAMMARID_LEN] = { '\0' }; //保存语法构建返回的语法ID
 
+	ResultCallback resultCallback = nullptr;
 };
 
 #endif

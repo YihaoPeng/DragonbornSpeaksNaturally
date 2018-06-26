@@ -101,6 +101,11 @@ int SpeechRecognizer::init()
 	return ret;
 }
 
+void SpeechRecognizer::setResultCallback(ResultCallback callback)
+{
+	resultCallback = callback;
+}
+
 int SpeechRecognizer::update_lex_cb(int ecode, const char *info, void *udata)
 {
 	SpeechRecognizer *sr = (SpeechRecognizer *)udata;
@@ -165,9 +170,15 @@ int SpeechRecognizer::api_login()
 	return ret;
 }
 
-void SpeechRecognizer::on_result(const char *result, char is_last)
+void SpeechRecognizer::on_result(const char *result, char is_last, void *udata)
 {
+	SpeechRecognizer *sr = (SpeechRecognizer *)udata;
+
 	printf("\nResult: [ %s ]\n", result);
+
+	if (sr->resultCallback) {
+		sr->resultCallback(0, 0);
+	}
 }
 void SpeechRecognizer::on_speech_begin(void *udata)
 {
