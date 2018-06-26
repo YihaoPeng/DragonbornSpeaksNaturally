@@ -5,14 +5,16 @@
 #include <conio.h>
 #include "SpeechRecognizer.h"
 
-/* main thread: start/stop record ; query the result of recgonization.
-* record thread: record callback(data write)
-* helper thread: ui(keystroke detection)
-*/
+void result_callback(int id, int confidence) {
+	printf("result_callback, id: %d, confidence: %d\n", id, confidence);
+}
+
 int main(int argc, char* argv[])
 {
 	SpeechRecognizer SpeechRecognizer;
 	int ret = 0;
+
+	SpeechRecognizer.setResultCallback(result_callback);
 
 	printf("构建离线识别语法网络...\n");
 	ret = SpeechRecognizer.init();  //第一次使用某语法进行识别，需要先构建语法网络，获取语法ID，之后使用此语法进行识别，无需再次构建
