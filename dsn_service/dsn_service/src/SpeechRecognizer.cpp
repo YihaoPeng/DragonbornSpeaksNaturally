@@ -60,7 +60,7 @@ int SpeechRecognizer::updateCommandList(const std::vector<std::string>& commandL
 
 int SpeechRecognizer::init()
 {
-	int ret;
+	int ret = 0;
 
 	ret = api_login();
 	if (MSP_SUCCESS != ret) {
@@ -78,7 +78,6 @@ int SpeechRecognizer::init()
 		GRM_BUILD_PATH
 		);
 
-	eventBuildFinish = CreateEvent(NULL, FALSE, FALSE, NULL);
 
 	std::string grm_content =
 		"#BNF+IAT 1.0 UTF-8;\n"
@@ -87,16 +86,12 @@ int SpeechRecognizer::init()
 		"!start <cmd>;\n"
 		"<cmd>:init!id(0);";
 
+	ResetEvent(eventBuildFinish);
 	ret = QISRBuildGrammar("bnf", grm_content.c_str(), (int)grm_content.size(), grm_build_params, build_grm_cb, this);
 
 	if (MSP_SUCCESS == ret) {
 		WaitForSingleObject(eventBuildFinish, INFINITE);
 		ret = this->errcode;
-	}
-
-	if (eventUpdateFinish) {
-		CloseHandle(eventBuildFinish);
-		eventBuildFinish = NULL;
 	}
 
 	return ret;
@@ -126,6 +121,13 @@ int SpeechRecognizer::update_lex_cb(int ecode, const char *info, void *udata)
 
 int SpeechRecognizer::update_lexicon(const char *lex_content)
 {
+	// pause the recognition thread if it running
+	if (isRecognizing) {
+		ResetEvent(eventPauseFinish);
+		SetEvent(events[EVT_PAUSE]);
+		WaitForSingleObject(eventPauseFinish, INFINITE);
+	}
+
 	unsigned int lex_cnt_len                  = (unsigned int)strlen(lex_content);
 	char update_lex_params[MAX_PARAMS_LEN]    = {'\0'}; 
 
@@ -138,8 +140,7 @@ int SpeechRecognizer::update_lexicon(const char *lex_content)
 		GRM_BUILD_PATH,
 		this->grammar_id);
 
-	eventUpdateFinish = CreateEvent(NULL, FALSE, FALSE, NULL);
-
+	ResetEvent(eventUpdateFinish);
 	int ret = QISRUpdateLexicon(LEX_NAME, lex_content, lex_cnt_len, update_lex_params, update_lex_cb, this);
 
 	if (MSP_SUCCESS == ret) {
@@ -147,9 +148,9 @@ int SpeechRecognizer::update_lexicon(const char *lex_content)
 		ret = this->errcode;
 	}
 
-	if (eventUpdateFinish) {
-		CloseHandle(eventUpdateFinish);
-		eventUpdateFinish = NULL;
+	// resume the recognition thread if it running
+	if (isRecognizing) {
+		SetEvent(eventCanResume);
 	}
 
 	return ret;
@@ -220,7 +221,7 @@ void SpeechRecognizer::on_result(const char *result, char is_last, void *udata)
 	int confidence = cw["sc"].int32();
 	std::string words = cw["w"].str();
 
-	printf("id: %d, confidence: %d, words: %s\n", id, confidence, words);
+	printf("id: %d, confidence: %d, words: %s\n", id, confidence, words.c_str());
 
 	if (sr->resultCallback) {
 		sr->resultCallback(id, confidence);
@@ -239,7 +240,33 @@ void SpeechRecognizer::on_speech_end(int reason, void *udata)
 	else
 		printf("\nRecognizer error %d\n", reason);
 
-	SetEvent(sr->events[EVT_STOP]);
+	SetEvent(sr->events[EVT_RESTART]);
+}
+
+SpeechRecognizer::SpeechRecognizer()
+{
+	eventBuildFinish = CreateEvent(NULL, FALSE, FALSE, NULL);
+	eventUpdateFinish = CreateEvent(NULL, FALSE, FALSE, NULL);
+	eventStopFinish = CreateEvent(NULL, FALSE, FALSE, NULL);
+	eventPauseFinish = CreateEvent(NULL, FALSE, FALSE, NULL);
+	eventCanResume = CreateEvent(NULL, FALSE, FALSE, NULL);
+
+	for (int i = 0; i < EVT_TOTAL; ++i) {
+		events[i] = CreateEvent(NULL, FALSE, FALSE, NULL);
+	}
+}
+
+SpeechRecognizer::~SpeechRecognizer()
+{
+	CloseHandle(eventBuildFinish);
+	CloseHandle(eventUpdateFinish);
+	CloseHandle(eventStopFinish);
+	CloseHandle(eventPauseFinish);
+	CloseHandle(eventCanResume);
+
+	for (int i = 0; i < EVT_TOTAL; ++i) {
+		CloseHandle(events[i]);
+	}
 }
 
 std::string SpeechRecognizer::formatCommandWords(std::string command, int id)
@@ -258,11 +285,10 @@ std::string SpeechRecognizer::formatCommandWords(std::string command, int id)
 }
 
 /* demo recognize the audio from microphone */
-void SpeechRecognizer::start_recognize(const char* session_begin_params)
+int SpeechRecognizer::start_recognize(const char* session_begin_params)
 {
 	int errcode;
 	int i = 0;
-	HANDLE helper_thread = NULL;
 
 	struct speech_rec asr;
 	DWORD waitres;
@@ -275,15 +301,17 @@ void SpeechRecognizer::start_recognize(const char* session_begin_params)
 		on_speech_end
 	};
 
+	isRecognizing = true;
+
 	errcode = sr_init(&asr, session_begin_params, SR_MIC, DEFAULT_INPUT_DEVID, &recnotifier);
 	if (errcode) {
 		printf("speech recognizer init failed\n");
-		return;
+		SetEvent(eventStopFinish);
+
+		isRecognizing = false;
+		return errcode;
 	}
 
-	for (i = 0; i < EVT_TOTAL; ++i) {
-		events[i] = CreateEvent(NULL, FALSE, FALSE, NULL);
-	}
 
 	if (errcode = sr_start_listening(&asr, FALSE)) {
 		printf("start listen failed %d\n", errcode);
@@ -293,7 +321,7 @@ void SpeechRecognizer::start_recognize(const char* session_begin_params)
  	while (!isquit) {
 		waitres = WaitForMultipleObjects(EVT_TOTAL, events, FALSE, INFINITE);
 		switch (waitres) {
-		case WAIT_OBJECT_0 + EVT_STOP:
+		case WAIT_OBJECT_0 + EVT_RESTART:
 			if (errcode = sr_stop_listening(&asr)) {
 				printf("stop listening failed %d\n", errcode);
 				isquit = 1;
@@ -301,6 +329,30 @@ void SpeechRecognizer::start_recognize(const char* session_begin_params)
 			sr_uninit(&asr);
 
 			// auto restart speech recognizer
+			if (errcode = sr_init(&asr, session_begin_params, SR_MIC, DEFAULT_INPUT_DEVID, &recnotifier)) {
+				printf("speech recognizer init failed\n");
+				isquit = 1;
+			}
+			if (errcode = sr_start_listening(&asr, FALSE)) {
+				printf("start listen failed %d\n", errcode);
+				isquit = 1;
+			}
+			break;
+		case WAIT_OBJECT_0 + EVT_PAUSE:
+			if (errcode = sr_stop_listening(&asr)) {
+				printf("stop listening failed %d\n", errcode);
+				isquit = 1;
+			}
+			sr_uninit(&asr);
+
+			// notify the caller that I have stopped
+			ResetEvent(eventCanResume);
+			SetEvent(eventPauseFinish);
+
+			// wait for the caller to allow me to restart
+			WaitForSingleObject(eventCanResume, INFINITE);
+
+			// restart speech recognizer
 			if (errcode = sr_init(&asr, session_begin_params, SR_MIC, DEFAULT_INPUT_DEVID, &recnotifier)) {
 				printf("speech recognizer init failed\n");
 				isquit = 1;
@@ -322,14 +374,12 @@ void SpeechRecognizer::start_recognize(const char* session_begin_params)
 		}
 	}
 
-	for (i = 0; i < EVT_TOTAL; ++i) {
-		if (events[i]) {
-			CloseHandle(events[i]);
-			events[i] = NULL;
-		}
-	}
-
 	sr_uninit(&asr);
+
+	SetEvent(eventStopFinish);
+
+	isRecognizing = false;
+	return MSP_SUCCESS;
 }
 
 int SpeechRecognizer::startRecognize()
@@ -364,6 +414,14 @@ int SpeechRecognizer::startRecognize()
 		this->grammar_id
 		);
 	
-	start_recognize(asr_params);
-	return 0;
+	return start_recognize(asr_params);
+}
+
+void SpeechRecognizer::stopRecognize()
+{
+	// send signal for recognition thread
+	ResetEvent(eventStopFinish);
+	SetEvent(events[EVT_QUIT]);
+	// wait recognition thread's quit signal
+	WaitForSingleObject(eventStopFinish, INFINITE);
 }

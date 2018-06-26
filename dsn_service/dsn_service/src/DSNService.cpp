@@ -3,13 +3,46 @@
 */
 #include "DSNService.h"
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <errno.h>
-#include <process.h>
+#include <iostream>
+#include <string>
+#include <sstream>
+#include <algorithm>
+#include <map>
 
 void DSNService::result_callback(int id, int confidence) {
 	printf("result_callback, id: %d, confidence: %d\n", id, confidence);
+}
+
+std::vector<std::string> DSNService::string_split(const std::string &s, char delim) {
+	std::stringstream ss(s);
+	std::string item;
+	std::vector<std::string> tokens;
+	while (std::getline(ss, item, delim)) {
+		tokens.push_back(item);
+	}
+	return tokens;
+}
+
+DWORD DSNService::readlineThread(void * udata)
+{
+	DSNService *dsnService = (DSNService *)udata;
+
+	std::string line;
+
+	while (!std::cin.eof()) {
+		std::getline(std::cin, line);
+		if (line.empty()) {
+			continue;
+		}
+		
+		auto params = string_split(line, '|');
+		int ret = dsnService->speechRecognizer.updateCommandList(params);
+		if (MSP_SUCCESS != ret) {
+			printf("更新词典调用失败！\n");
+		}
+	}
+
+	return 0;
 }
 
 void DSNService::start()
@@ -46,6 +79,8 @@ void DSNService::start()
 		return;
 	}
 	printf("更新离线语法词典完成，开始识别...\n");
+
+	CreateThread(NULL, 0, DSNService::readlineThread, this, 0L, NULL);
 
 	ret = speechRecognizer.startRecognize();
 	if (MSP_SUCCESS != ret) {
