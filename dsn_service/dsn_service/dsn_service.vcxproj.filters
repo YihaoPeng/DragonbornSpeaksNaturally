@@ -1,0 +1,49 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="源文件">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="头文件">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="其他文件">
+      <UniqueIdentifier>{6b3458b8-3dce-4f34-91b4-f2d0658ddd7b}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\winrec.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="src\speech_recognizer.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="src\DSNService.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\DSNService.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="src\winrec.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="src\speech_recognizer.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="src\main.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\.gitignore">
+      <Filter>其他文件</Filter>
+    </None>
+    <None Include="..\..\bin\dsn.bnf">
+      <Filter>其他文件</Filter>
+    </None>
+  </ItemGroup>
+</Project>

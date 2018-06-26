@@ -1,0 +1,13 @@
+*.exe
+*.log
+*.ldata
+*.dat
+*.vcxproj.user
+
+/bin/msc/res/asr/GrmBuild*/
+
+.vs/
+.vscode/
+
+Debug/
+Release/

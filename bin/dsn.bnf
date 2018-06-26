@@ -1,0 +1,8 @@
+﻿#BNF+IAT 1.0 UTF-8;
+!grammar cmd;
+!slot <cmd>;
+
+!start <cmd>;
+
+<cmd>:
+"把那龙打下来"!id(1)|"做好战斗准备"!id(2)|"我需要治疗"!id(3)|"装备血吟刃"!id(4)|"装备黑檀弓"!id(5)|"Fus Ro Dah"!id(6);

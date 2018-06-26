@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.27703.2000
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "dsn_service", "dsn_service\dsn_service.vcxproj", "{D51CA0BA-7F48-4B50-A481-3FF81CC49D06}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Debug|x64 = Debug|x64
+		Release|Win32 = Release|Win32
+		Release|x64 = Release|x64
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{D51CA0BA-7F48-4B50-A481-3FF81CC49D06}.Debug|Win32.ActiveCfg = Debug|Win32
+		{D51CA0BA-7F48-4B50-A481-3FF81CC49D06}.Debug|Win32.Build.0 = Debug|Win32
+		{D51CA0BA-7F48-4B50-A481-3FF81CC49D06}.Debug|x64.ActiveCfg = Debug|x64
+		{D51CA0BA-7F48-4B50-A481-3FF81CC49D06}.Debug|x64.Build.0 = Debug|x64
+		{D51CA0BA-7F48-4B50-A481-3FF81CC49D06}.Release|Win32.ActiveCfg = Release|Win32
+		{D51CA0BA-7F48-4B50-A481-3FF81CC49D06}.Release|Win32.Build.0 = Release|Win32
+		{D51CA0BA-7F48-4B50-A481-3FF81CC49D06}.Release|x64.ActiveCfg = Release|x64
+		{D51CA0BA-7F48-4B50-A481-3FF81CC49D06}.Release|x64.Build.0 = Release|x64
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {B4169E0C-3FB0-4897-A3A2-679DCB797B7F}
+	EndGlobalSection
+EndGlobal
