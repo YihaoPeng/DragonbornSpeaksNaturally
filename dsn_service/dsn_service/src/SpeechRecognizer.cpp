@@ -70,8 +70,8 @@ int SpeechRecognizer::init()
 
 	_snprintf(grm_build_params, MAX_PARAMS_LEN - 1, 
 		"engine_type = local, \
-		asr_res_path = %s, sample_rate = %d, \
-		grm_build_path = %s, ",
+		 asr_res_path = %s, sample_rate = %d, \
+		 grm_build_path = %s, ",
 		ASR_RES_PATH,
 		SAMPLE_RATE_16K,
 		GRM_BUILD_PATH
@@ -125,8 +125,8 @@ int SpeechRecognizer::update_lexicon(const char *lex_content)
 
 	_snprintf(update_lex_params, MAX_PARAMS_LEN - 1, 
 		"engine_type = local, text_encoding = UTF-8, \
-		asr_res_path = %s, sample_rate = %d, \
-		grm_build_path = %s, grammar_list = %s, ",
+		 asr_res_path = %s, sample_rate = %d, \
+		 grm_build_path = %s, grammar_list = %s, ",
 		ASR_RES_PATH,
 		SAMPLE_RATE_16K,
 		GRM_BUILD_PATH,
@@ -296,11 +296,11 @@ int SpeechRecognizer::startRecognize()
 	//离线语法识别参数设置
 	_snprintf(asr_params, MAX_PARAMS_LEN - 1, 
 		"engine_type = local, \
-		asr_res_path = %s, sample_rate = %d, \
-		grm_build_path = %s, local_grammar = %s, \
-		result_type = xml, result_encoding = UTF-8, \
-		vad_enable = 1, vad_bos = 10000, vad_eos = 50, \
-        asr_denoise = 1, ",
+		 asr_res_path = %s, sample_rate = %d, \
+		 grm_build_path = %s, local_grammar = %s, \
+		 result_type = xml, result_encoding = UTF-8, \
+		 vad_enable = 1, vad_bos = 10000, vad_eos = 50, \
+         asr_denoise = 1, ",
 		ASR_RES_PATH,
 		SAMPLE_RATE_16K,
 		GRM_BUILD_PATH,
