@@ -174,14 +174,16 @@ copy $(ProjectDir)..\..\bin\msc_x64.dll $(SolutionDir)$(Platform)\$(Configuratio
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="src\DSNService.h" />
-    <ClInclude Include="src\speech_recognizer.h" />
-    <ClInclude Include="src\winrec.h" />
+    <ClInclude Include="src\SpeechRecognizer.h" />
+    <ClInclude Include="src\api_speech_recognizer.h" />
+    <ClInclude Include="src\api_recording.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\DSNService.cpp" />
     <ClCompile Include="src\main.cpp" />
-    <ClCompile Include="src\speech_recognizer.c" />
-    <ClCompile Include="src\winrec.c" />
+    <ClCompile Include="src\SpeechRecognizer.cpp" />
+    <ClCompile Include="src\api_speech_recognizer.c" />
+    <ClCompile Include="src\api_recording.c" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\.gitignore" />

@@ -5,8 +5,8 @@
 @author		taozhang9
 @date		2016/05/27
 */
-#include "speech_recognizer.h"
-#include "winrec.h"
+#include "api_speech_recognizer.h"
+#include "api_recording.h"
 
 #include <stdio.h>
 #include <stdlib.h>

@@ -14,13 +14,16 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\winrec.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="src\speech_recognizer.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="src\DSNService.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="src\SpeechRecognizer.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="src\api_speech_recognizer.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="src\api_recording.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
@@ -28,13 +31,16 @@
     <ClCompile Include="src\DSNService.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="src\winrec.c">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="src\speech_recognizer.c">
-      <Filter>源文件</Filter>
-    </ClCompile>
     <ClCompile Include="src\main.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="src\SpeechRecognizer.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="src\api_speech_recognizer.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="src\api_recording.c">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
