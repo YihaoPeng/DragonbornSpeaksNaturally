@@ -173,6 +173,7 @@ copy $(ProjectDir)..\..\bin\msc_x64.dll $(SolutionDir)$(Platform)\$(Configuratio
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="src\aixlog.hpp" />
     <ClInclude Include="src\DSNService.h" />
     <ClInclude Include="src\SpeechRecognizer.h" />
     <ClInclude Include="src\api_speech_recognizer.h" />
