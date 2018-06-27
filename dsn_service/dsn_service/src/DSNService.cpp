@@ -18,9 +18,11 @@ void DSNService::result_callback(int id, int confidence) {
 
 	if (isRecognizingDialog && id < dialogList.size() && confidence >= dialogueMinConfidence) {
 		std::cout << dialogList[id] << std::endl;
+		LOG(INFO) << "send: " << dialogList[id] << std::endl;
 	}
 	else if (id < commandList.size() && confidence >= commandMinConfidence) {
 		std::cout << commandList[id] << std::endl;
+		LOG(INFO) << "send: " << commandList[id] << std::endl;
 	}
 }
 
@@ -133,9 +135,11 @@ void DSNService::parseReceivedCommand(const std::vector<std::string> &params) {
 		isRecognizingDialog = true;
 	}
 	else if (action == "STOP_DIALOGUE") {
-		// back to recognizing commands
-		speechRecognizer.updateCommandList(commandPhraseList);
-		isRecognizingDialog = false;
+		if (isRecognizingDialog) {
+			// back to recognizing commands
+			speechRecognizer.updateCommandList(commandPhraseList);
+			isRecognizingDialog = false;
+		}
 	}
 
 }
