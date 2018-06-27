@@ -128,6 +128,9 @@ void DSNService::parseReceivedCommand(const std::vector<std::string> &params) {
 		//        DIALOGUE|4|1
 		std::string cmdPrefix = "DIALOGUE|" + params[1] + "|";
 
+		dialogPhraseList.clear();
+		dialogList.clear();
+
 		for (size_t i=2, j=0; i<params.size(); i++, j++) {
 			dialogPhraseList.push_back(params[i]);
 			dialogList.push_back(cmdPrefix + std::to_string(j));
