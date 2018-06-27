@@ -10,6 +10,7 @@
 
 #include "api_speech_recognizer.h"
 #include "utilities_js.hpp"
+#include "aixlog.hpp"
 
 const char * SpeechRecognizer::API_LOGIN_INFO = "appid = 5b30794f";
 const char * SpeechRecognizer::ASR_RES_PATH   = "fo|res/asr/common.jet";  //离线语法识别资源路径
@@ -34,12 +35,12 @@ int SpeechRecognizer::build_grm_cb(int ecode, const char *info, void *udata)
 	}
 
 	if (MSP_SUCCESS == ecode && NULL != info) {
-		printf("构建语法成功！ 语法ID:%s\n", info);
+		LOG(INFO) << "构建语法成功！ 语法ID: " << info << std::endl;
 		if (NULL != sr)
 			_snprintf(sr->grammar_id, MAX_GRAMMARID_LEN - 1, info);
 	}
 	else
-		printf("构建语法失败！%d\n", ecode);
+		LOG(ERROR) << "构建语法失败！ errcode: " << ecode << std::endl;
 
 	return 0;
 }
@@ -116,9 +117,9 @@ int SpeechRecognizer::update_lex_cb(int ecode, const char *info, void *udata)
 	}
 
 	if (MSP_SUCCESS == ecode)
-		printf("更新词典成功！\n");
+		LOG(INFO) << "更新词典成功！" << std::endl;
 	else
-		printf("更新词典失败！%d\n", ecode);
+		LOG(ERROR) << "更新词典失败！ errcode: " << ecode << std::endl;
 
 	return 0;
 }
@@ -184,7 +185,7 @@ void SpeechRecognizer::on_result(const char *result, char is_last, void *udata)
 
 	JsonNode r;
 	if (!JsonNode::parse(result, result + strlen(result), r)) {
-		printf("result JSON parse failed!\n");
+		LOG(ERROR) << "result JSON parse failed!" << std::endl;
 		return;
 	}
 
@@ -206,27 +207,27 @@ void SpeechRecognizer::on_result(const char *result, char is_last, void *udata)
 	if (r.type() != Utilities::JS::type::Obj ||
 		r["ws"].type() != Utilities::JS::type::Array ||
 		r["ws"].children()->size() < 1) {
-		printf("result check fields failure!\n");
+		LOG(ERROR) << "result check fields failure!" << std::endl;
 	}
 	JsonNode ws = r["ws"].children()->at(0);
 	if (ws.type() != Utilities::JS::type::Obj ||
 		ws["cw"].type() != Utilities::JS::type::Array ||
 		ws["cw"].children()->size() < 1) {
-		printf("result check fields failure!\n");
+		LOG(ERROR) << "result check fields failure!" << std::endl;
 	}
 	JsonNode cw = ws["cw"].children()->at(0);
 	if (cw.type() != Utilities::JS::type::Obj ||
 		cw["w"].type()  != Utilities::JS::type::Str ||
 		cw["id"].type() != Utilities::JS::type::Int ||
 		cw["sc"].type() != Utilities::JS::type::Int) {
-		printf("result check fields failure!\n");
+		LOG(ERROR) << "result check fields failure!" << std::endl;
 	}
 
 	int id = cw["id"].int32();
 	int confidence = cw["sc"].int32();
 	std::string words = cw["w"].str();
 
-	printf("id: %d, confidence: %d, words: %s\n", id, confidence, words.c_str());
+	LOG(INFO) << "id: " << id << ", confidence: " << confidence << ", words: " << words << std::endl;
 
 	if (sr->resultCallback) {
 		sr->resultCallback(id, confidence);
@@ -234,16 +235,16 @@ void SpeechRecognizer::on_result(const char *result, char is_last, void *udata)
 }
 void SpeechRecognizer::on_speech_begin(void *udata)
 {
-	printf("Start Listening...\n");
+	LOG(INFO) << "Start Listening..." << std::endl;
 }
 void SpeechRecognizer::on_speech_end(int reason, void *udata)
 {
 	SpeechRecognizer *sr = (SpeechRecognizer *)udata;
 
 	if (reason == END_REASON_VAD_DETECT)
-		printf("\nSpeaking done \n");
+		LOG(INFO) << "Speaking done" << std::endl;
 	else
-		printf("\nRecognizer error %d\n", reason);
+		LOG(ERROR) << "Recognizer error, errcode: " << reason << std::endl;
 
 	SetEvent(sr->events[EVT_RESTART]);
 }
@@ -310,7 +311,7 @@ int SpeechRecognizer::start_recognize(const char* session_begin_params)
 
 	errcode = sr_init(&asr, session_begin_params, SR_MIC, DEFAULT_INPUT_DEVID, &recnotifier);
 	if (errcode) {
-		printf("speech recognizer init failed\n");
+		LOG(ERROR) << "speech recognizer init failed" << std::endl;
 		SetEvent(eventStopFinish);
 
 		isRecognizing = false;
@@ -319,7 +320,7 @@ int SpeechRecognizer::start_recognize(const char* session_begin_params)
 
 
 	if (errcode = sr_start_listening(&asr, FALSE)) {
-		printf("start listen failed %d\n", errcode);
+		LOG(ERROR) << "start listen failed, errcode: " << errcode << std::endl;
 		isquit = 1;
 	}
 
@@ -328,24 +329,24 @@ int SpeechRecognizer::start_recognize(const char* session_begin_params)
 		switch (waitres) {
 		case WAIT_OBJECT_0 + EVT_RESTART:
 			if (errcode = sr_stop_listening(&asr)) {
-				printf("stop listening failed %d\n", errcode);
+				LOG(ERROR) << "stop listening failed, errcode: " << errcode << std::endl;
 				isquit = 1;
 			}
 			sr_uninit(&asr);
 
 			// auto restart speech recognizer
 			if (errcode = sr_init(&asr, session_begin_params, SR_MIC, DEFAULT_INPUT_DEVID, &recnotifier)) {
-				printf("speech recognizer init failed\n");
+				LOG(ERROR) << "speech recognizer init failed" << std::endl;
 				isquit = 1;
 			}
 			if (errcode = sr_start_listening(&asr, FALSE)) {
-				printf("start listen failed %d\n", errcode);
+				LOG(ERROR) << "start listen failed, errcode: " << errcode << std::endl;
 				isquit = 1;
 			}
 			break;
 		case WAIT_OBJECT_0 + EVT_PAUSE:
 			if (errcode = sr_stop_listening(&asr)) {
-				printf("stop listening failed %d\n", errcode);
+				LOG(ERROR) << "stop listening failed, errcode: " << errcode << std::endl;
 				isquit = 1;
 			}
 			sr_uninit(&asr);
@@ -359,22 +360,22 @@ int SpeechRecognizer::start_recognize(const char* session_begin_params)
 
 			// restart speech recognizer
 			if (errcode = sr_init(&asr, session_begin_params, SR_MIC, DEFAULT_INPUT_DEVID, &recnotifier)) {
-				printf("speech recognizer init failed\n");
+				LOG(ERROR) << "speech recognizer init failed" << std::endl;
 				isquit = 1;
 			}
 			if (errcode = sr_start_listening(&asr, FALSE)) {
-				printf("start listen failed %d\n", errcode);
+				LOG(ERROR) << "start listen failed, errcode: " << errcode << std::endl;
 				isquit = 1;
 			}
 			break;
 		case WAIT_OBJECT_0 + EVT_QUIT:
 			isquit = 1;
 			if (errcode = sr_stop_listening(&asr)) {
-				printf("stop listening failed %d\n", errcode);
+				LOG(ERROR) << "stop listening failed, errcode: " << errcode << std::endl;
 			}
 			break;
 		default:
-			printf("Why it happened !?\n");
+			LOG(ERROR) << "Why it happened !?" << std::endl;
 			break;
 		}
 	}

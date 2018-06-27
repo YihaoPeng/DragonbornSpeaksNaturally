@@ -3,6 +3,7 @@
 */
 #include "DSNService.h"
 #include "utils.h"
+#include "aixlog.hpp"
 
 #include <iostream>
 #include <string>
@@ -13,7 +14,7 @@
 const wchar_t * DSNService::CONFIG_INI_PATH = L"./DragonbornSpeaksNaturally.ini"; // 配置文件路径
 
 void DSNService::result_callback(int id, int confidence) {
-	printf("result_callback, id: %d, confidence: %d\n", id, confidence);
+	LOG(INFO) << "result_callback, id: " << id << ", confidence: " << confidence << std::endl;
 
 	if (isRecognizingDialog && id < dialogList.size() && confidence >= dialogueMinConfidence) {
 		std::cout << dialogList[id] << std::endl;
@@ -30,7 +31,7 @@ void DSNService::readConfigureFromIniFile()
 	dialogueMinConfidence = GetPrivateProfileInt(L"SpeechRecognition", L"dialogueMinConfidenceXunfei", 0, CONFIG_INI_PATH);
 	commandMinConfidence = GetPrivateProfileInt(L"SpeechRecognition", L"commandMinConfidenceXunfei", 0, CONFIG_INI_PATH);
 
-	printf("Min confidences, dialog: %d, command: %d\n", dialogueMinConfidence, commandMinConfidence);
+	LOG(INFO) << "Min confidences, dialog: " << dialogueMinConfidence  << ", command: " << commandMinConfidence << std::endl;
 
 
 	////////////////////////// read console commands //////////////////////////
@@ -57,7 +58,7 @@ void DSNService::readConfigureFromIniFile()
 				std::string commandPhrase = commandLine.substr(0, pos);
 				std::string command = commandLine.substr(pos + 1);
 
-				printf("command: %s = %s\n", commandPhrase.c_str(), command.c_str());
+				LOG(INFO) << "command: " << commandPhrase.c_str() << " = " << command.c_str() << std::endl;
 
 				commandPhraseList.push_back(commandPhrase);
 				commandList.push_back("COMMAND|" + command);
@@ -91,6 +92,8 @@ DWORD DSNService::readlineThread(void * udata)
 		if (line.empty()) {
 			continue;
 		}
+
+		LOG(INFO) << "recv: " << line;
 		
 		auto params = string_split(line, '|');
 		dsnService->parseReceivedCommand(params);
@@ -144,29 +147,29 @@ void DSNService::start()
 	readConfigureFromIniFile();
 	speechRecognizer.setResultCallback(std::bind(&DSNService::result_callback, this, std::placeholders::_1, std::placeholders::_2));
 
-	printf("构建离线识别语法网络...\n");
+	LOG(INFO) << "构建离线识别语法网络..." << std::endl;
 	ret = speechRecognizer.init();  //第一次使用某语法进行识别，需要先构建语法网络，获取语法ID，之后使用此语法进行识别，无需再次构建
 	if (MSP_SUCCESS != ret) {
-		printf("构建语法调用失败！\n");
+		LOG(ERROR) << "构建语法调用失败！" << std::endl;
 		return;
 	}
-	printf("离线识别语法网络构建完成\n");
+	LOG(INFO) << "离线识别语法网络构建完成" << std::endl;
 
-	printf("更新离线语法词典...\n");
+	LOG(INFO) << "更新离线语法词典..." << std::endl;
 	//当语法词典槽中的词条需要更新时，调用QISRUpdateLexicon接口完成更新
 	ret = speechRecognizer.updateCommandList(commandPhraseList);
 	if (MSP_SUCCESS != ret) {
-		printf("更新词典调用失败！\n");
+		LOG(ERROR) << "更新词典调用失败！" << std::endl;
 		return;
 	}
-	printf("更新离线语法词典完成，开始识别...\n");
+	LOG(INFO) << "更新离线语法词典完成，开始识别..." << std::endl;
 
 
 	CreateThread(NULL, 0, DSNService::readlineThread, this, 0L, NULL);
 
 	ret = speechRecognizer.startRecognize();
 	if (MSP_SUCCESS != ret) {
-		printf("离线语法识别出错: %d \n", ret);
+		LOG(ERROR) << "离线语法识别出错: " << ret << std::endl;
 		return;
 	}
 }
