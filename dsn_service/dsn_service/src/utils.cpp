@@ -118,3 +118,17 @@ std::string UnicodeToUTF8(const std::wstring& str)
 	delete[] pElementText;
 	return strText;
 }
+
+std::string getModuleDirectory() {
+	std::string filePath;
+	filePath.resize(MAX_PATH + 1);
+	GetModuleFileName(NULL, (LPSTR)filePath.data(), filePath.size()); //获取程序当前执行文件名
+	size_t pos = filePath.rfind('\\');
+	if (pos == filePath.npos) {
+		filePath = ".";
+	}
+	else {
+		filePath = filePath.substr(0, pos);
+	}
+	return filePath;
+}

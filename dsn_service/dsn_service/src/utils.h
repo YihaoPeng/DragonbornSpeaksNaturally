@@ -10,4 +10,7 @@ std::string UnicodeToANSI(const std::wstring& str);
 std::wstring UTF8ToUnicode(const std::string& str);
 std::string UnicodeToUTF8(const std::wstring& str);
 
+// 获取可执行文件所在目录，不包含结尾的 /
+std::string getModuleDirectory();
+
 #endif
