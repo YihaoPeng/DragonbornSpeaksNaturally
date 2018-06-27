@@ -51,7 +51,6 @@
 
 #ifdef _WIN32
 #include <Windows.h>
-#include "utils.h"
 // ERROR macro is defined in Windows header
 // To avoid conflict between these macro and declaration of ERROR / DEBUG in SEVERITY enum
 // We save macro and undef it
@@ -772,7 +771,7 @@ struct SinkOutputDebugString : public Sink
 
 	void log(const Metadata& metadata, const std::string& message) override
 	{
-		OutputDebugString(UTF8ToUnicode(message).c_str());
+		OutputDebugString(message.c_str());
 	}
 };
 #endif
@@ -940,7 +939,7 @@ struct SinkEventLog : public Sink
 {
 	SinkEventLog(const std::string& ident, Severity severity, Type type = Type::all) : Sink(severity, type)
 	{
-		event_log = RegisterEventSource(NULL, UTF8ToUnicode(ident).c_str());
+		event_log = RegisterEventSource(NULL, ident.c_str());
 	}
 
 	WORD get_type(Severity severity) const
@@ -966,9 +965,8 @@ struct SinkEventLog : public Sink
 
 	void log(const Metadata& metadata, const std::string& message) override
 	{
-		std::wstring messageW = UTF8ToUnicode(message);
 		// We need this temp variable because we cannot take address of rValue
-		const wchar_t* c_str = messageW.c_str();
+		const char* c_str = message.c_str(); 
 		ReportEvent(event_log, get_type(metadata.severity), 0, 0, NULL, 1, 0, &c_str, NULL);
 	}
 

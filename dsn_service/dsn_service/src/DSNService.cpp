@@ -11,10 +11,10 @@
 #include <algorithm>
 #include <map>
 
-const wchar_t * DSNService::CONFIG_INI_PATH = L"./DragonbornSpeaksNaturally.ini"; // 配置文件路径
+const char * DSNService::CONFIG_INI_PATH = "./DragonbornSpeaksNaturally.ini"; // 配置文件路径
 
 void DSNService::result_callback(int id, int confidence) {
-	LOG(INFO) << "result_callback, id: " << id << ", confidence: " << confidence << std::endl;
+	//LOG(INFO) << "result_callback, id: " << id << ", confidence: " << confidence << std::endl;
 
 	if (isRecognizingDialog && id < dialogList.size() && confidence >= dialogueMinConfidence) {
 		std::cout << dialogList[id] << std::endl;
@@ -28,8 +28,8 @@ void DSNService::readConfigureFromIniFile()
 {
 	////////////////////////// read confidences //////////////////////////
 
-	dialogueMinConfidence = GetPrivateProfileInt(L"SpeechRecognition", L"dialogueMinConfidenceXunfei", 0, CONFIG_INI_PATH);
-	commandMinConfidence = GetPrivateProfileInt(L"SpeechRecognition", L"commandMinConfidenceXunfei", 0, CONFIG_INI_PATH);
+	dialogueMinConfidence = GetPrivateProfileInt("SpeechRecognition", "dialogueMinConfidenceXunfei", 0, CONFIG_INI_PATH);
+	commandMinConfidence = GetPrivateProfileInt("SpeechRecognition", "commandMinConfidenceXunfei", 0, CONFIG_INI_PATH);
 
 	LOG(INFO) << "Min confidences, dialog: " << dialogueMinConfidence  << ", command: " << commandMinConfidence << std::endl;
 
@@ -39,10 +39,10 @@ void DSNService::readConfigureFromIniFile()
 	commandList.clear();
 	commandPhraseList.clear();
 
-	std::wstring commandBuf;
+	std::string commandBuf;
 	commandBuf.resize(102400); // 100KB
 
-	size_t copiedChars = GetPrivateProfileSection(L"ConsoleCommands", (LPWSTR)commandBuf.data(), (DWORD)commandBuf.size(), CONFIG_INI_PATH);
+	size_t copiedChars = GetPrivateProfileSection("ConsoleCommands", (LPSTR)commandBuf.data(), (DWORD)commandBuf.size(), CONFIG_INI_PATH);
 	if (copiedChars == 0) {
 		return;
 	}
@@ -51,7 +51,7 @@ void DSNService::readConfigureFromIniFile()
 	size_t i = 0;
 	for (size_t j = 0; j < commandBuf.size(); j++) {
 		if (commandBuf[j] == L'\0' && j > i) {
-			std::string commandLine = UnicodeToUTF8(commandBuf.substr(i, j - i));
+			std::string commandLine = commandBuf.substr(i, j - i);
 
 			size_t pos = commandLine.find('=');
 			if (pos != commandLine.npos) {
@@ -93,7 +93,7 @@ DWORD DSNService::readlineThread(void * udata)
 			continue;
 		}
 
-		LOG(INFO) << "recv: " << line;
+		LOG(INFO) << "recv: " << line << std::endl;
 		
 		auto params = string_split(line, '|');
 		dsnService->parseReceivedCommand(params);
