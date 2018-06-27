@@ -22,6 +22,7 @@ protected:
 
 	void result_callback(int id, int confidence);
 	void readConfigureFromIniFile();
+	void parseReceivedCommand(const std::vector<std::string> &params);
 
 	static const wchar_t * CONFIG_INI_PATH; // 配置文件路径
 

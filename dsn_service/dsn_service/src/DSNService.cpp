@@ -93,15 +93,48 @@ DWORD DSNService::readlineThread(void * udata)
 		}
 		
 		auto params = string_split(line, '|');
-		int ret = dsnService->speechRecognizer.updateCommandList(params);
-		if (MSP_SUCCESS != ret) {
-			printf("更新词典调用失败！\n");
-		}
+		dsnService->parseReceivedCommand(params);
 	}
 
 	dsnService->speechRecognizer.stopRecognize();
 
 	return 0;
+}
+
+void DSNService::parseReceivedCommand(const std::vector<std::string> &params) {
+	if (params.empty()) {
+		return;
+	}
+
+	const std::string &action = params[0];
+	
+	if (action == "START_DIALOGUE") {
+		// recv: START_DIALOGUE|id|words1|words2|...
+		// exam: START_DIALOGUE|4|hello world|time is money
+		if (params.size() < 3) {
+			// non words
+			return;
+		}
+
+		// reply: DIALOGUE|id|wordIndex
+		// examp: DIALOGUE|4|0
+		//        DIALOGUE|4|1
+		std::string cmdPrefix = "DIALOGUE|" + params[1] + "|";
+
+		for (size_t i=2, j=0; i<params.size(); i++, j++) {
+			dialogPhraseList.push_back(params[i]);
+			dialogList.push_back(cmdPrefix + std::to_string(j));
+		}
+
+		speechRecognizer.updateCommandList(dialogPhraseList);
+		isRecognizingDialog = true;
+	}
+	else if (action == "STOP_DIALOGUE") {
+		// back to recognizing commands
+		speechRecognizer.updateCommandList(commandPhraseList);
+		isRecognizingDialog = false;
+	}
+
 }
 
 void DSNService::start()
