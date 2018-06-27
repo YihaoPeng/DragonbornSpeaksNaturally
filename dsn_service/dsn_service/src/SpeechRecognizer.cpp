@@ -35,12 +35,12 @@ int SpeechRecognizer::build_grm_cb(int ecode, const char *info, void *udata)
 	}
 
 	if (MSP_SUCCESS == ecode && NULL != info) {
-		LOG(INFO) << "构建语法成功！ 语法ID: " << info << std::endl;
+		//LOG(INFO) << "building grammar success, grammer id: " << info << std::endl;
 		if (NULL != sr)
 			_snprintf(sr->grammar_id, MAX_GRAMMARID_LEN - 1, info);
 	}
 	else
-		LOG(ERROR) << "构建语法失败！ errcode: " << ecode << std::endl;
+		LOG(ERROR) << "building grammar failed, errcode: " << ecode << std::endl;
 
 	return 0;
 }
@@ -116,11 +116,12 @@ int SpeechRecognizer::update_lex_cb(int ecode, const char *info, void *udata)
 		SetEvent(sr->eventUpdateFinish);
 	}
 
-	if (MSP_SUCCESS == ecode)
-		LOG(INFO) << "更新词典成功！" << std::endl;
-	else
-		LOG(ERROR) << "更新词典失败！ errcode: " << ecode << std::endl;
-
+	if (MSP_SUCCESS == ecode) {
+		//LOG(INFO) << "update wordlist success" << std::endl;
+	}
+	else {
+		LOG(ERROR) << "update wordlist failed, errcode: " << ecode << std::endl;
+	}
 	return 0;
 }
 

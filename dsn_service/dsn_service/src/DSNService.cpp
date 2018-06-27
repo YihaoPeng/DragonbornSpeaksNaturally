@@ -85,6 +85,8 @@ std::vector<std::string> DSNService::string_split(const std::string &s, char del
 
 DWORD DSNService::readlineThread(void * udata)
 {
+	LOG(INFO) << "readline thread running..." << std::endl;
+
 	DSNService *dsnService = (DSNService *)udata;
 
 	std::string line;
@@ -151,29 +153,27 @@ void DSNService::start()
 	readConfigureFromIniFile();
 	speechRecognizer.setResultCallback(std::bind(&DSNService::result_callback, this, std::placeholders::_1, std::placeholders::_2));
 
-	LOG(INFO) << "构建离线识别语法网络..." << std::endl;
+	LOG(INFO) << "building recognize grammar..." << std::endl;
 	ret = speechRecognizer.init();  //第一次使用某语法进行识别，需要先构建语法网络，获取语法ID，之后使用此语法进行识别，无需再次构建
 	if (MSP_SUCCESS != ret) {
-		LOG(ERROR) << "构建语法调用失败！" << std::endl;
+		LOG(ERROR) << "building recognize grammar failed, errcode: " << ret << std::endl;
 		return;
 	}
-	LOG(INFO) << "离线识别语法网络构建完成" << std::endl;
 
-	LOG(INFO) << "更新离线语法词典..." << std::endl;
-	//当语法词典槽中的词条需要更新时，调用QISRUpdateLexicon接口完成更新
+	LOG(INFO) << "building grammar success, update wordlist..." << std::endl;
 	ret = speechRecognizer.updateCommandList(commandPhraseList);
 	if (MSP_SUCCESS != ret) {
-		LOG(ERROR) << "更新词典调用失败！" << std::endl;
+		LOG(ERROR) << "update wordlist failed, errcode: " << ret << std::endl;
 		return;
 	}
-	LOG(INFO) << "更新离线语法词典完成，开始识别..." << std::endl;
 
+	LOG(INFO) << "update wordlist success, start recognize..." << std::endl;
 
 	CreateThread(NULL, 0, DSNService::readlineThread, this, 0L, NULL);
 
 	ret = speechRecognizer.startRecognize();
 	if (MSP_SUCCESS != ret) {
-		LOG(ERROR) << "离线语法识别出错: " << ret << std::endl;
+		LOG(ERROR) << "start recognize failed, errcode: " << ret << std::endl;
 		return;
 	}
 }
