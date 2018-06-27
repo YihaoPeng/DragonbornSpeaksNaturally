@@ -14,6 +14,10 @@ const wchar_t * DSNService::CONFIG_INI_PATH = L"./DragonbornSpeaksNaturally.ini"
 
 void DSNService::result_callback(int id, int confidence) {
 	printf("result_callback, id: %d, confidence: %d\n", id, confidence);
+
+	if (!isRecognizingDialog && id < commandList.size() && confidence > 10) {
+		std::cout << "COMMAND|" << commandList[id] << std::endl;
+	}
 }
 
 void DSNService::readCommandsFromIniFile()
