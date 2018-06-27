@@ -1,8 +1,8 @@
 ﻿/*
 * “龙裔自然对话”服务端（负责语音识别）
 */
-#ifndef __SPEECH_RECOGNIZER__
-#define __SPEECH_RECOGNIZER__
+#ifndef __DSN_SPEECH_RECOGNIZER_H__
+#define __DSN_SPEECH_RECOGNIZER_H__
 
 // disable "This function or variable may be unsafe"
 #define _CRT_SECURE_NO_WARNINGS

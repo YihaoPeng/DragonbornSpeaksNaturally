@@ -29,6 +29,9 @@
     <ClInclude Include="src\utilities_js.hpp">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="src\utils.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\DSNService.cpp">
@@ -44,6 +47,9 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="src\api_recording.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="src\utils.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

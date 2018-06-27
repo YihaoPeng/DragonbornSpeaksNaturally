@@ -46,6 +46,10 @@ int SpeechRecognizer::build_grm_cb(int ecode, const char *info, void *udata)
 
 int SpeechRecognizer::updateCommandList(const std::vector<std::string>& commandList)
 {
+	if (commandList.empty()) {
+		return MSP_SUCCESS;
+	}
+
 	std::string commands;
 
 	for (size_t i = 0; i < commandList.size(); i++) {

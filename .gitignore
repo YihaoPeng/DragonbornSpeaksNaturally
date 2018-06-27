@@ -5,6 +5,7 @@
 *.vcxproj.user
 
 /bin/msc/res/asr/GrmBuild*/
+/bin/DragonbornSpeaksNaturally.ini
 
 .vs/
 .vscode/

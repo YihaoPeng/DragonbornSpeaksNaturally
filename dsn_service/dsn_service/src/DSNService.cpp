@@ -2,6 +2,7 @@
 * “龙裔自然对话”服务端（负责语音识别）
 */
 #include "DSNService.h"
+#include "utils.h"
 
 #include <iostream>
 #include <string>
@@ -9,8 +10,47 @@
 #include <algorithm>
 #include <map>
 
+const wchar_t * DSNService::CONFIG_INI_PATH = L"./DragonbornSpeaksNaturally.ini"; // 配置文件路径
+
 void DSNService::result_callback(int id, int confidence) {
 	printf("result_callback, id: %d, confidence: %d\n", id, confidence);
+}
+
+void DSNService::readCommandsFromIniFile()
+{
+	commandList.clear();
+	commandPhraseList.clear();
+
+	std::wstring commandBuf;
+	commandBuf.resize(102400); // 100KB
+
+	size_t copiedChars = GetPrivateProfileSection(L"ConsoleCommands", (LPWSTR)commandBuf.data(), (DWORD)commandBuf.size(), CONFIG_INI_PATH);
+	if (copiedChars == 0) {
+		return;
+	}
+	commandBuf.resize(copiedChars);
+
+	size_t i = 0;
+	for (size_t j = 0; j < commandBuf.size(); j++) {
+		if (commandBuf[j] == L'\0' && j > i) {
+			std::string commandLine = UnicodeToUTF8(commandBuf.substr(i, j - i));
+
+			size_t pos = commandLine.find('=');
+			if (pos != commandLine.npos) {
+				std::string commandPhrase = commandLine.substr(0, pos);
+				std::string command = commandLine.substr(pos + 1);
+
+				printf("command: %s = %s\n", commandPhrase.c_str(), command.c_str());
+
+				commandPhraseList.push_back(commandPhrase);
+				commandList.push_back(command);
+			}
+
+			i = j + 1;
+		}
+	}
+
+	
 }
 
 std::vector<std::string> DSNService::string_split(const std::string &s, char delim) {
@@ -42,6 +82,8 @@ DWORD DSNService::readlineThread(void * udata)
 		}
 	}
 
+	dsnService->speechRecognizer.stopRecognize();
+
 	return 0;
 }
 
@@ -62,23 +104,14 @@ void DSNService::start()
 	printf("更新离线语法词典...\n");
 
 	//当语法词典槽中的词条需要更新时，调用QISRUpdateLexicon接口完成更新
-	ret = speechRecognizer.updateCommandList({
-		"time is money",
-		"time goes by",
-		"hello world",
-		"this is dragonborn",
-		"Fus Ro Dah",
-		"装备血吟刃",
-		"装备黑檀弓",
-		"我需要治疗",
-		"把那龙打下来",
-		"做好战斗准备"
-		});
+	readCommandsFromIniFile();
+	ret = speechRecognizer.updateCommandList(commandPhraseList);
 	if (MSP_SUCCESS != ret) {
 		printf("更新词典调用失败！\n");
 		return;
 	}
 	printf("更新离线语法词典完成，开始识别...\n");
+
 
 	CreateThread(NULL, 0, DSNService::readlineThread, this, 0L, NULL);
 
