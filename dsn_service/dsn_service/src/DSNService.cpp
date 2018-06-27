@@ -30,6 +30,8 @@ void DSNService::readConfigureFromIniFile()
 	dialogueMinConfidence = GetPrivateProfileInt(L"SpeechRecognition", L"dialogueMinConfidenceXunfei", 0, CONFIG_INI_PATH);
 	commandMinConfidence = GetPrivateProfileInt(L"SpeechRecognition", L"commandMinConfidenceXunfei", 0, CONFIG_INI_PATH);
 
+	printf("Min confidences, dialog: %d, command: %d\n", dialogueMinConfidence, commandMinConfidence);
+
 
 	////////////////////////// read console commands //////////////////////////
 
