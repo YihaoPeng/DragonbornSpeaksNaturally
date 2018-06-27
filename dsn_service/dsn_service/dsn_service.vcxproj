@@ -190,7 +190,8 @@ copy $(ProjectDir)..\..\bin\msc_x64.dll $(SolutionDir)$(Platform)\$(Configuratio
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\.gitignore" />
-    <None Include="..\..\bin\dsn.bnf" />
+    <None Include="..\..\bin\DragonbornSpeaksNaturally.ini" />
+    <None Include="..\..\bin\DragonbornSpeaksNaturally.sample.ini" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

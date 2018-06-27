@@ -15,13 +15,24 @@ const wchar_t * DSNService::CONFIG_INI_PATH = L"./DragonbornSpeaksNaturally.ini"
 void DSNService::result_callback(int id, int confidence) {
 	printf("result_callback, id: %d, confidence: %d\n", id, confidence);
 
-	if (!isRecognizingDialog && id < commandList.size() && confidence > 10) {
-		std::cout << "COMMAND|" << commandList[id] << std::endl;
+	if (isRecognizingDialog && id < dialogList.size() && confidence >= dialogueMinConfidence) {
+		std::cout << dialogList[id] << std::endl;
+	}
+	else if (id < commandList.size() && confidence >= commandMinConfidence) {
+		std::cout << commandList[id] << std::endl;
 	}
 }
 
-void DSNService::readCommandsFromIniFile()
+void DSNService::readConfigureFromIniFile()
 {
+	////////////////////////// read confidences //////////////////////////
+
+	dialogueMinConfidence = GetPrivateProfileInt(L"SpeechRecognition", L"dialogueMinConfidenceXunfei", 0, CONFIG_INI_PATH);
+	commandMinConfidence = GetPrivateProfileInt(L"SpeechRecognition", L"commandMinConfidenceXunfei", 0, CONFIG_INI_PATH);
+
+
+	////////////////////////// read console commands //////////////////////////
+
 	commandList.clear();
 	commandPhraseList.clear();
 
@@ -47,7 +58,7 @@ void DSNService::readCommandsFromIniFile()
 				printf("command: %s = %s\n", commandPhrase.c_str(), command.c_str());
 
 				commandPhraseList.push_back(commandPhrase);
-				commandList.push_back(command);
+				commandList.push_back("COMMAND|" + command);
 			}
 
 			i = j + 1;
@@ -95,6 +106,7 @@ void DSNService::start()
 {
 	int ret = 0;
 
+	readConfigureFromIniFile();
 	speechRecognizer.setResultCallback(std::bind(&DSNService::result_callback, this, std::placeholders::_1, std::placeholders::_2));
 
 	printf("构建离线识别语法网络...\n");
@@ -106,9 +118,7 @@ void DSNService::start()
 	printf("离线识别语法网络构建完成\n");
 
 	printf("更新离线语法词典...\n");
-
 	//当语法词典槽中的词条需要更新时，调用QISRUpdateLexicon接口完成更新
-	readCommandsFromIniFile();
 	ret = speechRecognizer.updateCommandList(commandPhraseList);
 	if (MSP_SUCCESS != ret) {
 		printf("更新词典调用失败！\n");

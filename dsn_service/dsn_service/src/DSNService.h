@@ -21,7 +21,7 @@ protected:
 	static std::vector<std::string> string_split(const std::string &s, char delim);
 
 	void result_callback(int id, int confidence);
-	void readCommandsFromIniFile();
+	void readConfigureFromIniFile();
 
 	static const wchar_t * CONFIG_INI_PATH; // 配置文件路径
 
@@ -37,6 +37,9 @@ protected:
 
 	// if false, is recognizing commands
 	std::atomic<bool> isRecognizingDialog = false;
+
+	int dialogueMinConfidence = 0;
+	int commandMinConfidence = 0;
 };
 
 #endif

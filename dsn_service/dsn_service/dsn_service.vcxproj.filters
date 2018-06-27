@@ -57,7 +57,10 @@
     <None Include="..\..\.gitignore">
       <Filter>其他文件</Filter>
     </None>
-    <None Include="..\..\bin\dsn.bnf">
+    <None Include="..\..\bin\DragonbornSpeaksNaturally.ini">
+      <Filter>其他文件</Filter>
+    </None>
+    <None Include="..\..\bin\DragonbornSpeaksNaturally.sample.ini">
       <Filter>其他文件</Filter>
     </None>
   </ItemGroup>
