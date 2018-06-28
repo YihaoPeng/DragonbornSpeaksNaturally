@@ -36,6 +36,19 @@ void DSNService::readConfigureFromIniFile()
 	LOG(INFO) << "Min confidences, dialog: " << dialogueMinConfidence  << ", command: " << commandMinConfidence << std::endl;
 
 
+	////////////////////////// read goodbye phrases //////////////////////////
+
+	std::string goodbyePhrasesBuf;
+	goodbyePhrasesBuf.resize(1024); // 1KB
+	size_t goodbyePhrasesSize = GetPrivateProfileString("Dialogue", "goodbyePhrases", "", (LPSTR)goodbyePhrasesBuf.data(), goodbyePhrasesBuf.size(), CONFIG_INI_PATH);
+	goodbyePhrasesBuf.resize(goodbyePhrasesSize);
+	goodbyePhraseList = string_split(goodbyePhrasesBuf, ';');
+
+	for (size_t i = 0; i < goodbyePhraseList.size(); i++) {
+		LOG(INFO) << "goodbye phrase: " << goodbyePhraseList[i] << std::endl;
+	}
+
+
 	////////////////////////// read console commands //////////////////////////
 
 	commandList.clear();
@@ -134,6 +147,13 @@ void DSNService::parseReceivedCommand(const std::vector<std::string> &params) {
 		for (size_t i=2, j=0; i<params.size(); i++, j++) {
 			dialogPhraseList.push_back(params[i]);
 			dialogList.push_back(cmdPrefix + std::to_string(j));
+		}
+
+		// add goodbye phrases
+		// command of goodbye phrases: DIALOGUE|id|-2
+		for (size_t i = 0; i < goodbyePhraseList.size(); i++) {
+			dialogPhraseList.push_back(goodbyePhraseList[i]);
+			dialogList.push_back(cmdPrefix + "-2");
 		}
 
 		speechRecognizer.updateCommandList(dialogPhraseList);

@@ -36,6 +36,8 @@ protected:
 	std::vector<std::string> dialogList;
 	std::vector<std::string> dialogPhraseList;
 
+	std::vector<std::string> goodbyePhraseList;
+
 	// if false, is recognizing commands
 	std::atomic<bool> isRecognizingDialog = false;
 
