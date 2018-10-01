@@ -3,6 +3,7 @@
 #include "Log.h"
 #include <Windows.h>
 #include "SkyrimType.h"
+#include "skse64_common/Utilities.h"
 
 extern SkyrimType g_SkyrimType;
 
@@ -13,38 +14,6 @@ VersionCheck::VersionCheck()
 VersionCheck::~VersionCheck()
 {
 }
-
-std::string GetRuntimePath()
-{
-	static char	appPath[4096] = { 0 };
-
-	if (appPath[0])
-		return appPath;
-
-	ASSERT(GetModuleFileName(GetModuleHandle(NULL), appPath, sizeof(appPath)));
-
-	return appPath;
-}
-
-const std::string & GetRuntimeDirectory()
-{
-	static std::string s_runtimeDirectory;
-
-	if (s_runtimeDirectory.empty())
-	{
-		std::string	runtimePath = GetRuntimePath();
-
-		// truncate at last slash
-		std::string::size_type	lastSlash = runtimePath.rfind('\\');
-		if (lastSlash != std::string::npos)	// if we don't find a slash something is VERY WRONG
-		{
-			s_runtimeDirectory = runtimePath.substr(0, lastSlash + 1);
-		}
-	}
-
-	return s_runtimeDirectory;
-}
-
 
 static bool GetFileVersion(const char * path, VS_FIXEDFILEINFO * info, std::string * outProductName, std::string * outProductVersion)
 {
