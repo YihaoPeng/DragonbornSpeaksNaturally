@@ -2,6 +2,7 @@
 #include "skse64/GameMenus.h"
 #include "DSNMenuManager.h"
 #include "skse64/GameTypes.h"
+#include "skse64/Hooks_DirectInput8Create.h"
 #include "Log.h"
 
 #include <sstream>
@@ -89,7 +90,7 @@ bool ConsoleCommandRunner::TryRunCustomCommand(const std::string & command) {
 	}
 	Log::info(std::string("action: ") + action);
 
-	if (action == "press") {
+	if (action == "tapkey") {
 		// mutex is automatically released when scopeLock goes out of scope
 		std::lock_guard<std::mutex> scopeLock(customCmdQueueLock);
 
@@ -117,7 +118,7 @@ DWORD WINAPI ConsoleCommandRunner::RunCustomCommandThread(void* ctx) {
 		std::vector<std::string> params = customCmdQueue.front();
 		customCmdQueue.pop();
 
-		if (params[0] == "press") {
+		if (params[0] == "tapkey") {
 			RunCustomCommandPress(params);
 		}
 	}
@@ -128,16 +129,16 @@ void ConsoleCommandRunner::Initialize() {
 }
 
 void ConsoleCommandRunner::RunCustomCommandPress(const std::vector<std::string>& params) {
-	std::vector<int /*key*/> keyDown;
-	std::map<int /*time*/, int /*key*/> keyUp;
+	std::vector<uint32_t /*key*/> keyDown;
+	std::map<time_t /*time*/, uint32_t /*key*/> keyUp;
 
-	// command: press <key> <time> <key> <time> ...
-	//           [0]   [1]   [2]    [3]   [4]
+	// command: tapkey <key> <time> <key> <time> ...
+	//           [0]    [1]   [2]    [3]   [4]
 	for (size_t i = 1; i + 1 < params.size(); i += 2) {
 		const std::string &keyStr = params[i];
 		const std::string &timeStr = params[i + 1];
-		int key = 0;
-		int time = 0;
+		uint32_t key = 0;
+		time_t time = 0;
 
 		if (keyStr.empty()) {
 			continue;
@@ -153,11 +154,11 @@ void ConsoleCommandRunner::RunCustomCommandPress(const std::vector<std::string>&
 		}
 		else if ('A' <= keyStr[0] && keyStr[0] <= 'Z') {
 			// character
-			key = (int)keyStr[0];
+			key = (uint32_t)keyStr[0];
 		}
 		else if ('a' <= keyStr[0] && keyStr[0] <= 'z') {
 			// lower character, to upper
-			key = (int)(keyStr[0] - ('a' - 'A'));
+			key = (uint32_t)(keyStr[0] - ('a' - 'A'));
 		}
 		else {
 			continue;
@@ -179,14 +180,13 @@ void ConsoleCommandRunner::RunCustomCommandPress(const std::vector<std::string>&
 		}
 		keyUp[time] = key;
 
+
+		DIHookControl input = DIHookControl::GetSingleton();
+
 		// send KEY_DOWN
 		for (auto itr = keyDown.begin(); itr != keyDown.end(); itr++) {
-			INPUT input;
-			ZeroMemory(&input, sizeof(input));
-
-			input.type = INPUT_KEYBOARD;
-			input.ki.wVk = *itr;
-			SendInput(1, &input, sizeof(INPUT));
+			Log::info("HoldKey " + std::to_string(*itr));
+			input.BufferedKeyPress(*itr);
 		}
 
 		// send KEY_UP
@@ -196,13 +196,8 @@ void ConsoleCommandRunner::RunCustomCommandPress(const std::vector<std::string>&
 			Sleep(sleepTime);
 			totalSleepTime += sleepTime;
 
-			INPUT input;
-			ZeroMemory(&input, sizeof(input));
-
-			input.type = INPUT_KEYBOARD;
-			input.ki.wVk = (*itr).second;
-			input.ki.dwFlags = KEYEVENTF_KEYUP;
-			SendInput(1, &input, sizeof(INPUT));
+			Log::info("ReleaseKey " + std::to_string(itr->second));
+			input.BufferedKeyRelease(itr->second);
 		}
 	}
 }
