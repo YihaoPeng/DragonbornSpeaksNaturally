@@ -181,7 +181,7 @@ void ConsoleCommandRunner::RunCustomCommandPress(const std::vector<std::string>&
 		keyUp[time] = key;
 
 
-		DIHookControl input = DIHookControl::GetSingleton();
+		DIHookControl &input = DIHookControl::GetSingleton();
 
 		// send KEY_DOWN
 		for (auto itr = keyDown.begin(); itr != keyDown.end(); itr++) {
