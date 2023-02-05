@@ -102,6 +102,11 @@ namespace DSN
                                 phrase.Words[i] = Phrases.cleanBlank(phrase.Words[i]);
                             }
                         }
+                        if (config.LowercasePhrases()) {
+                            for (int i = 0; i < phrase.Words.Count; i++) {
+                                phrase.Words[i] = phrase.Words[i].ToLower();
+                            }
+                        }
 
                         string words;
                         if (phrase.Words.Count > 1) {

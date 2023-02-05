@@ -82,6 +82,7 @@ namespace DSN {
 
         private string locale;
         private bool needSegmenter = false;
+        private bool lowercasePhrases = false;
 
         public Configuration() {
             iniFilePath = ResolveFilePath(CONFIG_FILE_NAMES);
@@ -101,11 +102,18 @@ namespace DSN {
             }
 
             string engine = Get("SpeechRecognition", "Engine", "").Trim().ToLower();
+            string lowercase = Get("SpeechRecognition", "bLowercasePhrases", "");
             if (engine == "voice2json") {
                 recognitionEngine = RecognitionEngine.Voice2Json;
 
                 if (locale.Contains("zh")) {
                     needSegmenter = true;
+                } else if (locale.Contains("ru") && lowercase == "") {
+                    // Russian capital letters are not handled correctly by Voice2Json.
+                    lowercase = "1";
+                }
+                if (lowercase == "1") {
+                    lowercasePhrases = true;
                 }
             }
 
@@ -231,6 +239,10 @@ namespace DSN {
         public bool NeedSegmenter()
         {
             return needSegmenter;
+        }
+
+        public bool LowercasePhrases() {
+            return lowercasePhrases;
         }
 
         public string GetItemNameMap() {
