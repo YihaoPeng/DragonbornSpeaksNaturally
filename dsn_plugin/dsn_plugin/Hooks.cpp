@@ -353,6 +353,9 @@ void Hooks_Inject(void)
 
 	RelocAddr<uintptr_t> kSkyrimBaseAddr(0);
 	uintptr_t kHook_Invoke_Enter = InvokeFunction.GetUIntPtr() + 0xEE;
+#ifdef IS_AE
+	kHook_Invoke_Enter -= 9;
+#endif
 	uintptr_t kHook_Invoke_Target = getCallTarget(kHook_Invoke_Enter);
 	uintptr_t kHook_Invoke_Return = kHook_Invoke_Enter + 0x14;
 

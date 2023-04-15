@@ -1,6 +1,7 @@
 Hook Entry:
 1. Search for "call" make jump 2 lines below
-2. It equals InvokeFunction + 0xEE (in skse64/ScaleformAPI.cpp)
+2. It equals InvokeFunction + 0xEE (in skse64/ScaleformAPI.cpp) in SSE (1.5.*) and VR.
+3. It equals InvokeFunction + 0xE5 (0xEE - 9) in AE (1.6.*).
 
 Hook Loop:
 1. Search for "CurrentTime" (Should be FIRST entry)
