@@ -143,35 +143,10 @@ std::string VersionCheck::GetSkyrimExecutableName() {
 }
 
 bool VersionCheck::IsCompatibleExeVersion() {
+	Log::info("This dll is built for " + SKYRIM_VERSION_NAME[g_DllType] + " " + SKYRIM_VERSION_STR[g_DllType]);
+
 	std::string procName = VersionCheck::GetSkyrimExecutableName();
-
-	if (procName == "SkyrimVR.exe") {
-		g_SkyrimType = VR;
-
-		#ifndef IS_VR
-			Log::info("This dll is built for SkyrimSE and may not compatible with SkyrimVR.");
-			Log::info("Please consider switching to the dll for SkyrimVR.");
-		#endif
-	}
-	else if(procName == "SkyrimSE.exe") {
-		g_SkyrimType = SE;
-
-		#ifdef IS_VR
-			Log::info("This dll is built for SkyrimVR and may not compatible with SkyrimSE.");
-			Log::info("Please consider switching to the dll for SkyrimSE.");
-		#endif
-	}
-	else {
-		Log::info("Unknown process name: " + procName);
-
-		#ifdef IS_VR
-			g_SkyrimType = VR;
-			Log::info("This dll is built for SkyrimVR and may not compatible with SkyrimSE.");
-		#else
-			g_SkyrimType = SE;
-			Log::info("This dll is built for SkyrimSE and may not compatible with SkyrimVR.");
-		#endif
-	}
+	Log::info("Process name: " + procName);
 
 	const std::string & runtimeDir = GetRuntimeDirectory();
 	std::string procPath = runtimeDir + "\\" + procName;
@@ -179,29 +154,59 @@ bool VersionCheck::IsCompatibleExeVersion() {
 	std::string	productName;
 	if (!GetFileVersionData(procName.c_str(), &version, &productName))
 	{
+		Log::info("Failed to read the version of " + procName);
 		return false;
 	}
 
-	Log::info("Process name: " + procName);
+	// version number to string
+	std::string versionStr = std::to_string(version >> 48)
+		+ "." + std::to_string((version >> 32) & 0xFFFF)
+		+ "." + std::to_string((version >> 16) & 0xFFFF)
+		+ "." + std::to_string((version) & 0xFFFF);
+	Log::info("Skyrim Version: " + productName + " " + versionStr);
+
+	if (procName == "SkyrimVR.exe") {
+		g_SkyrimType = VR;
+	} else if(procName == "SkyrimSE.exe") {
+		if (version <= SKYRIM_VERSION[SE]) {
+			g_SkyrimType = SE;
+		} else {
+			g_SkyrimType = AE;
+		}
+	} else {
+		if (version > SKYRIM_VERSION[SE]) {
+			g_SkyrimType = AE;
+		} else if (version > SKYRIM_VERSION[VR]) {
+			g_SkyrimType = SE;
+		} else {
+			g_SkyrimType = VR;
+		}
+	}
+
+	if (g_DllType != g_SkyrimType) {
+		Log::info("This dragonborn_speaks_naturally.dll is not match your game. "
+			"Please use the dragonborn_speaks_naturally.dll in the mod zip "
+			+ MOD_DIR_NAME[g_DllType] + " folder for your game.");
+		return false;
+	}
 
 	const UInt64 kSkyrimCurVersion = SKYRIM_VERSION[g_SkyrimType];
 
 	if (version < kSkyrimCurVersion) {
 		Log::info("Error: Skyrim version is out of date, please ensure you're using version " + SKYRIM_VERSION_STR[g_SkyrimType]);
-		Log::hex("Skyrim Version: ", version);
 		return false;
 	}
-	
+
 	if (version > kSkyrimCurVersion) {
 		Log::info("This version of Skyrim is newer than the version supported by DSN.");
 		Log::info("DSN will continue to try to load, but the game may crash.");
 		Log::info("Please install the latest version of DSN once it's available or downgrade your Skyrim to " + SKYRIM_VERSION_STR[g_SkyrimType]);
 		Log::info("Skyrim downgrading guide: https://www.nexusmods.com/skyrimspecialedition/mods/19658");
-		Log::hex("Skyrim Version: ", version);
+		Log::info("Skyrim Version: " + versionStr);
+	} else {
+		Log::info("Skyrim compatibility check passed");
+		Log::info("Skyrim version: " + versionStr);
 	}
-
-	Log::info("Skyrim compatibility check passed");
-	Log::hex("Skyrim version: ", version);
 
 	return true;
 }

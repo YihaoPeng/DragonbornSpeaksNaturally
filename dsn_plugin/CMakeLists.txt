@@ -132,10 +132,35 @@ target_compile_definitions(sse_skse64 PRIVATE
     SKSE64_EXPORTS
     RUNTIME
     RUNTIME_VERSION=0x01050610
+    IS_SE
 )
 
 target_link_libraries(sse_skse64_common sse_common)
 target_link_libraries(sse_skse64 sse_skse64_common)
+
+#
+# SKSE64 for SkyrimAE
+#
+
+file(GLOB SAE_COMMON_SRC        sae/common/*.h        sae/common/*.cpp)
+file(GLOB SAE_SKSE64_COMMON_SRC sae/skse64_common/*.h sae/skse64_common/*.cpp)
+file(GLOB SAE_SKSE64_SRC        sae/skse64/*.h        sae/skse64/*.cpp)
+
+add_library(sae_common        STATIC ${SAE_COMMON_SRC})
+add_library(sae_skse64_common STATIC ${SAE_SKSE64_COMMON_SRC})
+add_library(sae_skse64        STATIC ${SAE_SKSE64_SRC})
+
+target_include_directories(sae_common PUBLIC sae/ sae/xbyak/)
+target_compile_options(sae_common PUBLIC /FI"string" /FI"common/IPrefix.h")
+target_compile_definitions(sae_skse64 PRIVATE
+    SKSE64_EXPORTS
+    RUNTIME
+    RUNTIME_VERSION=0x01062800
+    IS_AE
+)
+
+target_link_libraries(sae_skse64_common sae_common)
+target_link_libraries(sae_skse64 sae_skse64_common)
 
 #
 # dsn plugin
@@ -176,6 +201,25 @@ set_target_properties(dsn_plugin_se PROPERTIES
   LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/SkyrimSE"
   RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/SkyrimSE"
 )
+target_compile_definitions(dsn_plugin_se PRIVATE
+    IS_SE
+)
+
+# for SkyrimAE
+add_library(dsn_plugin_ae SHARED ${DSN_PLUGIN_SRC})
+target_link_libraries(dsn_plugin_ae sae_skse64 version)
+set_target_safeseh(dsn_plugin_ae)
+
+target_include_directories(dsn_plugin_ae PUBLIC dsn_plugin/)
+set_target_properties(dsn_plugin_ae PROPERTIES
+  OUTPUT_NAME "dragonborn_speaks_naturally"
+  ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/SkyrimSE"
+  LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/SkyrimSE"
+  RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/SkyrimSE"
+)
+target_compile_definitions(dsn_plugin_ae PRIVATE
+    IS_AE
+)
 
 
 ###############
@@ -206,6 +250,18 @@ if (SSE_DIR)
     )
 endif()
 
+if (SAE_DIR)
+    set(SAE_PLUGIN_DIR "${SAE_DIR}/Data/Plugins/Sumwunn/")
+    message("-- SkyrimSE plugin install path: ${SAE_PLUGIN_DIR}")
+
+    add_custom_command(
+        TARGET dsn_plugin_ae POST_BUILD VERBATIM
+        COMMAND
+            ${CMAKE_COMMAND} -E copy "$<TARGET_FILE:dsn_plugin_ae>" ${SAE_PLUGIN_DIR} &&
+            echo file copied: "$<TARGET_FILE:dsn_plugin_ae> -> ${SAE_PLUGIN_DIR}"
+    )
+endif()
+
 #
 # ZIP Package 
 #
@@ -223,6 +279,10 @@ if (PACKAGE)
     install(
         TARGETS dsn_plugin_se
         RUNTIME DESTINATION SkyrimSE/Data/Plugins/Sumwunn
+    )
+    install(
+        TARGETS dsn_plugin_ae
+        RUNTIME DESTINATION SkyrimAE/Data/Plugins/Sumwunn
     )
 
     set(CPACK_GENERATOR ZIP)

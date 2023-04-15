@@ -9,15 +9,18 @@ SET InstallPathConfig=install-path.ini
 :: read or generate config files
 if exist %InstallPathConfig% (
     call :load_ini %InstallPathConfig%
-    call :get_ini SkyrimVR InstallPath SkyrimVRInstallPath
+    call :get_ini SkyrimAE InstallPath SkyrimAEInstallPath
     call :get_ini SkyrimSE InstallPath SkyrimSEInstallPath
+    call :get_ini SkyrimVR InstallPath SkyrimVRInstallPath
 ) else (
     echo Set plugin install directories after building:
-    set /p SkyrimVRInstallPath="SkyrimVR game root path (empty to disable installation): "
+    set /p SkyrimAEInstallPath="SkyrimAE game root path (empty to disable installation): "
     set /p SkyrimSEInstallPath="SkyrimSE game root path (empty to disable installation): "
+    set /p SkyrimVRInstallPath="SkyrimVR game root path (empty to disable installation): "
 
-    call :set_ini SkyrimVR InstallPath "!SkyrimVRInstallPath!"
+    call :set_ini SkyrimAE InstallPath "!SkyrimAEInstallPath!"
     call :set_ini SkyrimSE InstallPath "!SkyrimSEInstallPath!"
+    call :set_ini SkyrimVR InstallPath "!SkyrimVRInstallPath!"
     call :save_ini >%InstallPathConfig%
 )
 
@@ -27,11 +30,14 @@ cd build
 
 :: run CMake
 set CMakeFlags=
-if defined SkyrimVRInstallPath (
-    set CMakeFlags=!CMakeFlags! -DSVR_DIR="!SkyrimVRInstallPath!"
+if defined SkyrimAEInstallPath (
+    set CMakeFlags=!CMakeFlags! -DSAE_DIR="!SkyrimAEInstallPath!"
 )
 if defined SkyrimSEInstallPath (
     set CMakeFlags=!CMakeFlags! -DSSE_DIR="!SkyrimSEInstallPath!"
+)
+if defined SkyrimVRInstallPath (
+    set CMakeFlags=!CMakeFlags! -DSVR_DIR="!SkyrimVRInstallPath!"
 )
 echo CMakeFlags:!CMakeFlags!
 

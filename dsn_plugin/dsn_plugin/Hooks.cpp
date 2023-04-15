@@ -28,7 +28,11 @@ static void __cdecl Hook_Loop()
 	if (dialogueMenu != NULL)
 	{
 		// Menu exiting, avoid NPE
+#ifdef IS_VR
+		if (dialogueMenu->GetPlayState() == 0)
+#else
 		if (dialogueMenu->GetPause() == 0)
+#endif
 		{
 			dialogueMenu = NULL;
 			SpeechRecognitionClient::getInstance()->StopDialogue();
@@ -93,7 +97,7 @@ class ObjectLoadedSink : public BSTEventSink<TESObjectLoadedEvent> {
 			if (evn->loaded) {
 				FavoritesMenuManager::getInstance()->RefreshFavorites();
 				Log::info("Favorites Menu Voice-Equip Initialized");
-        //InitDebugEventSink();
+				//InitDebugEventSink();
 			}
 			else {
 				FavoritesMenuManager::getInstance()->ClearFavorites();
@@ -104,15 +108,16 @@ class ObjectLoadedSink : public BSTEventSink<TESObjectLoadedEvent> {
 	}
 };
 
-
-class PostLoadSink : public BSTEventSink<void> {
+#ifndef IS_VR
+class PostLoadSink : public BSTEventSink<TESLoadGameEvent> {
 public:
-	EventResult ReceiveEvent(void* evn, EventDispatcher<void>* dispatcher) override {
+	EventResult ReceiveEvent(TESLoadGameEvent* evn, EventDispatcher<TESLoadGameEvent>* dispatcher) override {
 		FavoritesMenuManager::getInstance()->RefreshFavorites();
 		Log::info("Favorites Menu Voice-Equip Updated");
 		return kEvent_Continue;
 	}
 };
+#endif
 
 // For debug only
 //#define DEBUG_EVENT_SINK_LOG_DIFF_MAP
@@ -219,7 +224,7 @@ static void InitDebugEventSink() {
   static DebugEventSink<void>                            unk5D8("unk5D8");	GetEventDispatcherList()->unk5D8.AddEventSink(&unk5D8);
   static DebugEventSink<void>                            unk630("unk630");	GetEventDispatcherList()->unk630.AddEventSink(&unk630);
   //static DebugEventSink<TESInitScriptEvent>              initScriptDispatcher("initScriptDispatcher");	GetEventDispatcherList()->initScriptDispatcher.AddEventSink(&initScriptDispatcher);
-  static DebugEventSink<void>                            unk6E0("unk6E0");	GetEventDispatcherList()->unk6E0.AddEventSink(&unk6E0); // Archive loading completed
+  //static DebugEventSink<void>                            unk6E0("unk6E0");	GetEventDispatcherList()->unk6E0.AddEventSink(&unk6E0); // Archive loading completed
   //static DebugEventSink<void>                            unk738("unk738");	GetEventDispatcherList()->unk738.AddEventSink(&unk738);
   //static DebugEventSink<void>                            unk790("unk790");	GetEventDispatcherList()->unk790.AddEventSink(&unk790);
   static DebugEventSink<void>                            unk7E8("unk7E8");	GetEventDispatcherList()->unk7E8.AddEventSink(&unk7E8);
@@ -249,10 +254,10 @@ static void InitDebugEventSink() {
   //static DebugEventSink<void>                            unk1028("unk1028");	GetEventDispatcherList()->unk1028.AddEventSink(&unk1028);
   //static DebugEventSink<void>                            unk1080("unk1080");	GetEventDispatcherList()->unk1080.AddEventSink(&unk1080);
   //static DebugEventSink<void>                            unk10D8("unk10D8");	GetEventDispatcherList()->unk10D8.AddEventSink(&unk10D8);
-  static DebugEventSink<void>                            unk1130("unk1130");	GetEventDispatcherList()->unk1130.AddEventSink(&unk1130);
+  //static DebugEventSink<void>                            unk1130("unk1130");	GetEventDispatcherList()->unk1130.AddEventSink(&unk1130);
   static DebugEventSink<void>                            unk1188("unk1188");	GetEventDispatcherList()->unk1188.AddEventSink(&unk1188); // Before waiting
   static DebugEventSink<void>                            unk11E0("unk11E0");	GetEventDispatcherList()->unk11E0.AddEventSink(&unk11E0); // After waiting
-  static DebugEventSink<void>                            unk1238("unk1238");	GetEventDispatcherList()->unk1238.AddEventSink(&unk1238);
+  //static DebugEventSink<void>                            unk1238("unk1238");	GetEventDispatcherList()->unk1238.AddEventSink(&unk1238);
   //static DebugEventSink<TESUniqueIDChangeEvent>          uniqueIdChangeDispatcher("uniqueIdChangeDispatcher");	GetEventDispatcherList()->uniqueIdChangeDispatcher.AddEventSink(&uniqueIdChangeDispatcher);
 }
 
@@ -270,7 +275,7 @@ static void __cdecl Hook_Invoke(GFxMovieView* movie, char * gfxMethod, GFxValue*
     GetEventDispatcherList()->objectLoadedDispatcher.AddEventSink(&objectLoadedSink);
 
     static PostLoadSink postLoadSink;
-    GetEventDispatcherList()->unk6E0.AddEventSink(&postLoadSink);
+    GetEventDispatcherList()->loadGameEventDispatcher.AddEventSink(&postLoadSink);
 
 		inited = true;
 		Log::info("RunCommandSink Initialized");
@@ -312,7 +317,7 @@ static void __cdecl Hook_Invoke(GFxMovieView* movie, char * gfxMethod, GFxValue*
 static void __cdecl Hook_PostLoad() {
 	FavoritesMenuManager::getInstance()->RefreshFavorites();
 	Log::info("Favorites Menu Voice-Equip Initialized");
-  //InitDebugEventSink();
+	//InitDebugEventSink();
 }
 
 static uintptr_t loopEnter = 0x0;

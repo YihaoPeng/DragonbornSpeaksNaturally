@@ -99,6 +99,18 @@ if (SSE_DIR)
     )
 endif()
 
+if (SAE_DIR)
+    set(SAE_PLUGIN_DIR "${SAE_DIR}/Data/Plugins/Sumwunn/")
+    message("-- SkyrimAE plugin install path: ${SAE_PLUGIN_DIR}")
+
+    add_custom_command(
+        TARGET dsn_service POST_BUILD VERBATIM
+        COMMAND
+            ${CMAKE_COMMAND} -E copy "$<TARGET_FILE:dsn_service>" ${SAE_PLUGIN_DIR} &&
+            echo file copied: "$<TARGET_FILE:dsn_service> -> ${SAE_PLUGIN_DIR}"
+    )
+endif()
+
 #
 # ZIP Package 
 #
@@ -116,6 +128,10 @@ if (PACKAGE)
     install(
         TARGETS dsn_service
         RUNTIME DESTINATION SkyrimSE/Data/Plugins/Sumwunn
+    )
+    install(
+        TARGETS dsn_service
+        RUNTIME DESTINATION SkyrimAE/Data/Plugins/Sumwunn
     )
 
     set(CPACK_GENERATOR ZIP)

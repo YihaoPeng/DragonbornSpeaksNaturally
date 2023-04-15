@@ -50,6 +50,14 @@ if (PACKAGE)
             ${CMAKE_CURRENT_SOURCE_DIR}/SRGS.SAMPLE.xml
         DESTINATION SkyrimSE/Data/Plugins/Sumwunn
     )
+    install(
+        FILES
+            ${CMAKE_CURRENT_SOURCE_DIR}/DragonbornSpeaksNaturally.SAMPLE.ini
+            ${CMAKE_CURRENT_SOURCE_DIR}/DragonbornSpeaksNaturally.SAMPLE-zhCN.ini
+            ${CMAKE_CURRENT_SOURCE_DIR}/item-name-map.SAMPLE.json
+            ${CMAKE_CURRENT_SOURCE_DIR}/SRGS.SAMPLE.xml
+        DESTINATION SkyrimAE/Data/Plugins/Sumwunn
+    )
 
     set(CPACK_GENERATOR ZIP)
     set(CPACK_INCLUDE_TOPLEVEL_DIRECTORY OFF)
