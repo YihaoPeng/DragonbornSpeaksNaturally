@@ -905,6 +905,7 @@ public:
 template <typename Item, typename Key = Item>
 class tHashSet
 {
+public:
 	class _Entry
 	{
 	public:

@@ -1019,7 +1019,7 @@ class MenuTableItem
 public:
 	BSFixedString	name;				// 000
 	IMenu			* menuInstance;		// 008	0 if the menu is not currently open
-	void			* menuConstructor;	// 010
+	IMenu		*(*menuConstructor)();	// 010
 
 	bool operator==(const MenuTableItem & rhs) const { return name == rhs.name; }
 	bool operator==(const BSFixedString a_name) const { return name == a_name; }
@@ -1042,6 +1042,7 @@ public:
 // 1C8
 class MenuManager
 {
+public:
 	typedef tHashSet<MenuTableItem, BSFixedString> MenuTable;
 
 	// 030-040
@@ -1068,7 +1069,7 @@ class MenuManager
 	};
 	STATIC_ASSERT(sizeof(Unknown3) == 0x40);
 
-private:
+public:
 	UInt64					unk_000;	// 000
 
 	EventDispatcher<MenuOpenCloseEvent>		menuOpenCloseEventDispatcher;	// 008
