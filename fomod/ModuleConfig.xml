@@ -24,8 +24,8 @@ You cannot install the loader via any MOD manager (But DSN can be installed via 
 
 You can find the loader here: https://www.nexusmods.com/skyrimspecialedition/mods/3619]]></description>
               <files>
-                <folder source="SkyrimSE\Data" destination="" priority="0"/>
-                <file source="fomod/DSN-installed.md" destination="SKSE/DSN/DSN-for-SkyrimSE-installed.md" priority="0"/>
+                <folder source="SkyrimAE\Data" destination="" priority="0"/>
+                <file source="fomod/DSN-installed.md" destination="SKSE/DSN/DSN-for-SkyrimAE-installed.md" priority="0"/>
               </files>
               <typeDescriptor>
                 <dependencyType>
