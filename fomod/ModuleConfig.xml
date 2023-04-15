@@ -11,6 +11,77 @@
       <optionalFileGroups order="Explicit">
         <group name="Skyrim Edition:" type="SelectExactlyOne">
           <plugins order="Explicit">
+
+            <plugin name="Skyrim Anniversary Edition">
+              <description><![CDATA[This plugin is compatible and only compatible with Skyrim Anniversary Edition 1.6.640.0.
+
+NOTE: Whether to purchase or enable DLC does not affect your Skyrim Special Edition to automatically upgrade to the Anniversary Edition.
+If you installed a recent Steam update, you must select this version.
+
+To make the plugin working, you must manually install xSHADOWMANx's Dll Loader to the game root directory.
+
+You cannot install the loader via any MOD manager (But DSN can be installed via MOD Manager).
+
+You can find the loader here: https://www.nexusmods.com/skyrimspecialedition/mods/3619]]></description>
+              <files>
+                <folder source="SkyrimSE\Data" destination="" priority="0"/>
+                <file source="fomod/DSN-installed.md" destination="SKSE/DSN/DSN-for-SkyrimSE-installed.md" priority="0"/>
+              </files>
+              <typeDescriptor>
+                <dependencyType>
+                  <defaultType name="Optional"/>
+                  <patterns>
+                    <pattern>
+                      <dependencies operator="Or">
+                        <fileDependency file="ccBGSSSE001-Fish.esm" state="Active"/>
+                        <fileDependency file="ccBGSSSE025-AdvDSGS.esm" state="Active"/>
+                        <fileDependency file="ccBGSSSE037-Curios.esl" state="Active"/>
+                        <fileDependency file="ccQDRSSE001-SurvivalMode.esl" state="Active"/>
+                        <fileDependency file="ccBGSSSE001-Fish.esm" state="Inactive"/>
+                        <fileDependency file="ccBGSSSE025-AdvDSGS.esm" state="Inactive"/>
+                        <fileDependency file="ccBGSSSE037-Curios.esl" state="Inactive"/>
+                        <fileDependency file="ccQDRSSE001-SurvivalMode.esl" state="Inactive"/>
+                      </dependencies>
+                      <type name="Recommended"/>
+                    </pattern>
+                  </patterns>
+                </dependencyType>
+              </typeDescriptor>
+            </plugin>
+
+            <plugin name="Skyrim Special Edition">
+              <description><![CDATA[This plugin is compatible and only compatible with Skyrim Special Edition 1.5.97.0.
+
+NOTE: If you have Skyrim Special Edition with a recent Steam update installed, you must select Anniversary Edition instead of this, unless you have used a downgrade patch.
+
+To make the plugin working, you must manually install xSHADOWMANx's Dll Loader to the game root directory.
+
+You cannot install the loader via any MOD manager (But DSN can be installed via MOD Manager).
+
+You can find the loader here: https://www.nexusmods.com/skyrimspecialedition/mods/3619]]></description>
+              <files>
+                <folder source="SkyrimSE\Data" destination="" priority="0"/>
+                <file source="fomod/DSN-installed.md" destination="SKSE/DSN/DSN-for-SkyrimSE-installed.md" priority="0"/>
+              </files>
+              <typeDescriptor>
+                <dependencyType>
+                  <defaultType name="Optional"/>
+                  <patterns>
+                    <pattern>
+                      <dependencies operator="And">
+                        <fileDependency file="SkyrimVR.esm" state="Missing"/>
+                        <fileDependency file="ccBGSSSE001-Fish.esm" state="Missing"/>
+                        <fileDependency file="ccBGSSSE025-AdvDSGS.esm" state="Missing"/>
+                        <fileDependency file="ccBGSSSE037-Curios.esl" state="Missing"/>
+                        <fileDependency file="ccQDRSSE001-SurvivalMode.esl" state="Missing"/>
+                      </dependencies>
+                      <type name="Recommended"/>
+                    </pattern>
+                  </patterns>
+                </dependencyType>
+              </typeDescriptor>
+            </plugin>
+
             <plugin name="Skyrim VR">
               <description><![CDATA[This plugin is compatible and only compatible with SkyrimVR 1.4.15.0.
 
@@ -38,32 +109,7 @@ You can find the loader here: https://www.nexusmods.com/skyrimspecialedition/mod
                 </dependencyType>
               </typeDescriptor>
             </plugin>
-            <plugin name="Skyrim Special Edition">
-              <description><![CDATA[This plugin is compatible and only compatible with Skyrim Special Edition 1.5.97.0.
 
-To make the plugin working, you must manually install xSHADOWMANx's Dll Loader to the game root directory.
-
-You cannot install the loader via any MOD manager (But DSN can be installed via MOD Manager).
-
-You can find the loader here: https://www.nexusmods.com/skyrimspecialedition/mods/3619]]></description>
-              <files>
-                <folder source="SkyrimSE\Data" destination="" priority="0"/>
-                <file source="fomod/DSN-installed.md" destination="SKSE/DSN/DSN-for-SkyrimSE-installed.md" priority="0"/>
-              </files>
-              <typeDescriptor>
-                <dependencyType>
-                  <defaultType name="Optional"/>
-                  <patterns>
-                    <pattern>
-                      <dependencies operator="Or">
-                        <fileDependency file="SkyrimVR.esm" state="Missing"/>
-                      </dependencies>
-                      <type name="Recommended"/>
-                    </pattern>
-                  </patterns>
-                </dependencyType>
-              </typeDescriptor>
-            </plugin>
           </plugins>
         </group>
       </optionalFileGroups>
