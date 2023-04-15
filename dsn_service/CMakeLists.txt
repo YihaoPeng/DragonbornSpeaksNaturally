@@ -121,6 +121,8 @@ if (PACKAGE)
     endif()
 
     set(CMAKE_INSTALL_PREFIX ${CMAKE_CURRENT_BINARY_DIR}/package_tmp)
+
+    # dsn_service exe
     install(
         TARGETS dsn_service
         RUNTIME DESTINATION SkyrimVR/Data/Plugins/Sumwunn
@@ -132,6 +134,23 @@ if (PACKAGE)
     install(
         TARGETS dsn_service
         RUNTIME DESTINATION SkyrimAE/Data/Plugins/Sumwunn
+    )
+
+    # Resources dir
+    install(
+        DIRECTORY
+            ${CMAKE_CURRENT_SOURCE_DIR}/Resources
+        DESTINATION SkyrimVR/Data/Plugins/Sumwunn
+    )
+    install(
+        DIRECTORY
+            ${CMAKE_CURRENT_SOURCE_DIR}/Resources
+        DESTINATION SkyrimSE/Data/Plugins/Sumwunn
+    )
+    install(
+        DIRECTORY
+            ${CMAKE_CURRENT_SOURCE_DIR}/Resources
+        DESTINATION SkyrimAE/Data/Plugins/Sumwunn
     )
 
     set(CPACK_GENERATOR ZIP)
