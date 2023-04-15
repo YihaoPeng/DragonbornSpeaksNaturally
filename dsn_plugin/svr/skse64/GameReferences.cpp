@@ -52,6 +52,16 @@ UInt32 TESObjectREFR::CreateRefHandle(void)
 	}
 }
 
+void TESObjectREFR::IncRef()
+{
+	handleRefObject.IncRef();
+}
+
+void TESObjectREFR::DecRef()
+{
+	handleRefObject.DecRef();
+}
+
 TESForm * Actor::GetEquippedObject(bool abLeftHand)
 {
 	if(!processManager) 

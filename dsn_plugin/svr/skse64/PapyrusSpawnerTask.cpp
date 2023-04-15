@@ -57,8 +57,8 @@ namespace
 					continue;
 
 				// Lookup target
-				TESObjectREFR* target = NULL;
-				LookupREFRByHandle(&e.targetRefrHandle, &target);
+				NiPointer<TESObjectREFR> target = NULL;
+				LookupREFRByHandle(e.targetRefrHandle, target);
 				if (target == NULL)
 					continue;
 

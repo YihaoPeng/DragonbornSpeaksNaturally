@@ -1,5 +1,7 @@
 #pragma once
 
+#include <mutex>
+
 class BranchTrampoline
 {
 public:
@@ -8,6 +10,7 @@ public:
 
 	bool Create(size_t len, void * module = NULL);
 	void Destroy();
+	void SetBase(size_t len, void* base);
 
 	// allocate unsized 
 	void * StartAlloc();
@@ -32,9 +35,10 @@ private:
 	// takes 5 bytes of space at src, 14 bytes in trampoline
 	bool Write5Branch_Internal(uintptr_t src, uintptr_t dst, UInt8 op);
 
-	void	* m_base;
-	size_t	m_len;			// bytes
-	size_t	m_allocated;	// bytes
+	std::mutex  m_lock;
+	void		* m_base;
+	size_t		m_len;			// bytes
+	size_t		m_allocated;	// bytes
 
 	void	* m_curAlloc;	// currently active StartAlloc base
 };

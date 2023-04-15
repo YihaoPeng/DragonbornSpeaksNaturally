@@ -38,21 +38,14 @@ RelocAddr<uintptr_t> kHook_Crosshair_LookupREFRByHandle_Enter(0x006D3770 + 0x112
 
 TESObjectREFR*	g_curCrosshairRef = NULL;
 
-bool __cdecl Hook_Crosshair_LookupREFRByHandle(UInt32 * refHandle, TESObjectREFR ** refrOut)
+bool __cdecl Hook_Crosshair_LookupREFRByHandle(UInt32 & refHandle, NiPointer<TESObjectREFR> & refrOut)
 {
 	bool result = LookupREFRByHandle(refHandle, refrOut);
 
-	if (refrOut)
-	{
-		g_curCrosshairRef = *refrOut;
+	g_curCrosshairRef = refrOut;
 
-		SKSECrosshairRefEvent evn(*refrOut);
-		g_crosshairRefEventDispatcher.SendEvent(&evn);
-	}
-	else
-	{
-		g_curCrosshairRef = NULL;
-	}
+	SKSECrosshairRefEvent evn(refrOut);
+	g_crosshairRefEventDispatcher.SendEvent(&evn);
 
 	return result;
 }

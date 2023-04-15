@@ -3,13 +3,13 @@
 #include "skse64_common/Relocation.h"
 
 class GFxMovieView;
-class FxResponseArgsList;
+class FxResponseArgsBase;
 class ScaleformAllocator;
 
 void * ScaleformHeap_Allocate(UInt32 size);
 void ScaleformHeap_Free(void * ptr);
 
-typedef void * (* _InvokeFunction)(GFxMovieView * movie, const char * fnName, FxResponseArgsList * arguments);
+typedef void * (* _InvokeFunction)(GFxMovieView * movie, const char * fnName, FxResponseArgsBase * arguments);
 extern RelocAddr<_InvokeFunction> InvokeFunction;
 
 struct HeapDesc

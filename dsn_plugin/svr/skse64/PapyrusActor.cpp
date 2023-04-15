@@ -207,17 +207,13 @@ namespace papyrusActor
 		return thisActor->addedSpells.Get(n);
 	}
 
-#ifdef _AEFFECTS
 	UInt32 GetNumActiveEffects(Actor* thisActor)
 	{
 		if(thisActor)
 		{
-			tList<ActiveEffect> * effects = thisActor->magicTarget.GetActiveEffects();
-			if(effects) {
-				UInt32 count = effects->Count();
-				_MESSAGE("Total Effects: %d", count);
-				return count;
-			}
+			MagicTarget::GetEffectCount counter;
+			thisActor->magicTarget.ForEachActiveEffect(counter);
+			return counter.GetCount();
 		}
 		return 0;
 	}
@@ -225,19 +221,13 @@ namespace papyrusActor
 	ActiveEffect* GetNthActiveEffect(Actor* thisActor, UInt32 n)
 	{
 		if(thisActor) {
-			tList<ActiveEffect> * effects = thisActor->magicTarget.GetActiveEffects();
-			if(effects) {
-				UInt32 count = effects->Count();
-				ActiveEffect * effect = effects->GetNthItem(n);
-				_MESSAGE("Dumping n: %d Total: %d", n, count); // Test
-				DumpClass(effect, 20);
-				return (effects && n < count) ? effect : NULL;
-			}
+			MagicTarget::GetNthEffect nthEffect(n);
+			thisActor->magicTarget.ForEachActiveEffect(nthEffect);
+			return nthEffect.GetResult();
 		}
 		
 		return NULL;
 	}
-#endif
 
 	void EquipItemEx(Actor* thisActor, TESForm* item, SInt32 slotId, bool preventUnequip, bool equipSound)
 	{
@@ -583,12 +573,12 @@ namespace papyrusActor
 		if(!middleProcess)
 			return NULL;
 
-		TESObjectREFR * refr = NULL;
+		NiPointer<TESObjectREFR> refr = NULL;
 		UInt32 furnitureHandle = middleProcess->furnitureHandle;
 		if(furnitureHandle == (*g_invalidRefHandle) || furnitureHandle == 0)
 			return NULL;
 
-		LookupREFRByHandle(&furnitureHandle, &refr);
+		LookupREFRByHandle(furnitureHandle, refr);
 		return refr;
 	}
 

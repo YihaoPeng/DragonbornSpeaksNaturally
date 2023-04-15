@@ -1,8 +1,14 @@
 #include "Hooks_Scaleform.h"
 #include "Hooks_Gameplay.h"
+#include "Hooks_UI.h"
+#include "Hooks_Threads.h"
+
+#include "common/IMemPool.h"
 #include "skse64_common/SafeWrite.h"
 #include "skse64_common/Utilities.h"
 #include "skse64_common/BranchTrampoline.h"
+#include "skse64_common/skse_version.h"
+
 #include "ScaleformCallbacks.h"
 #include "ScaleformMovie.h"
 #include "ScaleformAPI.h"
@@ -12,23 +18,28 @@
 #include "GameSettings.h"
 #include "GameMenus.h"
 #include "PluginManager.h"
-#include "skse64_common/skse_version.h"
+
 #include "GameForms.h"
 #include "GameObjects.h"
 #include "GameReferences.h"
 #include "GameRTTI.h"
 #include "GameData.h"
 #include "GameExtraData.h"
-#include <new>
-#include <list>
+#include "GameVR.h"
+
 #include "PapyrusEvents.h"
 #include "PapyrusVM.h"
 #include "ScaleformState.h"
 #include "GlobalLocks.h"
 #include "GameMenus.h"
-#include "common/IMemPool.h"
 #include "HashUtil.h"
+#include "Translation.h"
 #include "xbyak/xbyak.h"
+
+#include <new>
+#include <list>
+#include <thread>
+#include <future>
 
 //// plugin API
 
@@ -43,6 +54,8 @@ static PluginList s_plugins;
 
 typedef std::list <SKSEScaleformInterface::RegisterInventoryCallback> InventoryPluginList;
 static InventoryPluginList s_inventoryPlugins;
+
+bool g_logScaleform = false;
 
 bool RegisterScaleformPlugin(const char * name, SKSEScaleformInterface::RegisterCallback callback)
 {
@@ -126,6 +139,10 @@ public:
 		{
 			args->result->SetNumber(key + InputMap::kMacro_MouseButtonOffset);
 		}
+		else if (deviceType >= kDeviceType_VivePrimary && deviceType <= kDeviceType_WindowsMRSecondary)
+		{
+			args->result->SetNumber(key + InputManager::GetDeviceOffsetForDevice(deviceType));
+		}
 		else if (deviceType == kDeviceType_Gamepad)
 		{
 			UInt32 mapped = InputMap::GamepadMaskToKeycode(key);
@@ -134,7 +151,7 @@ public:
 		else
 		{
 			args->result->SetNumber(key);
-		}		
+		}
 	}
 };
 
@@ -153,7 +170,7 @@ class SKSEScaleform_StartRemapMode : public GFxFunctionHandler
 				
 			UInt32 deviceType = e->deviceType;
 
-			if ((dispatcher->IsGamepadEnabled() ^ (deviceType == kDeviceType_Gamepad)) || e->flags == 0 || e->timer != 0.0)
+			if ((dispatcher->IsGamepadEnabled() ^ (deviceType == kDeviceType_Gamepad)) || e->timer != 0.0)
 				return kEvent_Continue;
 			
 			UInt32 keyMask = e->keyMask;
@@ -162,6 +179,9 @@ class SKSEScaleform_StartRemapMode : public GFxFunctionHandler
 			// Mouse
 			if (deviceType == kDeviceType_Mouse)
 				keyCode = InputMap::kMacro_MouseButtonOffset + keyMask; 
+			// Motion
+			else if (*g_isUsingMotionControllers)
+				keyCode = InputManager::GetDeviceOffsetForDevice(deviceType) + keyMask;
 			// Gamepad
 			else if (deviceType == kDeviceType_Gamepad)
 				keyCode = InputMap::GamepadMaskToKeycode(keyMask);
@@ -178,7 +198,7 @@ class SKSEScaleform_StartRemapMode : public GFxFunctionHandler
 			scope.Invoke("EndRemapMode", NULL, &arg, 1);
 
 			MenuControls::GetSingleton()->remapMode = false;
-			PlayerControls::GetSingleton()->remapMode = false;
+			PlayerControls::GetSingleton()->movement.remapMode = false;
 
 			dispatcher->RemoveEventSink(this);
 			return kEvent_Continue;
@@ -209,7 +229,43 @@ public:
 		
 		pInputEventDispatcher->AddEventSink(&remapHandler);
 		menuControls->remapMode = true;
-		playerControls->remapMode = true;		
+		playerControls->movement.remapMode = true;
+	}
+};
+
+class SKSEScaleform_IsVR : public GFxFunctionHandler
+{
+public:
+	virtual void	Invoke(Args * args)
+	{
+		args->result->SetBool(true);
+	}
+};
+
+class SKSEScaleform_IsUsingMotionControllers : public GFxFunctionHandler
+{
+public:
+	virtual void	Invoke(Args * args)
+	{
+		args->result->SetBool(*g_isUsingMotionControllers);
+	}
+};
+
+class SKSEScaleform_IsLeftHanded : public GFxFunctionHandler
+{
+public:
+	virtual void	Invoke(Args * args)
+	{
+		args->result->SetBool(*g_leftHandedMode);
+	}
+};
+
+class SKSEScaleform_GetMotionControllerType : public GFxFunctionHandler
+{
+public:
+	virtual void	Invoke(Args * args)
+	{
+		args->result->SetNumber((*g_openVR)->GetControllerType());
 	}
 };
 
@@ -471,7 +527,7 @@ public:
 
 class SKSEScaleform_RequestActivePlayerEffects : public GFxFunctionHandler
 {
-	class ActiveEffectVisitor
+	class ActiveEffectVisitor : public MagicTarget::ForEachActiveEffectVisitor
 	{
 		GFxMovieView	* movieView;
 		GFxValue		* activeEffects;
@@ -479,23 +535,24 @@ class SKSEScaleform_RequestActivePlayerEffects : public GFxFunctionHandler
 	public:
 		ActiveEffectVisitor(GFxMovieView * a_movieView, GFxValue * a_activeEffects)
 			: movieView(a_movieView), activeEffects(a_activeEffects) {}
+		virtual ~ActiveEffectVisitor() { }
 
-		bool Accept(ActiveEffect * e)
+		virtual BSContainer::ForEachResult Visit(ActiveEffect * e) override
 		{
 			if (!e)
-				return false;
+				return BSContainer::ForEachResult::kContinue;
 
 			if (e->duration <= 0)
-				return true;
+				return BSContainer::ForEachResult::kContinue;
 
 			if (e->effect == NULL || e->effect->mgef == NULL)
-				return true;
+				return BSContainer::ForEachResult::kContinue;
 
 			EffectSetting * mgef = e->effect->mgef;
 
 			// Skip effect if condition wasn't evaluated to true or HideInUI flag is set
 			if (e->flags & ActiveEffect::kFlag_Inactive || mgef->properties.flags & EffectSetting::Properties::kEffectType_HideInUI)
-				return true;
+				return BSContainer::ForEachResult::kContinue;
 			
 			GFxValue obj;
 			movieView->CreateObject(&obj);
@@ -514,7 +571,7 @@ class SKSEScaleform_RequestActivePlayerEffects : public GFxFunctionHandler
 			
 			activeEffects->PushBack(&obj);
 
-			return true;
+			return BSContainer::ForEachResult::kContinue;
 		}
 	};
 
@@ -527,13 +584,8 @@ public:
 		ASSERT(args->numArgs >= 1);
 		ASSERT(args->args[0].GetType() == GFxValue::kType_Array);
 
-		tList<ActiveEffect> * effects = (*g_thePlayer)->magicTarget.GetActiveEffects();
-
-		if(effects)
-		{
-			ActiveEffectVisitor v(args->movie, &args->args[0]);
-			effects->Visit(v);
-		}
+		ActiveEffectVisitor v(args->movie, &args->args[0]);
+		(*g_thePlayer)->magicTarget.ForEachActiveEffect(v);
 
 		g_loadGameLock.Leave();
 	}
@@ -933,6 +985,99 @@ public:
 			return;
 
 		UIOpenJournalMenu(true);
+
+		g_loadGameLock.Leave();
+	}
+};
+
+class KeyboardCallbackDelegate : public UIDelegate_v1
+{
+public:
+	KeyboardCallbackDelegate(GFxValue thisPtr, GFxValue value, const std::string& text) : m_this(thisPtr), m_value(value), m_text(text) { }
+
+	virtual void Run() override
+	{
+		GFxValue vals[3];
+		vals[0] = m_this;
+		auto objectInterface = m_value.objectInterface;
+		if (objectInterface) {
+			auto movieRoot = objectInterface->root;
+			if (movieRoot) {
+				movieRoot->CreateString(&vals[1], m_text.c_str());
+			}
+		}
+		vals[2].SetNumber(0);
+		m_value.Invoke("call", nullptr, vals, 3);
+	}
+	virtual void Dispose() override
+	{
+		delete this;
+	}
+
+protected:
+	GFxValue	m_this;
+	GFxValue	m_value;
+	std::string	m_text;
+};
+
+class SKSEScaleform_ShowVirtualKeyboard : public GFxFunctionHandler
+{
+public:
+	virtual void	Invoke(Args * args)
+	{
+		if (!g_loadGameLock.TryEnter())
+			return;
+
+		ASSERT(args->numArgs >= 6);
+		ASSERT(args->args[0].GetType() == GFxValue::kType_String); // Key
+		ASSERT(args->args[1].GetType() == GFxValue::kType_String); // Title
+		ASSERT(args->args[2].GetType() == GFxValue::kType_String); // Desc
+		ASSERT(args->args[3].GetType() == GFxValue::kType_String); // Text
+		ASSERT(args->args[4].GetType() == GFxValue::kType_Object || args->args[4].GetType() == GFxValue::kType_DisplayObject); // This
+		ASSERT(args->args[5].GetType() == GFxValue::kType_Object); // Function
+
+		namespace vr = vr_1_0_12;
+
+		vr::VROverlayHandle_t overlayHandle;
+		vr::EVROverlayError err = (*g_openVR)->vrContext.m_pVROverlay->CreateOverlay(args->args[0].GetString(), args->args[1].GetString(), &overlayHandle);
+		if (err == vr::EVROverlayError::VROverlayError_None)
+		{
+			err = (*g_openVR)->vrContext.m_pVROverlay->ShowKeyboardForOverlay(overlayHandle, vr::k_EGamepadTextInputModeNormal, vr::k_EGamepadTextInputLineModeSingleLine, args->args[2].GetString(), 255, args->args[3].GetString(), false, 0);
+			if (err == vr::EVROverlayError::VROverlayError_None)
+			{
+				std::async(std::launch::async, [](vr::VROverlayHandle_t handle, GFxValue thisValue, GFxValue value)
+				{
+					vr::VREvent_t eventData;
+					while (true)
+					{
+						if ((*g_openVR)->vrContext.m_pVROverlay->PollNextOverlayEvent(handle, &eventData, sizeof(vr::VREvent_t)))
+						{
+							if (eventData.eventType == vr::VREvent_KeyboardClosed || eventData.eventType == vr::VREvent_KeyboardDone)
+							{
+								char buffer[0x80];
+								(*g_openVR)->vrContext.m_pVROverlay->GetKeyboardText(buffer, 0x80);
+
+								TaskInterface::AddUITask(new KeyboardCallbackDelegate(thisValue, value, buffer));
+
+								(*g_openVR)->vrContext.m_pVROverlay->DestroyOverlay(handle);
+								break;
+							}
+						}
+					}
+				}, overlayHandle, args->args[4], args->args[5]);
+			}
+		}
+		
+		if (err != vr::EVROverlayError::VROverlayError_None)
+		{
+			GFxValue vals[3];
+			vals[0] = args->args[4];
+			vals[1].SetString(args->args[3].GetString());
+			vals[2].SetNumber(static_cast<double>(err));
+			args->args[5].Invoke("call", nullptr, vals, 3);
+		}
+
+		args->result->SetBool(err == vr::EVROverlayError::VROverlayError_None);
 
 		g_loadGameLock.Leave();
 	}
@@ -1524,6 +1669,48 @@ namespace alchemyMenuDataHook
 	}
 }
 
+// Use a specialized loader to provide fixup for SkyUI HUD widgets because the root HUD got moved into Interface/VR
+class SKSEFileLoader : public BSScaleformFileOpener
+{
+public:
+	virtual GFxFile* OpenFileEx(const char* url, GFxLog* plog, int flags, int mode)
+	{
+		GFxFile* file = __super::OpenFileEx(url, plog, flags, mode);
+		if (!file && _strnicmp("Interface/VR/", url, 13) == 0)
+		{
+			char buffer[MAX_PATH];
+			strcpy_s(buffer, "Interface/");
+			strcat_s(buffer, url + 13);
+			file = __super::OpenFileEx(buffer, plog, flags, mode);
+		}
+
+		return file;
+	}
+};
+
+namespace GFxLoaderHook
+{
+	RelocPtr<UInt64> kCtor_Base(0x005B5880 + 0xACE);
+
+	GFxLoader *ctor_Hook(GFxLoader * loader)
+	{
+		GFxLoader* result = CALL_MEMBER_FN(loader, ctor)();
+
+		//	_MESSAGE("result == singleton %d", (UInt32)(result == GetSingleton()));
+
+		// Read plugin list, load translation files
+		Translation::ImportTranslationFiles(loader->stateBag->GetTranslator());
+
+		if (g_logScaleform) {
+			loader->stateBag->SetState(GFxState::kInterface_Log, new SKSEGFxLogger());
+		}
+
+		loader->stateBag->SetState(GFxState::kInterface_FileOpener, new SKSEFileLoader());
+
+		return result;
+	}
+}
+
 //// core hook
 void InstallHooks(GFxMovieView * view)
 {
@@ -1571,6 +1758,10 @@ void InstallHooks(GFxMovieView * view)
 	RegisterFunction <SKSEScaleform_LoadIndices>(&skse, view, "LoadIndices");
 	RegisterFunction <SKSEScaleform_GetModList>(&skse, view, "GetModList");
 	RegisterFunction <SKSEScaleform_OpenJournalMenu>(&skse, view, "OpenJournalMenu");
+	RegisterFunction <SKSEScaleform_IsVR>(&skse, view, "IsVR");
+	RegisterFunction <SKSEScaleform_IsUsingMotionControllers>(&skse, view, "IsUsingMotionControllers");
+	RegisterFunction <SKSEScaleform_IsLeftHanded>(&skse, view, "IsLeftHanded");
+	RegisterFunction <SKSEScaleform_ShowVirtualKeyboard>(&skse, view, "ShowVirtualKeyboard");
 
 	// version
 	GFxValue	version;
@@ -1608,7 +1799,7 @@ void InstallHooks_Entry(GFxMovieView *pthis, UInt32 unk)
 {
 	InstallHooks(pthis);
 	// Original call
-	pthis->Unk_1B(unk);
+	pthis->SetViewScaleMode(unk);
 }
 
 
@@ -1770,5 +1961,5 @@ void Hooks_Scaleform_Commit(void)
 	// End of crafting menu data hooks
 
 	// gfxloader creation hook
-	g_branchTrampoline.Write5Call((uintptr_t)GFxLoader::getCtorHookAddress(), GetFnAddr(&GFxLoader::ctor_Hook));
+	g_branchTrampoline.Write5Call(GFxLoaderHook::kCtor_Base.GetUIntPtr(), GetFnAddr(&GFxLoaderHook::ctor_Hook));
 }

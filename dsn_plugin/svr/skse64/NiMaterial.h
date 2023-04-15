@@ -4,7 +4,6 @@
 #include "skse64/GameTypes.h"
 
 MAKE_NI_POINTER(BSTextureSet);
-MAKE_NI_POINTER(NiTexture);
 
 // 30
 class BSShaderMaterial
@@ -68,6 +67,7 @@ public:
 	virtual void * Unk_0D(void * unk1);
 };
 
+// 88
 class BSEffectShaderMaterial : public BSShaderMaterialBase
 {
 public:
@@ -78,13 +78,16 @@ public:
 	float	falloffStartOpacity;		// 38
 	float	falloffStopOpacity;			// 3C
 	NiColorA	emissiveColor;			// 40
-	NiSourceTexture	* unk50;			// 50
-	NiSourceTexture	* unk54;			// 54
-	float	softFalloffDepth;			// 58
-	float	emissiveMultiple;			// 5C
-	BSFixedString	sourceTexture;		// 60
-	BSFixedString	greyscaleTexture;	// 64
+	UInt64	unk50;						// 50
+	NiTexturePtr unk58;					// 58
+	NiTexturePtr unk60;					// 60
+	float	softFalloffDepth;			// 68
+	float	emissiveMultiple;			// 6C
+	BSFixedString	sourceTexture;		// 70
+	BSFixedString	greyscaleTexture;	// 78
+	SInt64	unk80;						// 80
 };
+STATIC_ASSERT(offsetof(BSEffectShaderMaterial, unk58) == 0x58);
 
 // A0
 class BSLightingShaderMaterial : public BSShaderMaterialBase
@@ -98,12 +101,12 @@ public:
 	float	unk3C;				// 3C
 	float	unk40;				// 40
 	float	unk44;				// 44
-	NiTexture * texture1;		// 48
+	NiTexturePtr texture1;		// 48
 	SInt32	unk50;				// 50
 	UInt32	unk54;				// 54
-	NiTexture * texture2;		// 58
-	NiTexture * texture3;		// 60
-	NiTexture * texture4;		// 68
+	NiTexturePtr texture2;		// 58
+	NiTexturePtr texture3;		// 60
+	NiTexturePtr texture4;		// 68
 	UInt32	unk70;				// 70
 	UInt32	unk74;				// 74
 	BSTextureSetPtr	textureSet;	// 78
@@ -122,6 +125,25 @@ public:
 };
 STATIC_ASSERT(sizeof(BSLightingShaderMaterial) == 0xA0);
 
+
+class BSLightingShaderMaterialEye : public BSLightingShaderMaterial
+{
+public:
+	virtual ~BSLightingShaderMaterialEye();
+
+	NiTexturePtr unkA0;	// A0 inited to 0
+	NiTexturePtr unkA8;	// A8 inited to 0
+};
+
+class BSLightingShaderMaterialEnvmap : public BSLightingShaderMaterial
+{
+public:
+	virtual ~BSLightingShaderMaterialEnvmap();
+
+	NiTexturePtr unkA0;	// A0 inited to 0
+	NiTexturePtr unkA8;	// A8 inited to 0
+};
+
 class BSLightingShaderMaterialFacegen : public BSLightingShaderMaterial
 {
 public:
@@ -130,6 +152,40 @@ public:
 	NiTexturePtr renderedTexture;	// A0 inited to 0
 	NiTexturePtr unkA8;				// A8 inited to 0
 	NiTexturePtr unkB0;				// B0 inited to 0
+};
+
+class BSLightingShaderMaterialGlowmap : public BSLightingShaderMaterial
+{
+public:
+	virtual ~BSLightingShaderMaterialGlowmap();
+
+	NiTexturePtr glowMap;	// A0
+};
+
+class BSLightingShaderMaterialParallax : public BSLightingShaderMaterial
+{
+public:
+	virtual ~BSLightingShaderMaterialParallax();
+
+	NiTexturePtr unkA0;	// A0
+};
+
+class BSLightingShaderMaterialMultiLayerParallax : public BSLightingShaderMaterial
+{
+public:
+	virtual ~BSLightingShaderMaterialMultiLayerParallax();
+
+	NiTexturePtr unkA0;	// A0
+	NiTexturePtr unkA8;	// A0
+	NiTexturePtr unkB0;	// A0
+};
+
+class BSLightingShaderMaterialParallaxOcc : public BSLightingShaderMaterial
+{
+public:
+	virtual ~BSLightingShaderMaterialParallaxOcc();
+
+	NiTexturePtr unkA0;	// A0
 };
 
 class BSLightingShaderMaterialFacegenTint : public BSLightingShaderMaterial
@@ -150,3 +206,7 @@ public:
 
 typedef BSShaderMaterialBase * (* _CreateShaderMaterial)(UInt32 shaderType);
 extern RelocAddr<_CreateShaderMaterial> CreateShaderMaterial;
+
+// This is actually vtable+8 but it has no dependency on the 'this' ptr
+typedef BSLightingShaderMaterialFacegenTint * (*_CreateFacegenTintMaterial)();
+extern RelocAddr<_CreateFacegenTintMaterial> CreateFacegenTintMaterial;

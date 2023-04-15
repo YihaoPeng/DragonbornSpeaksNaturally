@@ -496,31 +496,45 @@ namespace scaleformExtend
 					GFxValue activeEffects;
 					movieView->CreateArray(&activeEffects);
 
-					tList<ActiveEffect> * effects = pActor->magicTarget.GetActiveEffects();
-					if(effects)
+					class ExtendedActiveEffectVisitor : public MagicTarget::ForEachActiveEffectVisitor
 					{
-						for(int i = 0; i < effects->Count(); i++)
+					public:
+						ExtendedActiveEffectVisitor(GFxMovieView* movieView, GFxValue * activeEffects, bool bRecursive, bool bExtra)
+							: m_movieView(movieView)
+							, m_activeEffects(activeEffects)
+							, m_bRecursive(bRecursive)
+							, m_bExtra(bExtra)
+						{ };
+
+						virtual BSContainer::ForEachResult Visit(ActiveEffect* pEffect) override
 						{
 							GFxValue effect;
-							movieView->CreateObject(&effect);
+							m_movieView->CreateObject(&effect);
 
-							ActiveEffect * pEffect = effects->GetNthItem(i);
-
-							if(pEffect->item)
-								scaleformExtend::MagicItemData(&effect, movieView, pEffect->item, bRecursive ? bExtra : false, bRecursive);
+							if (pEffect->item)
+								scaleformExtend::MagicItemData(&effect, m_movieView, pEffect->item, m_bRecursive ? m_bExtra : false, m_bRecursive);
 
 							RegisterNumber(&effect, "elapsed", pEffect->elapsed);
 							RegisterNumber(&effect, "duration", pEffect->duration);
 							RegisterNumber(&effect, "magnitude", pEffect->magnitude);
 							RegisterBool(&effect, "inactive", (pEffect->flags & ActiveEffect::kFlag_Inactive) == ActiveEffect::kFlag_Inactive);
-							
+
 							// ActiveEffect
-							if(pEffect->effect && pEffect->effect->mgef)
-								scaleformExtend::MagicItemData(&effect, movieView, pEffect->effect->mgef, bRecursive ? bExtra : false, bRecursive);
-							
-							activeEffects.PushBack(&effect);
+							if (pEffect->effect && pEffect->effect->mgef)
+								scaleformExtend::MagicItemData(&effect, m_movieView, pEffect->effect->mgef, m_bRecursive ? m_bExtra : false, m_bRecursive);
+
+							m_activeEffects->PushBack(&effect);
+							return BSContainer::ForEachResult::kContinue;
 						}
-					}
+					protected:
+						GFxMovieView*	m_movieView;
+						GFxValue*		m_activeEffects;
+						bool			m_bRecursive;
+						bool			m_bExtra;
+					};
+
+					pActor->magicTarget.ForEachActiveEffect(ExtendedActiveEffectVisitor(movieView, &activeEffects, bRecursive, bExtra));
+
 					pFxVal->SetMember("activeEffects", &activeEffects);
 
 					GFxValue actorValues;

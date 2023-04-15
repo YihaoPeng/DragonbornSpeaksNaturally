@@ -118,33 +118,33 @@ ExtraUniqueID* ExtraUniqueID::Create()
 	return xUniqueId;
 }
 
-TESObjectREFR * ExtraReferenceHandle::GetReference()
+NiPointer<TESObjectREFR> ExtraReferenceHandle::GetReference()
 {
-	TESObjectREFR * reference = NULL;
-	if(handle == (*g_invalidRefHandle) || handle == 0)
+	NiPointer<TESObjectREFR> reference;
+	if (handle == (*g_invalidRefHandle) || handle == 0)
 		return NULL;
 
-	LookupREFRByHandle(&handle, &reference);
+	LookupREFRByHandle(handle, reference);
 	return reference;
 }
 
-TESObjectREFR * ExtraEnableStateParent::GetReference()
+NiPointer<TESObjectREFR> ExtraEnableStateParent::GetReference()
 {
-	TESObjectREFR * reference = NULL;
-	if(handle == (*g_invalidRefHandle) || handle == 0)
+	NiPointer<TESObjectREFR> reference;
+	if (handle == (*g_invalidRefHandle) || handle == 0)
 		return NULL;
 
-	LookupREFRByHandle(&handle, &reference);
+	LookupREFRByHandle(handle, reference);
 	return reference;
 }
 
-TESObjectREFR * ExtraForcedTarget::GetReference()
+NiPointer<TESObjectREFR> ExtraForcedTarget::GetReference()
 {
-	TESObjectREFR * reference = NULL;
-	if(handle == (*g_invalidRefHandle) || handle == 0)
+	NiPointer<TESObjectREFR> reference;
+	if (handle == (*g_invalidRefHandle) || handle == 0)
 		return NULL;
 
-	LookupREFRByHandle(&handle, &reference);
+	LookupREFRByHandle(handle, reference);
 	return reference;
 }
 

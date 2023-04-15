@@ -32,12 +32,19 @@ class BSTriShape;
 class TESObjectCELL;
 class TESModelTri;
 class BSFaceGenMorphData;
+class TESObjectREFR;
 
 extern RelocPtr<float> g_worldToCamMatrix;
 extern RelocPtr<NiRect<float>> g_viewPort;
 
 typedef bool (* _WorldPtToScreenPt3_Internal)(float * worldToCamMatrix, NiRect<float> * port, NiPoint3 * p_in, float * x_out, float * y_out, float * z_out, float zeroTolerance);
 extern RelocAddr<_WorldPtToScreenPt3_Internal> WorldPtToScreenPt3_Internal;
+
+typedef void * (*_NiAllocate)(size_t size);
+extern RelocAddr<_NiAllocate> NiAllocate;
+
+typedef void(*_NiFree)(void * ptr);
+extern RelocAddr<_NiFree> NiFree;
 
 // 10
 class NiRefObject
@@ -143,7 +150,7 @@ public:
 };
 STATIC_ASSERT(sizeof(NiObjectNET) == 0x30);
 
-// 110
+// 138
 class NiAVObject : public NiObjectNET
 {
 public:
@@ -168,58 +175,57 @@ public:
 		UInt32	flags;
 	};
 
-	virtual void	UpdateControllers(ControllerUpdateContext * ctx);	// calls controller vtbl+0x8C
-	virtual void	UpdateNodeBound(ControllerUpdateContext * ctx);
-
-	// SE: one of these 4 functions was deleted. Until figuring out which one, assuming it was Unk_26
-	virtual void	ApplyTransform(NiMatrix33 * mtx, NiPoint3 * translate, bool postTransform);
-	virtual void	SetPropertyState(NiProperty * prop);
-	virtual void	Unk_25(UInt32 arg0); // SE: function 29
-	virtual void	Unk_26(UInt32 arg0);
-
-
+	virtual void			UpdateControllers(ControllerUpdateContext * ctx);	// calls controller vtbl+0x8C
+	virtual void			Unk_VRFunc(void);
+	virtual void			UpdateNodeBound(ControllerUpdateContext * ctx);
+	virtual void			ApplyTransform(NiMatrix33 * mtx, NiPoint3 * translate, bool postTransform);
+	virtual void			SetMaterialNeedsUpdate(bool a_needsUpdate);
+	virtual void			SetDefaultMaterialNeedsUpdateFlag(bool a_flag);
 	virtual NiAVObject *	GetObjectByName(const char ** name);	// BSFixedString? alternatively BSFixedString is a typedef of a netimmerse type
-	virtual void	SetSelectiveUpdateFlags(bool * selectiveUpdate, bool selectiveUpdateTransforms, bool * rigid);
-	virtual void	UpdateDownwardPass(ControllerUpdateContext * ctx, void *unk1); // SE: changed unk to void*
-	virtual void	UpdateSelectedDownwardPass(ControllerUpdateContext * ctx, void *unk1); // SE: changed unk to void*
-	virtual void	UpdateRigidDownwardPass(ControllerUpdateContext * ctx, void *unk1); // SE: changed unk to void*
-	virtual void	UpdateWorldBound(void);
-	virtual void	UpdateWorldData(ControllerUpdateContext * ctx);	// SE: function 30 (vtable+0x180)
-	virtual void	UpdateNoControllers(ControllerUpdateContext * ctx);
-	virtual void	UpdateDownwardPassTempParent(NiNode * parent, ControllerUpdateContext * ctx);
-	virtual void	Unk_30(void);	// calls virtual function on parent - SE: function 33
+	virtual void			SetSelectiveUpdateFlags(bool * selectiveUpdate, bool selectiveUpdateTransforms, bool * rigid);
+	virtual void			UpdateDownwardPass(ControllerUpdateContext * ctx, void *unk1); // SE: changed unk to void*
+	virtual void			UpdateSelectedDownwardPass(ControllerUpdateContext * ctx, void *unk1); // SE: changed unk to void*
+	virtual void			UpdateRigidDownwardPass(ControllerUpdateContext * ctx, void *unk1); // SE: changed unk to void*
+	virtual void			UpdateWorldBound(void);
+	virtual void			UpdateWorldData(ControllerUpdateContext * ctx);	// SE: function 30 (vtable+0x190)
+	virtual void			UpdateNoControllers(ControllerUpdateContext * ctx);
+	virtual void			UpdateDownwardPassTempParent(NiNode * parent, ControllerUpdateContext * ctx);
+	virtual void			Unk_33(void);
+	virtual void			Unk_34(void);
 
-	// SE: one of these functions was deleted. Doesn't matter which, they are unks, assuming Unk_32.
-	virtual void	Unk_31(UInt32 arg0); // SE: function 34
-	//virtual void	Unk_32(UInt32 arg0);
-
-	NiNode		* m_parent;			// 30
-	UInt32		unk038;				// 38 - New in SE, init'd to FFFFFFFF
-	UInt32		pad03C;				// 3C
-	NiAVObject	* unk040;			// 40
-	NiTransform	m_localTransform;	// 48
-	NiTransform	unkTransform;;		// 7C - SE: this one is new
-	NiTransform	m_worldTransform;	// B0
-	float		unkE4;				// E4
-	float		unkE8;				// E8
-	float		unkEC;				// EC
-	float		unkF0;				// F0
-	UInt32		m_flags;			// F4 - bitfield
-	float		unkF8;				// F8
-	UInt32		unkFC;				// FC
-	float		unk100;				// 100 - New in SE? init's to 1.0
-	UInt32		unk104;				// 104 - New in SE? init'd to 0
-	UInt8		unk108;				// 108
-	UInt8		unk109;				// 109 - bitfield
-	UInt8		pad10A[6];			// 10A
+	NiNode		* m_parent;				// 30
+	UInt32		unk038;					// 38 - New in SE, init'd to FFFFFFFF
+	UInt32		pad03C;					// 3C
+	NiAVObject	* unk040;				// 40
+	NiTransform	m_localTransform;		// 48
+	NiTransform	m_worldTransform;		// 7C - SE: this one is new
+	NiTransform	m_oldWorldTransform;	// B0
+	float		unkE4;					// E4
+	float		unkE8;					// E8
+	float		unkEC;					// EC
+	float		unkF0;					// F0
+	float		unkF4;					// F4
+	float		unkF8;					// F8
+	float		unkFC;					// FC
+	float		unk100;					// 100 - New in SE? init's to 1.0
+	float		unk104;					// 104 - New in SE? init'd to 0
+	float		unk108;					// 108
+	UInt32		m_flags;				// 10C
+	TESObjectREFR*	m_owner;			// 110
+	float		unk118;					// 118
+	UInt32		unk11C;					// 11C
+	UInt8		unk120[8];				// 120 - bitfield
+	UInt64		unk128;					// 128
+	UInt64		unk130;					// 130
 
 	MEMBER_FN_PREFIX(NiAVObject);
 	// 3239A102C6E8818F0FBFEF58A1B6EA724A237258+26
 	DEFINE_MEMBER_FN(UpdateNode, void, 0x00C9BC10, ControllerUpdateContext * ctx);
 };
 STATIC_ASSERT(offsetof(NiAVObject, m_localTransform) == 0x48);
-STATIC_ASSERT(offsetof(NiAVObject, m_worldTransform) == 0xB0);
-STATIC_ASSERT(sizeof(NiAVObject) == 0x110);
+STATIC_ASSERT(offsetof(NiAVObject, m_worldTransform) == 0x7C);
+STATIC_ASSERT(offsetof(NiAVObject, m_oldWorldTransform) == 0xB0);
+STATIC_ASSERT(sizeof(NiAVObject) == 0x138);
 
 
 MAKE_NI_POINTER(NiAVObject);
@@ -354,6 +360,6 @@ public:
 
 	bool WorldPtToScreenPt3(NiPoint3 * p_in, float * x_out, float * y_out, float * z_out, float zeroTolerance = 1e-5);
 };
-STATIC_ASSERT(offsetof(NiCamera, m_frustum) == 0x150);
-STATIC_ASSERT(offsetof(NiCamera, m_fMinNearPlaneDist) == 0x16C);
-STATIC_ASSERT(offsetof(NiCamera, m_fLODAdjust) == 0x184);
+STATIC_ASSERT(offsetof(NiCamera, m_frustum) == 0x178);
+STATIC_ASSERT(offsetof(NiCamera, m_fMinNearPlaneDist) == 0x194);
+STATIC_ASSERT(offsetof(NiCamera, m_fLODAdjust) == 0x1AC);

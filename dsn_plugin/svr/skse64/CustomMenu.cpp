@@ -23,19 +23,19 @@ void CustomMenuCreator::SetSwfPath(const char* path)
 
 CustomMenu::CustomMenu(const char* swfPath)
 {
-	CALL_MEMBER_FN(GFxLoader::GetSingleton(), LoadMovie)(this, &view, swfPath, kType_PauseGame | kType_ShowCursor, 0.0);
+	CALL_MEMBER_FN(GFxLoader::GetSingleton(), LoadMovie)(this, &view, swfPath, IMenu::kFlag_PausesGame | IMenu::kFlag_UsesCursor, 0.0);
 
-	flags = 0x11;
-	unk0C = 0xA;
-	unk14 = 1;
+	flags = IMenu::kFlag_Modal | IMenu::kFlag_PausesGame;
+	unk18 = 0xA;
+	unk20 = 1;
 
 #ifdef FIXME
 	if(!(*g_inputEventDispatcher)->IsGamepadEnabled())
-		flags |= 0x404; // Shows the cursor when no gamepad is enabled
+		flags |= IMenu::kFlag_UpdateUsesCursor | IMenu::kFlag_UsesCursor; // Shows the cursor when no gamepad is enabled
 #endif
 
 #ifdef _CUSTOMMENU_ITEMDISPLAY
-	flags |= 0x1000;
+	flags |= IMenu::kFlag_RendersOffscreenTargets;
 #endif
 }
 #ifdef _CUSTOMMENU_ITEMDISPLAY
@@ -69,7 +69,7 @@ void CustomMenu::Accept(CallbackProcessor * processor)
 void CustomMenu::Render()
 {
 	if(view) {
-		view->Render();
+		view->Display();
 #ifdef _CUSTOMMENU_ITEMDISPLAY
 		CALL_MEMBER_FN(Inventory3DManager::GetSingleton(), Render)();
 #endif

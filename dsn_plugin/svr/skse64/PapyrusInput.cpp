@@ -87,6 +87,11 @@ namespace papyrusInput
 				deviceType = kDeviceType_Gamepad;
 				key = inputManager->GetMappedKey(name, kDeviceType_Gamepad, InputManager::kContext_Gameplay);
 			}
+			else if (*g_isUsingMotionControllers)
+			{
+				deviceType = InputManager::GetDeviceTypeFromVR(*g_leftHandedMode);
+				key = inputManager->GetMappedKey(name, deviceType, InputManager::kContext_Gameplay);
+			}
 			// Mouse + Keyboard
 			else
 			{
@@ -107,6 +112,10 @@ namespace papyrusInput
 		if (deviceType == kDeviceType_Mouse)
 		{
 			return key + InputMap::kMacro_MouseButtonOffset;
+		}
+		else if (*g_isUsingMotionControllers)
+		{
+			return key + InputManager::GetDeviceOffsetForDevice(deviceType);
 		}
 		else if (deviceType == kDeviceType_Gamepad)
 		{
@@ -131,7 +140,12 @@ namespace papyrusInput
 		UInt32 buttonID;
 		UInt32 deviceType;
 
-		if (keyCode >= InputMap::kMacro_GamepadOffset)
+		if (keyCode >= InputMap::kMacro_VivePrimaryOffset)
+		{
+			deviceType = InputManager::GetDeviceTypeFromKeyCode(keyCode);
+			buttonID = keyCode - InputManager::GetDeviceOffsetForDevice(deviceType);
+		}
+		else if (keyCode >= InputMap::kMacro_GamepadOffset)
 		{
 			buttonID = InputMap::GamepadKeycodeToMask(keyCode);
 			deviceType = kDeviceType_Gamepad;

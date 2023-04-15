@@ -1,6 +1,14 @@
 #include "skse64/NiGeometry.h"
-#include "skse64/NiAllocator.h"
 #include "skse64/GameAPI.h"
+
+RelocAddr<_CreateBSTriShape> CreateBSTriShape(0x00CAD6D0);
+RelocAddr<_CreateBSDynamicTriShape> CreateBSDynamicTriShape(0x00CB8530);
+
+// ??_7NiTriShape@@6B@
+static const RelocPtr<uintptr_t> s_NiTriShapeVtbl(0x017F7058);
+
+// ??_7NiTriStrips@@6B@
+static const RelocPtr<uintptr_t> s_NiTriStripsVtbl(0x017F75A8);
 
 void NiGeometryData::AllocateVerts(UInt32 numVerts)
 {
@@ -49,7 +57,28 @@ NiSkinInstance * NiSkinInstance::Create()
 	void* memory = Heap_Allocate(sizeof(NiSkinInstance));
 	memset(memory, 0, sizeof(NiSkinInstance));
 	NiSkinInstance* xData = (NiSkinInstance*)memory;
-	CALL_MEMBER_FN(xData, ctor)();
+	xData->ctor();
+	return xData;
+}
+
+NiTriShape * NiTriShape::Create(NiTriShapeData * geometry)
+{
+	void* memory = Heap_Allocate(sizeof(NiTriShape));
+	memset(memory, 0, sizeof(NiTriShape));
+	NiTriShape* xData = (NiTriShape*)memory;
+	xData->ctor(geometry);
+	((uintptr_t *)memory)[0] = s_NiTriShapeVtbl.GetUIntPtr();
+	return xData;
+}
+
+
+NiTriStrips * NiTriStrips::Create(NiTriShapeData * geometry)
+{
+	void* memory = Heap_Allocate(sizeof(NiTriStrips));
+	memset(memory, 0, sizeof(NiTriStrips));
+	NiTriStrips* xData = (NiTriStrips*)memory;
+	xData->ctor(geometry);
+	((uintptr_t *)memory)[0] = s_NiTriStripsVtbl.GetUIntPtr();
 	return xData;
 }
 
@@ -58,70 +87,75 @@ BSDismemberSkinInstance * BSDismemberSkinInstance::Create()
 	void* memory = Heap_Allocate(sizeof(BSDismemberSkinInstance));
 	memset(memory, 0, sizeof(BSDismemberSkinInstance));
 	BSDismemberSkinInstance* xData = (BSDismemberSkinInstance*)memory;
-	CALL_MEMBER_FN(xData, ctor)();
+	xData->ctor();
 	return xData;
 }
 
-NiSkinInstance * NiSkinInstance::Clone(bool reuse)
+NiSkinInstance * NiSkinInstance::Clone()
 {
-	NiSkinInstance * newSkinInstance = CALL_MEMBER_FN(this, Copy)();
-	if (!reuse && newSkinInstance == this)
+	NiSkinInstance * newSkinInstance = nullptr;
+	BSDismemberSkinInstance* srcSkin = ni_cast(this, BSDismemberSkinInstance);
+	if (srcSkin)
 	{
-		BSDismemberSkinInstance* srcSkin = ni_cast(this, BSDismemberSkinInstance);
-		if (srcSkin)
-		{
-			newSkinInstance = BSDismemberSkinInstance::Create();
-			BSDismemberSkinInstance* dstSkin = ni_cast(newSkinInstance, BSDismemberSkinInstance);
-			dstSkin->numPartitions = srcSkin->numPartitions;
-			dstSkin->partitionFlags = (UInt32 *)Heap_Allocate(sizeof(UInt32) * srcSkin->numPartitions);
-			memcpy(dstSkin->partitionFlags, srcSkin->partitionFlags, sizeof(UInt32) * srcSkin->numPartitions);
-			dstSkin->unk98 = srcSkin->unk98;
-			memcpy(dstSkin->pad99, srcSkin->pad99, 3);
-		}
-		else
-		{
-			newSkinInstance = NiSkinInstance::Create();
-		}
-
-		newSkinInstance->m_spSkinData = m_spSkinData;
-		newSkinInstance->m_spSkinPartition = m_spSkinPartition;
-		newSkinInstance->m_pkRootParent = m_pkRootParent;
-		newSkinInstance->m_ppkBones = (NiAVObject**)NiAllocate(sizeof(NiAVObject*) * m_uiBoneNodes);
-		memcpy(newSkinInstance->m_ppkBones, this->m_ppkBones, sizeof(NiAVObject*) * m_uiBoneNodes);
-		newSkinInstance->unk30 = unk30;
-		newSkinInstance->m_uiBoneNodes = m_uiBoneNodes;
-		newSkinInstance->numFlags = numFlags;
-		newSkinInstance->flags = (UInt32 *)NiAllocate(sizeof(UInt32) * numFlags);
-		newSkinInstance->unk3C = unk3C;
-		memcpy(newSkinInstance->flags, flags, sizeof(UInt32) * numFlags);
-		newSkinInstance->unk48 = unk48;
-		newSkinInstance->unk4C = unk4C;
-		newSkinInstance->unk50 = unk50;
-		newSkinInstance->unk58 = unk58;
-
-		NiSkinData * skinData = niptr_cast<NiSkinData>(newSkinInstance->m_spSkinData);
-		if (skinData) {
-			newSkinInstance->m_worldTransforms = (NiTransform**)NiAllocate(sizeof(NiTransform*) * skinData->m_uiBones);
-			memcpy(newSkinInstance->m_worldTransforms, this->m_worldTransforms, sizeof(NiTransform*) * skinData->m_uiBones);
-		}
+		newSkinInstance = BSDismemberSkinInstance::Create();
+		BSDismemberSkinInstance* dstSkin = ni_cast(newSkinInstance, BSDismemberSkinInstance);
+		dstSkin->numPartitions = srcSkin->numPartitions;
+		dstSkin->partitionFlags = (UInt32 *)Heap_Allocate(sizeof(UInt32) * srcSkin->numPartitions);
+		memcpy(dstSkin->partitionFlags, srcSkin->partitionFlags, sizeof(UInt32) * srcSkin->numPartitions);
+		dstSkin->unk6C = srcSkin->unk6C;
+		dstSkin->unk70 = srcSkin->unk70;
 	}
+	else
+	{
+		newSkinInstance = NiSkinInstance::Create();
+	}
+
+	newSkinInstance->m_spSkinData = m_spSkinData;
+	newSkinInstance->m_spSkinPartition = m_spSkinPartition;
+	newSkinInstance->m_pkRootParent = m_pkRootParent;
+	newSkinInstance->m_ppkBones = (NiAVObject**)Heap_Allocate(sizeof(NiAVObject*) * m_uiBoneNodes);
+	memcpy(newSkinInstance->m_ppkBones, this->m_ppkBones, sizeof(NiAVObject*) * m_uiBoneNodes);
+	newSkinInstance->unk38 = unk38;
+	newSkinInstance->m_uiBoneNodes = m_uiBoneNodes;
+	newSkinInstance->numFlags = numFlags;
+	if (flags) {
+		newSkinInstance->flags = (UInt32 *)Heap_Allocate(sizeof(UInt32) * numFlags);
+	}
+	else {
+		flags = nullptr;
+	}
+	newSkinInstance->unk44 = unk44;
+	memcpy(newSkinInstance->flags, flags, sizeof(UInt32) * numFlags);
+	if (unk50) {
+		newSkinInstance->unk50 = (UInt32 *)Heap_Allocate(sizeof(UInt32) * numFlags);
+		memcpy(newSkinInstance->unk50, unk50, sizeof(UInt32) * numFlags);
+	}
+	else {
+		unk50 = nullptr;
+	}
+
+	NiSkinData * skinData = niptr_cast<NiSkinData>(newSkinInstance->m_spSkinData);
+	if (skinData) {
+		newSkinInstance->m_worldTransforms = (NiTransform**)Heap_Allocate(sizeof(NiTransform*) * skinData->m_uiBones);
+		memcpy(newSkinInstance->m_worldTransforms, this->m_worldTransforms, sizeof(NiTransform*) * skinData->m_uiBones);
+	}
+
+#if 0
 	else
 	{
 		if (!newSkinInstance->flags && numFlags > 0)
 		{
 			newSkinInstance->numFlags = numFlags;
-			newSkinInstance->flags = (UInt32 *)NiAllocate(sizeof(UInt32) * numFlags);
+			newSkinInstance->flags = (UInt32 *)Heap_Allocate(sizeof(UInt32) * numFlags);
 			memcpy(newSkinInstance->flags, flags, sizeof(UInt32) * numFlags);
 		}
 
 		newSkinInstance->m_uiBoneNodes = m_uiBoneNodes;
-		newSkinInstance->unk3C = unk3C;
-		newSkinInstance->unk30 = unk30;
-		newSkinInstance->unk48 = unk48;
-		newSkinInstance->unk4C = unk4C;
+		newSkinInstance->unk38 = unk38;
+		newSkinInstance->unk44 = unk44;
 		newSkinInstance->unk50 = unk50;
-		newSkinInstance->unk58 = unk58;
+		newSkinInstance->unk54 = unk54;
 	}
-
+#endif
 	return newSkinInstance;
 }

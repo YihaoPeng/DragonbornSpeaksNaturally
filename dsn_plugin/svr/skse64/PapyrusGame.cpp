@@ -351,7 +351,7 @@ namespace papyrusGame
 		// Compute skintone
 		if(tintMask->tintType == TintMask::kMaskType_SkinTone) {
 			NiColorA colorResult;
-			CALL_MEMBER_FN(actorBase, SetSkinFromTint)(&colorResult, tintMask, 1, 0);
+			CALL_MEMBER_FN(actorBase, SetSkinFromTint)(&colorResult, tintMask, true);
 		}
 	}
 
@@ -500,7 +500,7 @@ namespace papyrusGame
 	{
 		PlayerControls * controls = PlayerControls::GetSingleton();
 		if(controls) {
-			return controls->runMode == 1;
+			return controls->movement.runMode == 1;
 		}
 
 		return false;
@@ -606,9 +606,9 @@ namespace papyrusGame
 	TESObjectREFR * GetCurrentConsoleRef(StaticFunctionTag * base)
 	{
 		UInt32 handle = (*g_consoleHandle);
-		TESObjectREFR * refr = NULL;
+		NiPointer<TESObjectREFR> refr = NULL;
 		if(handle != 0 && handle != (*g_invalidRefHandle)) {
-			LookupREFRByHandle(&handle, &refr);
+			LookupREFRByHandle(handle, refr);
 			return refr;
 		}
 

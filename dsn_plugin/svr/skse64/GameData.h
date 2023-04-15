@@ -33,6 +33,7 @@ class BSFile;
 class BSFaceGenModelMap;
 class BSFaceGenModel;
 class NiTexture;
+class Setting;
 
 class NiAVObject;
 class NiColorA;
@@ -105,8 +106,8 @@ struct ModInfo		// referred to by game as TESFile
 	float								unk42C;				// 42C init'd to 0.94
 	UInt32								unk430;				// 430
 	UInt32								flags;				// 434 init'd to 0x00000800. 4000 and 40000 do stuff
-	UInt8								unk438;				// 438
-	UInt8								pad439[7];			// 439
+	UInt32								fileFlags;			// 438
+	UInt32								unk43C;				// 43C
 	void*								unk440;				// 440
 	void*								unk448;				// 448
 	void*								unk450;				// 450
@@ -118,7 +119,9 @@ struct ModInfo		// referred to by game as TESFile
 	UInt32								unk470;				// 470
 	UInt32								unk474;				// 474
 	UInt8								modIndex;			// 478 init to 0xFF
-	UInt8								pad47C[7];
+	UInt8								pad479;				// 479
+	UInt16								lightIndex;			// 47A
+	UInt8								pad47C[4];
 	BSString							author;				// 480
 	BSString							description;		// 490
 	void								* dataBuf;			// 4A0 
@@ -129,7 +132,28 @@ struct ModInfo		// referred to by game as TESFile
 	UInt32								pad4BC;				// 4BC
 	void								* unk4C0;			// 4C0
 
-	bool IsLoaded() const { return true; }
+	// Checks if a particular formID is part of the mod
+	bool IsFormInMod(UInt32 formID) const
+	{
+		if ((formID >> 24) == modIndex)
+			return true;
+		return false;
+	}
+
+	// Returns either a modIndex or a modIndex|lightIndex pair
+	UInt32 GetPartialIndex() const
+	{
+		return modIndex;
+	}
+
+	// Converts the lower bits of a FormID to a full FormID depending on plugin type
+	UInt32 GetFormID(UInt32 formLower) const
+	{
+		return UInt32(modIndex) << 24 | (formLower & 0xFFFFFF);
+	}
+
+	bool IsActive() const { return modIndex != 0xFF; }
+	bool IsLight() const { return false; }
 };
 
 STATIC_ASSERT(offsetof(ModInfo, formInfo) == 0x284);
@@ -905,10 +929,12 @@ public:
 	struct Preset
 	{
 		const char * presetName;
-		FacePresetData * data;
+		Setting * gameSetting;
 	};
 
 	Preset presets[kNumPresets];
+
+	static FacePresetList *	GetSingleton(void);
 };
 
 class FaceMorphList

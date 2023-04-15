@@ -2,7 +2,7 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="9.00"
-	Name="common_vc9"
+	Name="common_vc12"
 	ProjectGUID="{20C6411C-596F-4B85-BE4E-8BC91F59D8A6}"
 	RootNamespace="common"
 	SccProjectName="Perforce Project"
@@ -21,8 +21,8 @@
 	<Configurations>
 		<Configuration
 			Name="Debug|Win32"
-			OutputDirectory="Debug VC9"
-			IntermediateDirectory="Debug VC9"
+			OutputDirectory="Debug VC12"
+			IntermediateDirectory="Debug VC12"
 			ConfigurationType="4"
 			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
 			CharacterSet="2"
@@ -88,8 +88,8 @@
 		</Configuration>
 		<Configuration
 			Name="Release|Win32"
-			OutputDirectory="Release VC9"
-			IntermediateDirectory="Release VC9"
+			OutputDirectory="Release VC12"
+			IntermediateDirectory="Release VC12"
 			ConfigurationType="4"
 			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
 			CharacterSet="2"
@@ -189,26 +189,6 @@
 				RelativePath=".\ISegmentStream.h"
 				>
 			</File>
-			<Filter
-				Name="pipe"
-				>
-				<File
-					RelativePath=".\IPipeClient.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\IPipeClient.h"
-					>
-				</File>
-				<File
-					RelativePath=".\IPipeServer.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\IPipeServer.h"
-					>
-				</File>
-			</Filter>
 		</Filter>
 		<Filter
 			Name="debug"
@@ -395,6 +375,26 @@
 			</File>
 		</Filter>
 		<Filter
+			Name="pipe"
+			>
+			<File
+				RelativePath=".\IPipeClient.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\IPipeClient.h"
+				>
+			</File>
+			<File
+				RelativePath=".\IPipeServer.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\IPipeServer.h"
+				>
+			</File>
+		</Filter>
+		<Filter
 			Name="files"
 			>
 			<File
@@ -415,6 +415,4 @@
 			>
 		</File>
 	</Files>
-	<Globals>
-	</Globals>
 </VisualStudioProject>

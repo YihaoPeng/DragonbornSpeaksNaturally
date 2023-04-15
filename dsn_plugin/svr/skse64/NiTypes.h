@@ -7,6 +7,14 @@ class NiPointer
 public:
 	T	* m_pObject;	// 00
 
+	inline NiPointer(const NiPointer& rhs) :
+		m_pObject(rhs.m_pObject)
+	{
+		if (m_pObject) {
+			m_pObject->IncRef();
+		}
+	}
+
 	inline NiPointer(T* pObject = (T*) 0)
 	{
 		m_pObject = pObject;
@@ -77,6 +85,11 @@ public:
 	inline bool operator!=(const NiPointer & ptr) const
 	{
 		return m_pObject != ptr.m_pObject;
+	}
+
+	inline T* get()
+	{
+		return m_pObject;
 	}
 };
 

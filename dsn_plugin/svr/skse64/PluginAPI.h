@@ -9,6 +9,19 @@ class InventoryEntryData;
 class SKSEDelayFunctorManager;
 class SKSEObjectRegistry;
 class SKSEPersistentObjectStorage;
+class BranchTrampoline;
+
+struct PluginInfo
+{
+	enum
+	{
+		kInfoVersion = 1
+	};
+
+	UInt32			infoVersion;
+	const char *	name;
+	UInt32			version;
+};
 
 enum
 {
@@ -24,6 +37,11 @@ enum
 	kInterface_Task,
 	kInterface_Messaging,
 	kInterface_Object,
+	kInterface_Trampoline,
+
+	// We will add a gap for VR because SKSE might still add more interfaces and we want the numbers to be in-line
+
+	kInterface_VR = 0x10,
 	kInterface_Max,
 };
 
@@ -37,10 +55,14 @@ struct SKSEInterface
 
 	// call during your Query or Load functions to get a PluginHandle uniquely identifying your plugin
 	// invalid if called at any other time, so call it once and save the result
-	PluginHandle	(* GetPluginHandle)(void);
+	PluginHandle		(* GetPluginHandle)(void);
 	
 	// returns the SKSE build's release index
-	UInt32			(* GetReleaseIndex)(void);
+	UInt32				(* GetReleaseIndex)(void);
+
+	// Minimum SKSEVR version 2.0.11
+	// returns the plugin info structure for a plugin by name, only valid to be called after PostLoad message
+	const PluginInfo*	(*GetPluginInfo)(const char* name);
 };
 
 struct SKSEScaleformInterface
@@ -231,16 +253,48 @@ struct SKSEObjectInterface
 	SKSEPersistentObjectStorage & (* GetPersistentObjectStorage)();
 };
 
-struct PluginInfo
+struct SKSETrampolineInterface
 {
 	enum
 	{
-		kInfoVersion = 1
+		kInterfaceVersion = 1
 	};
 
-	UInt32			infoVersion;
-	const char *	name;
-	UInt32			version;
+	UInt32	interfaceVersion;
+
+	void* (*AllocateFromBranchPool)(PluginHandle plugin, size_t size);
+	void* (*AllocateFromLocalPool)(PluginHandle plugin, size_t size);
+};
+
+namespace vr_1_0_12
+{
+	struct VRControllerAxis_t;
+	struct VRControllerState001_t;
+	struct TrackedDevicePose_t;
+};
+namespace vr_src = vr_1_0_12;
+
+struct SKSEVRInterface
+{
+	enum
+	{
+		kInterfaceVersion = 1,
+		kOpenVRSourceVersion = 0x01000C00,
+		kOpenVRTargetVersion = 0x01070F00
+	};
+
+	UInt32	interfaceVersion;
+	UInt32	openvrSourceVersion;
+	UInt32	openvrTargetVersion;
+
+	typedef void(*ControllerStateCallback)(uint32_t unControllerDeviceIndex, vr_src::VRControllerState001_t *pControllerState, uint32_t unControllerStateSize, bool& state);
+	typedef bool(*WaitGetPosesCallback)(vr_src::TrackedDevicePose_t* pRenderPoseArray, uint32_t unRenderPoseArrayCount, vr_src::TrackedDevicePose_t* pGamePoseArray, uint32_t unGamePoseArrayCount);
+
+	bool(*IsActionsEnabled)();
+
+	// Setting state to false will allow plugins to still execute their callbacks and optionally block, but at the very end will discard the input event
+	void (*RegisterForControllerState)(PluginHandle plugin, int32_t sortOrder, ControllerStateCallback callback);
+	void (*RegisterForPoses)(PluginHandle plugin, int32_t sortOrder, WaitGetPosesCallback callback);
 };
 
 typedef bool (* _SKSEPlugin_Query)(const SKSEInterface * skse, PluginInfo * info);

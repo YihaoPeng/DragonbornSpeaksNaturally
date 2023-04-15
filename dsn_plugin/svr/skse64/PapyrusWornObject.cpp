@@ -49,27 +49,42 @@ namespace referenceUtils
 	bool HasItemAbility(Actor * actor, TESForm* baseForm, BaseExtraList * extraData)
 	{
 		if(actor && baseForm) {
-			tList<ActiveEffect> * effects = actor->magicTarget.GetActiveEffects();
-			for(UInt32 i = 0; i < effects->Count(); i++) {
-				ActiveEffect* effect = effects->GetNthItem(i);
-				if(effect->sourceItem == baseForm) { // Check the item
-					EnchantmentItem * enchantment = NULL;
-					TESEnchantableForm * enchantable = DYNAMIC_CAST(baseForm, TESForm, TESEnchantableForm);
-					if(enchantable) { // Check the item for a base enchantment
-						enchantment = enchantable->enchantment;
-					}
-					if(extraData) { // Check the extra data for enchantment
-						ExtraEnchantment* extraEnchant = static_cast<ExtraEnchantment*>(extraData->GetByType(kExtraData_Enchantment));
-						if(extraEnchant) {
-							enchantment = extraEnchant->enchant;
+
+			class AbilityEffectVisitor : public MagicTarget::ForEachActiveEffectVisitor
+			{
+			public:
+				AbilityEffectVisitor(TESForm* baseForm, BaseExtraList * extraData)
+					: m_baseForm(baseForm)
+					, m_extraData(extraData)
+				{ };
+
+				virtual BSContainer::ForEachResult Visit(ActiveEffect* effect) override
+				{
+					if (effect->sourceItem == m_baseForm) { // Check the item
+						EnchantmentItem * enchantment = NULL;
+						TESEnchantableForm * enchantable = DYNAMIC_CAST(m_baseForm, TESForm, TESEnchantableForm);
+						if (enchantable) { // Check the item for a base enchantment
+							enchantment = enchantable->enchantment;
+						}
+						if (m_extraData) { // Check the extra data for enchantment
+							ExtraEnchantment* extraEnchant = static_cast<ExtraEnchantment*>(m_extraData->GetByType(kExtraData_Enchantment));
+							if (extraEnchant) {
+								enchantment = extraEnchant->enchant;
+							}
+						}
+
+						if (effect->item == enchantment) {
+							return BSContainer::ForEachResult::kContinue;
 						}
 					}
-
-					if(effect->item == enchantment) {
-						return true;
-					}
+					return BSContainer::ForEachResult::kContinue;
 				}
-			}
+			protected:
+				TESForm*		m_baseForm;
+				BaseExtraList *	m_extraData;
+			};
+
+			actor->magicTarget.ForEachActiveEffect(AbilityEffectVisitor(baseForm, extraData));
 		}
 
 		return false;

@@ -18,7 +18,22 @@ enum
 	kMacro_GamepadOffset = kMacro_MouseWheelOffset + kMacro_MouseWheelDirections,	// 266
 	kMacro_NumGamepadButtons = 16,
 
-	kMaxMacros = kMacro_GamepadOffset + kMacro_NumGamepadButtons	// 282
+	kMacro_VivePrimaryOffset = kMacro_GamepadOffset + kMacro_NumGamepadButtons, // 282
+	kMacro_VivePrimaryButtons = 64, // openvr says max buttons is 64
+	kMacro_ViveSecondaryOffset = kMacro_VivePrimaryOffset + kMacro_VivePrimaryButtons, // 346
+	kMacro_ViveSecondaryButtons = 64,
+
+	kMacro_OculusPrimaryOffset = kMacro_ViveSecondaryOffset + kMacro_ViveSecondaryButtons, // 410
+	kMacro_OculusPrimaryButtons = 64, // openvr says max buttons is 64
+	kMacro_OculusSecondaryOffset = kMacro_OculusPrimaryOffset + kMacro_OculusPrimaryButtons, // 474
+	kMacro_OculusSecondaryButtons = 64,
+
+	kMacro_WindowsMRPrimaryOffset = kMacro_OculusSecondaryOffset + kMacro_OculusSecondaryButtons, // 538
+	kMacro_WindowsMRPrimaryButtons = 64, // openvr says max buttons is 64
+	kMacro_WindowsMRSecondaryOffset = kMacro_WindowsMRPrimaryOffset + kMacro_WindowsMRPrimaryButtons, // 602
+	kMacro_WindowsMRSecondaryButtons = 64,
+
+	kMaxMacros = kMacro_WindowsMRSecondaryOffset + kMacro_WindowsMRSecondaryButtons	// 666
 };
 
 enum

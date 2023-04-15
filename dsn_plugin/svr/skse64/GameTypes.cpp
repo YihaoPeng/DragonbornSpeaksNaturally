@@ -78,6 +78,7 @@ void SimpleLock::Release(void)
 	}
 }
 
+#if 0
 void BSReadWriteLock::LockForRead()
 {
 	SInt32 myThreadID = GetCurrentThreadId();
@@ -214,6 +215,7 @@ void BSReadWriteLock::Unlock()
 		InterlockedDecrement(&lockValue);
 	}
 }
+#endif
 
 void UpdateRegistrationHolder::Order(UInt32 index)
 {

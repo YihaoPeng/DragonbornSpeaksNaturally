@@ -76,16 +76,44 @@ class BSReadWriteLock
 public:
 	BSReadWriteLock() : threadID(0), lockValue(0) {}
 
-	void LockForRead();
-	void LockForWrite();
-	void LockForReadAndWrite();
-
-	bool TryLockForWrite();
-	bool TryLockForRead();
-
-	void Unlock();
+	DEFINE_MEMBER_FN_0(LockForRead, void, 0x00C42150);
+	DEFINE_MEMBER_FN_0(LockForWrite, void, 0x00C421D0);
+	DEFINE_MEMBER_FN_0(UnlockRead, void, 0x00C42410);
+	DEFINE_MEMBER_FN_0(UnlockWrite, void, 0x00C42420);
+	DEFINE_MEMBER_FN_0(LockForReadAndWrite, void, 0x00C422D0);
+	DEFINE_MEMBER_FN_0(TryLockForWrite, bool, 0x00C423C0);
 };
-STATIC_ASSERT(sizeof(SimpleLock) == 0x8);
+STATIC_ASSERT(sizeof(BSReadWriteLock) == 0x8);
+
+class BSReadLocker
+{
+public:
+	BSReadLocker(BSReadWriteLock * lock) { m_lock = lock; m_lock->LockForRead(); }
+	~BSReadLocker() { m_lock->UnlockRead(); }
+
+protected:
+	BSReadWriteLock    * m_lock;
+};
+
+class BSWriteLocker
+{
+public:
+	BSWriteLocker(BSReadWriteLock * lock) { m_lock = lock; m_lock->LockForWrite(); }
+	~BSWriteLocker() { m_lock->UnlockWrite(); }
+
+protected:
+	BSReadWriteLock    * m_lock;
+};
+
+class BSReadAndWriteLocker
+{
+public:
+	BSReadAndWriteLocker(BSReadWriteLock * lock) { m_lock = lock; m_lock->LockForReadAndWrite(); }
+	~BSReadAndWriteLocker() { m_lock->UnlockWrite(); }
+
+protected:
+	BSReadWriteLock    * m_lock;
+};
 
 // 80808
 class StringCache
@@ -687,7 +715,7 @@ public:
 
 		NodePos pos = GetNthNode(index);
 		_Node* pTargetNode = pos.node;
-		_Node* newNode = (_Node*)Heap_Allocate(sizeof(newNode));
+		_Node* newNode = (_Node*)Heap_Allocate(sizeof(_Node));
 		if (newNode && pTargetNode) {
 			if (index == eListEnd) {
 				pTargetNode->next = newNode;
@@ -877,7 +905,6 @@ public:
 template <typename Item, typename Key = Item>
 class tHashSet
 {
-public:
 	class _Entry
 	{
 	public:
@@ -895,7 +922,7 @@ public:
 			_MESSAGE("\t\tnext: %08X", next);
 		}
 	};
-public:
+
 	// When creating a new tHashSet, init sentinel pointer with address of this entry
 	static _Entry sentinel;
 

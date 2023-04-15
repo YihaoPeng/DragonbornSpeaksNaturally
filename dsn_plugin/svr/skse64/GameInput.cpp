@@ -1,8 +1,9 @@
 #include "GameInput.h"
+#include "GameVR.h"
 
 bool InputEventDispatcher::IsGamepadEnabled(void)
 {
-	return (gamepad != NULL) && gamepad->IsEnabled();
+	return !(*g_isUsingMotionControllers);
 }
 
 InputEventDispatcher* InputEventDispatcher::GetSingleton()
@@ -42,19 +43,129 @@ UInt8 InputManager::AllowTextInput(bool allow)
 	return allowTextInput;
 }
 
+UInt32 InputManager::GetDeviceType()
+{
+	if (*g_isUsingMotionControllers)
+	{
+		return GetDeviceTypeFromVR(*g_leftHandedMode);
+	}
+	else
+	{
+		return kDeviceType_Gamepad;
+	}
+}
+
+UInt32 InputManager::GetDeviceTypeFromVR(bool primary)
+{
+	switch ((*g_openVR)->GetControllerType())
+	{
+	case BSOpenVR::kControllerType_Oculus:
+		return primary ? kDeviceType_OculusPrimary : kDeviceType_OculusSecondary;
+		break;
+	case BSOpenVR::kControllerType_WindowsMR:
+		return primary ? kDeviceType_OculusPrimary : kDeviceType_OculusSecondary;
+		break;
+	default:
+		break;
+	}
+
+	// When the controller type isnt recognized, treat as Vive
+	return primary ? kDeviceType_VivePrimary : kDeviceType_ViveSecondary;
+}
+
+UInt32 InputManager::GetDeviceOffsetForDevice(UInt32 deviceType)
+{
+	switch (deviceType) {
+	case kDeviceType_VivePrimary:
+		return InputMap::kMacro_VivePrimaryOffset;
+		break;
+	case kDeviceType_ViveSecondary:
+		return InputMap::kMacro_ViveSecondaryOffset;
+		break;
+	case kDeviceType_OculusPrimary:
+		return InputMap::kMacro_OculusPrimaryOffset;
+		break;
+	case kDeviceType_OculusSecondary:
+		return InputMap::kMacro_OculusSecondaryOffset;
+		break;
+	case kDeviceType_WindowsMRPrimary:
+		return InputMap::kMacro_WindowsMRPrimaryOffset;
+		break;
+	case kDeviceType_WindowsMRSecondary:
+		return InputMap::kMacro_WindowsMRSecondaryOffset;
+		break;
+	case kDeviceType_Gamepad:
+		return InputMap::kMacro_GamepadOffset;
+		break;
+	case kDeviceType_Mouse:
+		return InputMap::kMacro_MouseButtonOffset;
+		break;
+	case kDeviceType_Keyboard:
+		return InputMap::kMacro_KeyboardOffset;
+		break;
+	default:
+		return InputMap::kMacro_VivePrimaryOffset;
+		break;
+	}
+}
+
+UInt32 InputManager::GetDeviceTypeFromKeyCode(UInt32 keyCode)
+{
+	UInt32 deviceType = kDeviceType_VivePrimary;
+	if (keyCode >= InputMap::kMacro_WindowsMRSecondaryOffset) {
+		deviceType = kDeviceType_WindowsMRSecondary;
+	}
+	else if (keyCode >= InputMap::kMacro_WindowsMRPrimaryOffset) {
+		deviceType = kDeviceType_WindowsMRPrimary;
+	}
+	else if (keyCode >= InputMap::kMacro_OculusSecondaryOffset) {
+		deviceType = kDeviceType_OculusSecondary;
+	}
+	else if (keyCode >= InputMap::kMacro_OculusPrimaryOffset) {
+		deviceType = kDeviceType_OculusPrimary;
+	}
+	else if (keyCode >= InputMap::kMacro_ViveSecondaryOffset) {
+		deviceType = kDeviceType_ViveSecondary;
+	}
+	else if (keyCode >= InputMap::kMacro_VivePrimaryOffset) {
+		deviceType = kDeviceType_VivePrimary;
+	}
+	else if (keyCode >= InputMap::kMacro_GamepadOffset) {
+		deviceType = kDeviceType_Gamepad;
+	}
+	else if (keyCode >= InputMap::kMacro_MouseWheelOffset || keyCode >= InputMap::kMacro_MouseButtonOffset) {
+		deviceType = kDeviceType_Mouse;
+	}
+	else if (keyCode >= InputMap::kMacro_KeyboardOffset) {
+		deviceType = kDeviceType_Keyboard;
+	}
+	return deviceType;
+}
+
 UInt32 InputManager::GetMappedKey(BSFixedString name, UInt32 deviceType, UInt32 contextIdx)
 {
 	ASSERT(contextIdx < kContextCount);
 
 	tArray<InputContext::Mapping> * mappings;
-	if (deviceType == kDeviceType_Mouse)
-		mappings = &context[contextIdx]->mouseMap;
-	else if (deviceType == kDeviceType_Gamepad)
-		mappings = &context[contextIdx]->gamepadMap;
-	else
-		mappings = &context[contextIdx]->keyboardMap;
+	switch (deviceType)
+	{
+	case kDeviceType_Mouse:
+	case kDeviceType_Gamepad:
+	case kDeviceType_VivePrimary:
+	case kDeviceType_ViveSecondary:
+	case kDeviceType_OculusPrimary:
+	case kDeviceType_OculusSecondary:
+	case kDeviceType_WindowsMRPrimary:
+	case kDeviceType_WindowsMRSecondary:
+	case kDeviceType_VirtualKeyboard:
+		mappings = &context[contextIdx]->deviceMap[deviceType];
+		break;
+	default:
+		mappings = &context[contextIdx]->deviceMap[kDeviceType_Keyboard];
+		break;
+	}
 
-	for (UInt32 i=0; i < mappings->count; i++)
+	for (UInt32 i = 0; i < mappings->count; i++)
 	{
 		InputContext::Mapping m;
 		if (!mappings->GetNthItem(i, m))
@@ -76,21 +187,55 @@ BSFixedString InputManager::GetMappedControl(UInt32 buttonID, UInt32 deviceType,
 		return BSFixedString();
 
 	tArray<InputContext::Mapping> * mappings;
-	if (deviceType == kDeviceType_Mouse)
-		mappings = &context[contextIdx]->mouseMap;
-	else if (deviceType == kDeviceType_Gamepad)
-		mappings = &context[contextIdx]->gamepadMap;
-	else
-		mappings = &context[contextIdx]->keyboardMap;
 
-	for (UInt32 i=0; i < mappings->count; i++)
+	if (*g_isUsingMotionControllers)
 	{
-		InputContext::Mapping m;
-		if (!mappings->GetNthItem(i, m))
-			break;
-		if (m.buttonID == buttonID)
-			return m.name;
+		// Look for the mapping on the primary hand
+		UInt32 deviceList[] = {
+			GetDeviceTypeFromVR(!(*g_leftHandedMode)),
+			GetDeviceTypeFromVR(*g_leftHandedMode),
+			kDeviceType_Mouse,
+			kDeviceType_Keyboard
+		};
+
+		for (int d = 0; d < sizeof(deviceList) / sizeof(UInt32); ++d)
+		{
+			mappings = &context[contextIdx]->deviceMap[d];
+			for (UInt32 i = 0; i < mappings->count; i++)
+			{
+				InputContext::Mapping m;
+				if (!mappings->GetNthItem(i, m))
+					break;
+				if (m.buttonID == buttonID)
+					return m.name;
+			}
+		}
 	}
+	else
+	{
+		switch (deviceType)
+		{
+		case kDeviceType_Mouse:
+		case kDeviceType_Gamepad:
+		case kDeviceType_VirtualKeyboard:
+			mappings = &context[contextIdx]->deviceMap[deviceType];
+			break;
+		default:
+			mappings = &context[contextIdx]->deviceMap[kDeviceType_Keyboard];
+			break;
+		}
+
+		for (UInt32 i = 0; i < mappings->count; i++)
+		{
+			InputContext::Mapping m;
+			if (!mappings->GetNthItem(i, m))
+				break;
+			if (m.buttonID == buttonID)
+				return m.name;
+		}
+	}
+
+	
 
 	return BSFixedString();
 }
@@ -108,3 +253,48 @@ MenuControls * MenuControls::GetSingleton(void)
 	static RelocPtr<MenuControls*> g_menuControls(0x02FC52E8);
 	return *g_menuControls;
 }
+
+ RelocPtr<bool> g_isUsingMotionControllers(0x01E717A8);
+ RelocPtr<bool> g_leftHandedMode(0x01E71778);
+
+#include "skse64/GameRTTI.h"
+
+ void InputEvent::LogEvent()
+ {
+	switch (eventType)
+	{
+	case InputEvent::kEventType_MouseMove:
+	{
+		MouseMoveEvent * t = DYNAMIC_CAST(this, InputEvent, MouseMoveEvent);
+		break;
+	}
+	case InputEvent::kEventType_Thumbstick:
+	{
+		ThumbstickEvent * t = DYNAMIC_CAST(this, InputEvent, ThumbstickEvent);
+		_MESSAGE("Stick Control: %s X: %f Y: %f", t->GetControlID() ? t->GetControlID()->c_str() : "", t->x, t->y);
+		break;
+	}
+	case InputEvent::kEventType_DeviceConnect:
+	{
+		break;
+	}
+	case InputEvent::kEventType_Button:
+	{
+		ButtonEvent * t = DYNAMIC_CAST(this, InputEvent, ButtonEvent);
+		_MESSAGE("Button Control: %s State: %f Timer: %f Mask: %08X Flags: %08X", t->GetControlID() ? t->GetControlID()->c_str() : "", t->isDown, t->timer, t->keyMask, t->flags);
+		break;
+	}
+	case InputEvent::kEventType_VrWandTouchpadPositionEvent:
+	{
+		VrWandTouchpadPositionEvent * t = DYNAMIC_CAST(this, InputEvent, VrWandTouchpadPositionEvent);
+		_MESSAGE("Touchpad Pos Control: %s X: %f Y: %f", t->GetControlID() ? t->GetControlID()->c_str() : "", t->x, t->y);
+		break;
+	}
+	case InputEvent::kEventType_VrWandTouchpadSwipeEvent:
+	{
+		VrWandTouchpadSwipeEvent * t = DYNAMIC_CAST(this, InputEvent, VrWandTouchpadSwipeEvent);
+		_MESSAGE("Touchpad Swipe Control: %s X: %f Y: %f", t->GetControlID() ? t->GetControlID()->c_str() : "", t->x, t->y);
+		break;
+	}
+	}
+ }

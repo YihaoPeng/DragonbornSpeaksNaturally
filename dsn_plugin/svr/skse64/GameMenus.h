@@ -14,65 +14,106 @@
 
 class TESObjectREFR;
 class TESFullName;
-
 class InventoryEntryData;
-
 class UIDelegate;
 class UIDelegate_v1;
+class GFxEvent;
+class UIMessage;
 
 //// menu implementations
 
 // 30
 class IMenu : public FxDelegateHandler
 {
-	struct BSUIScaleformData
-	{
-		virtual ~BSUIScaleformData() {}
-
-		//	void	** _vtbl;		// 00
-		UInt32				unk04; // 04
-		void*				unk08; // 08
-	};
-
-	struct UnkData1
-	{
-		BSFixedString		name;	// 00
-		UInt32				unk04;	// 04
-		BSUIScaleformData*	data;	// 08 - BSUIScaleformData
-	};
-
 public:
 	IMenu();
-	virtual ~IMenu() { CALL_MEMBER_FN(this, dtor)(); } // TODO
+	virtual ~IMenu() { dtor(); } // TODO
 
-	enum {
-		kType_PauseGame = 1,
-		kType_ShowCursor = 2
+	enum
+	{
+		kFlag_None = 0,
+		kFlag_PausesGame = 1 << 0,
+		kFlag_AlwaysOpen = 1 << 1,
+		kFlag_UsesCursor = 1 << 2,
+		kFlag_UsesMenuContext = 1 << 3,
+		kFlag_Modal = 1 << 4,  // prevents lower movies with this flag from advancing
+		kFlag_FreezeFrameBackground = 1 << 5,
+		kFlag_OnStack = 1 << 6,
+		kFlag_DisablePauseMenu = 1 << 7,
+		kFlag_RequiresUpdate = 1 << 8,
+		kFlag_TopmostRenderedMenu = 1 << 9,
+		kFlag_UpdateUsesCursor = 1 << 10,
+		kFlag_AllowSaving = 1 << 11,
+		kFlag_RendersOffscreenTargets = 1 << 12,
+		kFlag_InventoryItemMenu = 1 << 13,
+		kFlag_DontHideCursorWhenTopmost = 1 << 14,
+		kFlag_CustomRendering = 1 << 15,
+		kFlag_AssignCursorToRenderer = 1 << 16,
+		kFlag_ApplicationMenu = 1 << 17,
+		kFlag_HasButtonBar = 1 << 18,
+		kFlag_IsTopButtonBar = 1 << 19,
+		kFlag_AdvancesUnderPauseMenu = 1 << 20,
+		kFlag_RendersUnderPauseMenu = 1 << 21,
+		kFlag_UsesBlurredBackground = 1 << 22,
+		kFlag_CompanionAppAllowed = 1 << 23,
+		kFlag_FreezeFramePause = 1 << 24,
+		kFlag_SkipRenderDuringFreezeFrameScreenshot = 1 << 25,
+		kFlag_LargeScaleformRenderCacheMode = 1 << 26,
+		kFlag_UsesMovementToDirection = 1 << 27
 	};
 
 	virtual void	Accept(CallbackProcessor * processor) {}
 	virtual void	Unk_02(void) {}
 	virtual void	Unk_03(void) {}
-	virtual UInt32	ProcessUnkData1(UnkData1* data);
-	virtual void	NextFrame(UInt32 arg0, UInt32 arg1) { CALL_MEMBER_FN(this, NextFrame_internal)(arg0, arg1); }
+	virtual UInt32	ProcessMessage(UIMessage* a_message);
+	virtual void	NextFrame(UInt32 arg0, UInt32 arg1) { NextFrame_internal(arg0, arg1); }
 	virtual void	Render(void);
 	virtual void	Unk_07(void) {}
-	virtual void	InitMovie(void) { CALL_MEMBER_FN(this, InitMovie_internal)(view); }
+	virtual void	InitMovie(void) { InitMovie_internal(view); }
+	virtual void	Unk_09(SInt32 arg0) { unk30 = arg0; }
+	virtual void	ResetOnShow() { ResetOnShow_internal(); }
 
 	GFxMovieView	* view;		// 10 - init'd to 0, a class, virtual fn 0x228 called in dtor
-	UInt8			unk0C;		// 18 - init'd to 3
+	UInt8			unk18;		// 18 - init'd to 3
 	UInt8			pad19[3];	// 19
 	UInt32			flags;		// 1C - init'd to 0
-	UInt32			unk14;		// 20 - init'd to 0x12
+	UInt32			unk20;		// 20 - init'd to 0x12
 	UInt32			pad24;		// 24 
-	GRefCountBase	* unk18;	// 28 - holds a reference
+	GRefCountBase	* unk28;	// 28 - holds a reference
+	SInt32			unk30;		// 30
+	UInt32			unk34;		// 34
+	BSFixedString	unk38;		// 38
 
-	MEMBER_FN_PREFIX(IMenu);
-	DEFINE_MEMBER_FN(InitMovie_internal, void, 0x00F2A510, GFxMovieView* view);
-	DEFINE_MEMBER_FN(NextFrame_internal, void, 0x00F2A440, UInt32 arg0, UInt32 arg1);
-	DEFINE_MEMBER_FN(dtor, void, 0x00F2A380);
+	DEFINE_MEMBER_FN_1(InitMovie_internal, void, 0x00F2A510, GFxMovieView* view);
+	DEFINE_MEMBER_FN_2(NextFrame_internal, void, 0x00F2A440, UInt32 arg0, UInt32 arg1);
+	DEFINE_MEMBER_FN_0(ResetOnShow_internal, void, 0x00F2A8B0);
+	DEFINE_MEMBER_FN_0(dtor, void, 0x00F2A380);
 };
+STATIC_ASSERT(offsetof(IMenu, unk30) == 0x30);
 STATIC_ASSERT(offsetof(IMenu, view) == 0x10);
+STATIC_ASSERT(sizeof(IMenu) == 0x40);
+
+// 58
+class WorldSpaceMenu : public IMenu
+{
+public:
+	BSTEventSink<struct HudModeChangeEvent>	unk40;
+
+	virtual void	Unk_09(SInt32 arg0) override { Unk_09_internal(arg0); }
+	virtual void	Unk_0B() { Unk_0B_internal(); }
+	virtual UInt32	Unk_0C() { return 0; }; // Returns 0 when no player, 1 when Player+Offset = 0
+	virtual void	Unk_0D() { }; // Looks related to positioning the actual NiNode?
+
+	UInt64	unk48;	// 48
+	UInt8	unk50;	// 50
+	UInt8	unk51;	// 51
+	UInt8	unk52;	// 52
+
+	DEFINE_MEMBER_FN_0(ctor, void, 0x00F2A300);
+	DEFINE_MEMBER_FN_1(Unk_09_internal, void, 0x0053C220, SInt32 arg0);
+	DEFINE_MEMBER_FN_0(Unk_0B_internal, void, 0x0053C450);
+};
+STATIC_ASSERT(sizeof(WorldSpaceMenu) == 0x58);
 
 // 58 
 class Console : public IMenu
@@ -156,19 +197,10 @@ public:
 };
 STATIC_ASSERT(sizeof(RaceMenuSlider) == 0x138);
 
-// 1A8
+// 160
 class RaceSexMenu : public IMenu
 {
 public:
-	// unk0C - 3
-	// Flags - 0x709
-	// unk14 - 3
-	void					* menuHandler;	// 30
-	UInt32					unk38;			// 38
-	UInt8					unk3C;			// 3C
-	UInt8					unk3D;			// 3D
-	UInt16					pad3E;			// 3E
-
 	enum {
 		kHeadPartsHairLine = 0,
 		kHeadPartsHead,
@@ -179,18 +211,6 @@ public:
 		kHeadPartsBrows,
 		kNumHeadPartLists
 	};
-	tArray<BGSHeadPart*>	headParts[kNumHeadPartLists];	// 40
-	/*tArray<BGSHeadPart*>	hairline;		// 28
-	tArray<BGSHeadPart*>	head;			// 34
-	tArray<BGSHeadPart*>	eyes;			// 40
-	tArray<BGSHeadPart*>	hair;			// 4C
-	tArray<BGSHeadPart*>	beard;			// 58
-	tArray<BGSHeadPart*>	scars;			// 64
-	tArray<BGSHeadPart*>	brows;			// 70*/
-	RaceSexCamera			camera;			// E8
-
-	float					unk120[0x07];	// 120
-	UInt32					pad13C;			// 13C
 
 	struct RaceComponent
 	{
@@ -200,39 +220,38 @@ public:
 		UInt32				pad24;			// 24
 	};
 
-	tArray<RaceComponent>	sliderData[2];	// 140
-	UnkArray				unk170;			// 170
-	UInt32					raceIndex;		// 188
-	UInt32					unk18C;			// 18C
-	UInt32					unk190;			// 190
-	UInt32					unk194;			// 194
-	UInt32					unk198;			// 198
-	UInt8					unk19C;			// 19C
-	UInt8					unk19D;			// 19D
-	UInt8					unk19E;			// 19E - init'd to 1
-	UInt8					unk19F;			// 19F
-	UInt8					unk1A0;			// 1A0
-	UInt8					unk1A1;			// 1A1
-	UInt8					unk1A2;			// 1A2
-	UInt8					unk1A3;			// 1A3
-	UInt8					unk1A4;			// 1A4
-	UInt8					unk1A5;			// 1A5
-	UInt16					pad1A6;			// 1A6
-
+	// unk0C - 3
+	// Flags - 0x709
+	// unk14 - 3
+	void					* menuHandler;	// 40
+	UInt64					unk48;
+	tArray<BGSHeadPart*>	headParts[kNumHeadPartLists];	// 50
+	tArray<RaceComponent>	sliderData[2];	// F8
+	UInt64					unk128;
+	UInt64					unk130;
+	UInt64					unk138;
+	UInt32					raceIndex;		// 140
+	UInt32					unk144;			// 144
+	UInt64					unk148;			// 148
+	UInt64					unk150;			// 150
+	UInt64					unk158;			// 158
+	// ...
 
 	MEMBER_FN_PREFIX(RaceSexMenu);
 	// 7E71CF58E263FF290638B08A9859CD3A95C17244+53
 	DEFINE_MEMBER_FN(LoadSliders, void *, 0x008E39B0, UInt64 unk1, UInt8 unk2);
 };
-STATIC_ASSERT(offsetof(RaceSexMenu, sliderData) == 0x140);
-STATIC_ASSERT(offsetof(RaceSexMenu, raceIndex) == 0x188);
+STATIC_ASSERT(offsetof(RaceSexMenu, headParts) == 0x50);
+STATIC_ASSERT(offsetof(RaceSexMenu, sliderData) == 0xF8);
+STATIC_ASSERT(offsetof(RaceSexMenu, raceIndex) == 0x140);
+STATIC_ASSERT(sizeof(RaceSexMenu) == 0x160);
 
-// 30598
-class MapMenu : public IMenu
+// 305F0
+class MapMenu : public WorldSpaceMenu
 {
 public:
 	// unk0C - 3
-	// Flags - 0x9005
+	// Flags - 0xC9007
 	// unk14 - 7
 	enum
 	{
@@ -283,29 +302,35 @@ public:
 		void					* localMapInputHandler;			// 303F0
 		UInt32					unk303F8;						// 303F8 - init'd to FFFFFFFF
 		UInt8					unk303FC[4];					// 303FC
+		UInt64					unk30400[0x80 >> 3];
 	};
 
-	void				* eventSinkMenuOpenCloseEvent; 			// 030
-	void				* mapCameraCallback;					// 038
-	UInt64				mapMoveHandler; 						// 040
-	UInt64				mapLookHandler; 						// 048
-	UInt64				mapZoomHandler; 						// 050
-	UInt32				unk058; 								// 058
-	UInt32				unk05C; 								// 05C
-	LocalMap			localMap;								// 060
-	UInt32				unk30460;								// 30460
-	float				unk30464;								// 30464
-	float				unk30468;								// 30468
-	float				unk3046C;								// 3046C
-	tArray<MarkerData>	markers;								// 30470	
-	UInt8				todo[0x30598 - 0x30488];				// 30488
+	void				* eventSinkMenuOpenCloseEvent; 			// 058
+	void				* mapCameraCallback;					// 060
+	UInt64				mapMoveHandler; 						// 068
+	UInt64				mapLookHandler; 						// 070
+	UInt64				mapZoomHandler; 						// 078
+	UInt32				unk080; 								// 080
+	UInt32				unk084; 								// 084
+	UInt64				unk088;									// 088
+	UInt64				unk090;									// 090
+	UInt64				unk098;									// 098
+	UInt64				unk0A0;									// 0A0
+	UInt64				unk0A8;									// 0A8
+	LocalMap			localMap;								// 0B0
+	UInt32				unk30530;								// 30530
+	float				unk30534;								// 30534
+	float				unk30468;								// 30538
+	float				unk3046C;								// 3053C
+	tArray<MarkerData>	markers;								// 30540
+	UInt8				todo[0x305F0 - 0x30558];				// 30558
 };
-STATIC_ASSERT(offsetof(MapMenu, localMap) == 0x60);
+STATIC_ASSERT(offsetof(MapMenu, localMap) == 0xB0);
 STATIC_ASSERT(offsetof(MapMenu::LocalMap, cullingProcess) == 0x40);
 STATIC_ASSERT(sizeof(MapMenu::LocalMap::cullingProcess) == 0x30360);
 STATIC_ASSERT(offsetof(MapMenu::LocalMap, renderedLocalMapTexture) == 0x303A0);
-STATIC_ASSERT(offsetof(MapMenu, markers) == 0x30470);
-STATIC_ASSERT(sizeof(MapMenu) == 0x030598);
+STATIC_ASSERT(offsetof(MapMenu, markers) == 0x30540);
+STATIC_ASSERT(sizeof(MapMenu) == 0x0305F0);
 
 // 28
 class HUDObject
@@ -385,7 +410,7 @@ public:
 	UInt8			unk80;			// 80
 	UInt8			unk81[7];		// 81
 
-	TESObjectREFR	* GetTarget() const;
+	TESObjectREFR	* GetTarget();
 };
 STATIC_ASSERT(offsetof(EnemyHealth, handle) == 0x28);
 
@@ -435,25 +460,27 @@ public:
 
 };
 
-// 98
-class HUDMenu : public IMenu
+// C8
+class HUDMenu : public WorldSpaceMenu
 {
 public:
-	BSTEventSink<void>	unk30;			// 30 - UserEventEnabledEvent
-	void				*unk38;			// 38 - New in SE
-	tArray<HUDObject*>	hudComponents;	// 40
-	ActorValueMeter		*unk58;			// 58
-	ActorValueMeter		*unk60;			// 60
-	ActorValueMeter		*unk68;			// 68
-	ShoutMeter			*unk70;			// 70
-	UInt64				unk78;			// 78
-	UInt32				unk80;			// 80
-	UInt32				unk84;			// 84
-	UInt64				unk88;			// 88
-	UInt8				unk90;			// 90
-	UInt8				unk91[7];		// 91
+	BSTEventSink<struct UserEventEnabledEvent>	unk58;			// 58 - UserEventEnabledEvent
+	BSTEventSink<struct BSRemoteGamepadEvent>	unk60;			// 60 - New in SE
+	UInt64				unk68;			// 68
+	tArray<HUDObject*>	hudComponents;	// 70
+
+	ActorValueMeter		*unk88;			// 88
+	ActorValueMeter		*unk90;			// 90
+	ActorValueMeter		*unk98;			// 98
+	ShoutMeter			*unkA0;			// A0
+	UInt64				unkA8;			// A8
+	UInt32				unkB0;			// B0
+	UInt32				unkB4;			// B4
+	UInt64				unkB8;			// B8
+	UInt8				unkC0;			// C0
+	UInt8				unkC1[7];		// C1
 };
-STATIC_ASSERT(sizeof(HUDMenu) == 0x98);
+STATIC_ASSERT(sizeof(HUDMenu) == 0xC8);
 
 // 38
 class CraftingMenu : public IMenu
@@ -627,11 +654,24 @@ public:
 class BSUIMessageData : public IUIMessageData
 {
 public:
+	virtual ~BSUIMessageData();
+
 	BSString			* unk08;	// 10
 	StringCache::Ref	unk18;		// 18
 	UInt32				unk20;		// 20
 	UInt32				pad24;		// 24
 };
+
+// 18
+class BSUIScaleformData : public IUIMessageData
+{
+public:
+	virtual ~BSUIScaleformData();	// 00
+
+	// members
+	GFxEvent* event;	// 10
+};
+STATIC_ASSERT(sizeof(BSUIScaleformData) == 0x18);
 
 // 18
 class RefHandleUIData : public IUIMessageData
@@ -654,7 +694,9 @@ public:
 		kMessage_Refresh = 0,	// used after ShowAllMapMarkers
 		kMessage_Open,
 		kMessage_PreviouslyKnownAsClose,
-		kMessage_Close
+		kMessage_Close,
+		kMessage_Scaleform = 6,
+		kMessage_Data
 	};
 
 	StringCache::Ref	strData;	// 00
@@ -821,7 +863,7 @@ public:
 	BSFixedString	textWidget;					// 1C0 "TextWidget"
 	BSFixedString	buttonBarWidget;			// 1C8 "ButtonBarWidget"
 	BSFixedString	graphWidget;				// 1D0 "GraphWidget"
-	BSFixedString	textureWidget;				// 1D8 "TextWidget"
+	BSFixedString	textureWidget;				// 1D8 "TextureWidget"
 	BSFixedString	uiMenuOK;					// 1E0 "UIMenuOK"
 	BSFixedString	uiMenuCancel;				// 1E8 "UIMenuCancel"
 	BSFixedString	showText;					// 1F0 "Show Text"
@@ -837,6 +879,13 @@ public:
 	BSFixedString	cancelLoading;				// 240 "CancelLoading"		- NEW IN SE
 	BSFixedString	menuTextureDegradeEvent;	// 248 "Menu Texture Degrade Event"
 	BSFixedString	diamondMarker;				// 250 "<img src='DiamondMarker' width='10' height='15' align='baseline' vspace='5'>"
+	BSFixedString	wsEnemyMeters;				// 258 "WSEnemyMeters"
+	BSFixedString	wsActivateRollover;			// 260 "WSActivateRollover"
+	BSFixedString	wsDebugOverlay;				// 268 "WSDebugOverlay"
+	BSFixedString	statsMenuSkillRing;			// 270 "StatsMenuSkillRing"
+	BSFixedString	statsMenuPerks;				// 278 "StatsMenuPerks"
+	BSFixedString	mapMarkerText3D;			// 280 "MapMarkerText3D"
+	BSFixedString	calibrationOptionMenu;		// 288 "CalibrationOptionMenu"
 
 	static UIStringHolder *	GetSingleton(void)
 	{
@@ -868,26 +917,31 @@ public:
 	float			unk14[8];		// 14
 	UInt32			pad34;			// 34
 	TESObjectREFR	* object;		// 38
-	UInt8			unk40[0x18];	// 40	BaseExtraList?
+	BaseExtraList	baseExtraList;	// 40 - Only valid when NewInventoryMenuItemLoadTask is pending
 	UInt32			unk58;			// 58
 	UInt32			pad5C;			// 5C
 
-	// 20
+	// 48
 	struct ItemData
 	{
-		TESForm	* unk00;
-		TESForm	* unk08;
-		void	* unk10;
+		TESForm	* form1;
+		TESForm	* form2;
+		NiNode	* node;
 		UInt32	  unk18;
 		float	  unk1C;
+		UInt64		unk20;
+		UInt64		unk28;
+		UInt64		unk30;
+		UInt64		unk38;
+		UInt64		unk40;
 	};
 
-	ItemData		unk60[7];	// 60
-	UInt32			unk140;		// 140 - Number of ItemDatas?
+	ItemData		itemData[7];	// 60
+	UInt32			meshCount;	// 258 - Number of ItemData where there is a valid BSFadeNode
 	UInt32			pad144;		// 144
 	UInt32			unk148;		// 148
 	UInt32			unk14C;		// 14C
-	void*			unk150;		// 150
+	void*			unk150;		// 150 - Pointer to NewInventoryMenuItemLoadTask when loading
 	UInt8			unk158;
 	UInt8			unk159; // Somekind of mode (0 for MagicMenu)
 	UInt8			unk15A;
@@ -907,9 +961,9 @@ public:
 	//DEFINE_MEMBER_FN(Unk6, int, 0x00867730);
 };
 
-STATIC_ASSERT(offsetof(Inventory3DManager, unk14) == 0x14);
+STATIC_ASSERT(offsetof(Inventory3DManager, itemData) == 0x60);
 STATIC_ASSERT(offsetof(Inventory3DManager, object) == 0x38);
-STATIC_ASSERT(offsetof(Inventory3DManager, unk158) == 0x158);
+STATIC_ASSERT(offsetof(Inventory3DManager, meshCount) == 0x258);
 
 // 018
 class MenuTableItem
@@ -917,7 +971,7 @@ class MenuTableItem
 public:
 	BSFixedString	name;				// 000
 	IMenu			* menuInstance;		// 008	0 if the menu is not currently open
-	IMenu *(*menuConstructor)();	// 010
+	void			* menuConstructor;	// 010
 
 	bool operator==(const MenuTableItem & rhs) const { return name == rhs.name; }
 	bool operator==(const BSFixedString a_name) const { return name == a_name; }
@@ -940,7 +994,6 @@ public:
 // 1C8
 class MenuManager
 {
-public:
 	typedef tHashSet<MenuTableItem, BSFixedString> MenuTable;
 
 	// 030-040
@@ -967,13 +1020,14 @@ public:
 	};
 	STATIC_ASSERT(sizeof(Unknown3) == 0x40);
 
+private:
 	UInt64					unk_000;	// 000
 
 	EventDispatcher<MenuOpenCloseEvent>		menuOpenCloseEventDispatcher;	// 008
 	EventDispatcher<MenuModeChangeEvent>	menuModeChangeEventDispatcher;	// 060
 	EventDispatcher<void*>					unk_064;						// 0B8 - New in 1.6.87.0 - Kinect related?
 
-	UnkArray			menuStack;					// 110
+	tArray<IMenu*>		menuStack;					// 110
 	MenuTable			menuTable;					// 128   (Entries ptr at 150)
 	SimpleLock			menuTableLock;				// 158
 	UInt32				numPauseGame;				// 160 (= 0) += 1 if (imenu->flags & 0x0001)
@@ -989,7 +1043,6 @@ public:
 	bool				showMenus;					// 1C0 (= 0)
 	bool				unk_1C1;					// 1C1 (= 0)
 	char				pad[6];						// 1C2
-private:
 
 public:
 	typedef IMenu*	(*CreatorFunc)(void);

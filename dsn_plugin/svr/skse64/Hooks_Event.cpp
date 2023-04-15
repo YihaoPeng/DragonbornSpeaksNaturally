@@ -6,6 +6,7 @@
 #include "skse64/PapyrusEvents.h"
 #include "skse64/PluginManager.h"
 #include "skse64_common/BranchTrampoline.h"
+#include "InternalVR.h"
 
 RelocAddr <uintptr_t> PlayerControls_ctor_Call(0x005B42E0 + 0xEF7);
 
@@ -32,6 +33,8 @@ PlayerControls * PlayerControls::ctor_Hook(void)
 	} else {
 		_MESSAGE("Failed to register SKSE inputEventHandler");
 	}
+
+	InternalVR::RegisterActionBindings();
 
 	PluginManager::Dispatch_Message(0, SKSEMessagingInterface::kMessage_InputLoaded, NULL, 0, NULL);
 

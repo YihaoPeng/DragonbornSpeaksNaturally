@@ -34,6 +34,7 @@ public:
 	virtual void Unk_23(void);
 };
 
+// 88
 class BSShaderProperty : public NiShadeProperty
 {
 public:
@@ -142,7 +143,7 @@ public:
 	UInt64	unk60;	// 60
 	UInt64	unk68;	// 68
 	UInt64	unk70;	// 70
-	BSLightingShaderMaterial	* material; // 78
+	BSShaderMaterialBase	* material; // 78
 	UInt32	unk80;	// 80
 };
 STATIC_ASSERT(offsetof(BSShaderProperty, material) == 0x78);
@@ -164,36 +165,11 @@ class BSLightingShaderProperty : public BSShaderProperty
 public:
 	virtual ~BSLightingShaderProperty();
 
-	UInt32	unk40;	// 40
-	UInt32	unk48;	// 48
-	UInt32	unk4C;	// 4C
-	UInt32	unk50;	// 50
-	UInt32	unk54;	// 54
-	UInt32	unk58;	// 58
-	NiColor	* emissiveColor;	// 5C
-	float	emissiveMultiple;	// 60
-	UInt32	unk64;	// 64
-	float	unk68;	// 68
-	float	unk6C;	// 6C
-	UInt32	unk70;	// 70
-	UInt32	unk74;	// 74
-	UInt32	unk78;	// 78
-	UInt32	unk7C;	// 7C
-	float	unk80;	// 80
-	float	unk84;	// 84
-	float	unk88;	// 88
-	float	unk8C;	// 8C
-	SInt32	unk90;	// 90 inited to -1
-	SInt16	unk94;	// 94 inited to -1
-	UInt8	unk96;	// 96 inited to 1
-	UInt8	unk97;	// 97 inited to 2
-	UInt32	unk98;	// 98
-	UInt32	unk9C;	// 9C
-	UInt32	unkA0;	// A0
-	SInt32	unkA4;	// A4 inited to -1
-	UInt32	unkA8;	// A8 inited to 0
-	UInt8	unkAC;	// AC inited to 0
-	UInt8	padAD[3];	// AD
+	UInt32	unk88[(0xF0 - 0x88) >> 2];	// 88
+	NiColor	* emissiveColor;			// F0
+	float	emissiveMultiple;			// F8
+	UInt32	unkFC;						// FC
+	UInt32	unk100[(0x160 - 0x100) >> 2];
 
 	MEMBER_FN_PREFIX(BSLightingShaderProperty);
 
@@ -210,3 +186,5 @@ public:
 	DEFINE_MEMBER_FN(InvalidateMaterial, bool, 0x001AC0E0);
 	DEFINE_MEMBER_FN(InvalidateTextures, void, 0x01303EA0, UInt32 unk1); // unk1 usually 0, called after material Releases textures
 };
+STATIC_ASSERT(offsetof(BSLightingShaderProperty, emissiveColor) == 0xF0);
+STATIC_ASSERT(sizeof(BSLightingShaderProperty) == 0x160);

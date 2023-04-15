@@ -21,6 +21,7 @@
 #include "Hooks_Scaleform.h"
 #include "Hooks_DirectInput8Create.h"
 #include "Hooks_Diagnostics.h"
+#include "Hooks_VR.h"
 #include "InternalSerialization.h"
 
 IDebugLog gLog;
@@ -84,6 +85,7 @@ void SKSE64_Initialize(void)
 		Hooks_NetImmerse_Init();
 		Hooks_Threads_Init();
 		Hooks_Handlers_Init();
+		Hooks_VR_Init();
 
 		g_pluginManager.Init();
 
@@ -103,6 +105,7 @@ void SKSE64_Initialize(void)
 		Hooks_Data_Commit();
 		Init_CoreSerialization_Callbacks();
 		Hooks_DirectInput_Commit();
+		Hooks_VR_Commit();
 		
 		FlushInstructionCache(GetCurrentProcess(), NULL, 0);
 

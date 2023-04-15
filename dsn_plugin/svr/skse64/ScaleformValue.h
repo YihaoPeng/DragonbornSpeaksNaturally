@@ -24,6 +24,7 @@ public:
 		kType_Object,
 		kType_Array,
 		kType_DisplayObject,
+		kType_Function,
 
 		kTypeFlag_Managed = 1 << 6,
 
@@ -152,6 +153,62 @@ public:
 	ObjectInterface	* objectInterface;	// 00
 	UInt32			type;				// 08
 	Data			data;				// 10
+
+	GFxValue(const GFxValue& a_rhs) :
+		objectInterface(nullptr),
+		type(a_rhs.type)
+	{
+		data = a_rhs.data;
+		if (a_rhs.IsManaged()) {
+			AddManaged();
+			objectInterface = a_rhs.objectInterface;
+		}
+	}
+	GFxValue(GFxValue&& a_rhs) :
+		objectInterface(std::move(a_rhs.objectInterface)),
+		type(std::move(a_rhs.type))
+	{
+		a_rhs.objectInterface = 0;
+		a_rhs.type = kType_Undefined;
+
+		data.obj = std::move(a_rhs.data.obj);
+		a_rhs.data.obj = 0;
+	}
+	GFxValue&	operator=(const GFxValue& a_rhs)
+	{
+		if (this == &a_rhs) {
+			return *this;
+		}
+
+		if (IsManaged()) {
+			CleanManaged();
+		}
+
+		type = a_rhs.type;
+		data = a_rhs.data;
+		if (a_rhs.IsManaged()) {
+			AddManaged();
+			objectInterface = a_rhs.objectInterface;
+		}
+
+		return *this;
+	}
+	GFxValue&	operator=(GFxValue&& a_rhs)
+	{
+		if (this == &a_rhs) {
+			return *this;
+		}
+
+		objectInterface = std::move(a_rhs.objectInterface);
+		a_rhs.objectInterface = 0;
+
+		type = std::move(a_rhs.type);
+		a_rhs.type = kType_Undefined;
+
+		data.obj = std::move(a_rhs.data.obj);
+		a_rhs.data.obj = 0;
+		return *this;
+	}
 
 	UInt32	GetType(void) const { return type & kMask_Type; }
 	bool	IsManaged(void) const { return (type & kTypeFlag_Managed) != 0; }

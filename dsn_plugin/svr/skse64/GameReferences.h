@@ -58,10 +58,10 @@ typedef void (* _CreateRefHandleByREFR)(UInt32 * refHandleOut, TESObjectREFR * r
 extern RelocAddr<_CreateRefHandleByREFR> CreateRefHandleByREFR;
 
 // Note: May set refHandle to 0
-typedef bool (* _LookupREFRByHandle)(UInt32 * refHandle, TESObjectREFR ** refrOut);
+typedef bool(*_LookupREFRByHandle)(UInt32 & refHandle, NiPointer<TESObjectREFR> & refrOut);
 extern RelocAddr<_LookupREFRByHandle> LookupREFRByHandle;
 
-typedef bool (* _LookupREFRObjectByHandle)(UInt32 * refHandle, BSHandleRefObject ** refrOut);
+typedef bool(*_LookupREFRObjectByHandle)(UInt32 & refHandle, NiPointer<BSHandleRefObject> & refrOut);
 extern RelocAddr<_LookupREFRObjectByHandle> LookupREFRObjectByHandle;
 
 extern RelocPtr<UInt32> g_invalidRefHandle;
@@ -196,8 +196,8 @@ public:
 	virtual void	Unk_7B(void);
 	virtual void	Unk_7C(void);
 	virtual void	Unk_7D(void);
-	virtual ActorWeightModel	* GetWeightModel(UInt32 weightModel); // 0 Small 1 Large
-	virtual void	Unk_7F(void);
+	virtual BipedModel* GetBiped(UInt32 weightModel); // 0 Small 1 Large
+	virtual BipedModel*	GetBipedSmall(void);
 	virtual void	Unk_80(void);
 	virtual void	Unk_81(void);
 	virtual void	Unk_82(void);
@@ -223,8 +223,8 @@ public:
 	virtual void	Unk_96(void);
 	virtual void	Unk_97(void);
 	virtual void	Unk_98(void);
+	virtual void	Unk_99(void);
 	virtual bool	IsDead(UInt8 unk1); // unk1 = 1 for Actors
-	virtual void	Unk_9A(void);
 	virtual void	Unk_9B(void);
 
 	struct LoadedState
@@ -254,6 +254,9 @@ public:
 	UInt32			pad94;	// 94
 
 	UInt32 CreateRefHandle(void);
+
+	void IncRef();
+	void DecRef();
 
 	MEMBER_FN_PREFIX(TESObjectREFR);
 	DEFINE_MEMBER_FN(GetBaseScale, float, 0x0029E390);
@@ -332,9 +335,9 @@ public:
 	virtual void Unk_A3(void);
 	virtual void Unk_A4(void);
 	virtual void Unk_A5(void);
-	virtual void DrawSheatheWeapon(bool draw);
+	virtual void Unk_A6(void);
 	virtual void Unk_A7(void);
-	virtual void Unk_A8(void);
+	virtual void DrawSheatheWeapon(bool draw);
 	virtual void Unk_A9(void);
 	virtual void Unk_AA(void);
 	virtual void Unk_AB(void);
@@ -393,9 +396,9 @@ public:
 	virtual void Unk_E0(void);
 	virtual void Unk_E1(void);
 	virtual void Unk_E2(void);
-	virtual bool IsInCombat(void);
+	virtual void Unk_E3(void);
 	virtual void Unk_E4(void);
-	virtual void Unk_E5(void);
+	virtual bool IsInCombat(void);
 	virtual void Unk_E6(void);
 	virtual void Unk_E7(void);
 	virtual void Unk_E8(void);
@@ -413,9 +416,11 @@ public:
 	virtual void Unk_F4(void);
 	virtual void Unk_F5(void);
 	virtual void Unk_F6(void);
-	virtual void AdvanceSkill(UInt32 skillId, float points, UInt32 unk1, UInt32 unk2);
+	virtual void Unk_F7(void);
 	virtual void Unk_F8(void);
-	virtual void Unk_F9(void);
+	virtual void AdvanceSkill(UInt32 skillId, float points, UInt32 unk1, UInt32 unk2);
+	virtual void Unk_FA(void);
+	virtual void Unk_FB(void);
 	virtual void VisitPerks(void); // BGSPerk::FindPerkInRanksVisitor
 	virtual void AddPerk(BGSPerk * perk, UInt32 unk1);
 	virtual void RemovePerk(BGSPerk * perk);
@@ -606,285 +611,122 @@ public:
 														// tArray<void*>: 9 MovementAvoidBoxEventAdapter, GarbaseCollector, Main, MenuTopicManager, TES (85E27728),
 														// PathManagerPositionPlayerAdapter, CharacterCollisionMessagePlayerAdapter, PlayerSleepWaitMovementControllerAdapter, SkyrimVM
 
-	UInt32	unk3D8;									// 3D8
-	UInt32	unk3DC;									// 3DC
-	UInt32	unk3E0;									// 3E0
-	UInt32	unk3E4;									// 3E4
-	UInt32	unk3E8;									// 3E8
-	UInt32	unk3EC;									// 3EC
-	UInt32	unk3F0;									// 3F0
-	UInt32	unk3F4;									// 3F4
-	void*	unk3F8;									// 3F8
-	UInt32	unk400;									// 400
-	UInt32	unk404;									// 404
-	void*	unk408;									// 408
-	UInt32	unk410;									// 410
-	UInt32	unk414;									// 414
-	UInt32	unk418;									// 418
-	UInt32	unk41C;									// 41C
-	UInt32	unk420;									// 420
-	UInt32	unk424;									// 424
-	void*	unk428;									// 428
-	UInt32	unk430;									// 430
-	UInt32	unk434;									// 434
-	void*	unk438;									// 438
-	UInt32	unk440;									// 440
-	UInt32	unk444;									// 444
-	UInt32	unk448;									// 448
-	UInt32	unk44C;									// 44C
-	UInt32	unk450;									// 450
-	UInt32	unk454;									// 454
-	UInt32	unk458;									// 458
-	UInt32	unk45C;									// 45C
-	void*	unk460;									// 460
-	UInt64	unk468;									// 468	
-	ObjectListItem*	unk470;							// 470
-	float	unk478;									// 478
-	float	unk47C;									// 47C
-	float	unk480;									// 480
-	float	unk484;									// 484
-	float	unk488;									// 488
-	float	unk48C;									// 48C
-	float	unk490;									// 490
-	float	unk494;									// 494
-	float	unk498;									// 498
-	float	unk49C;									// 49C
-	UInt64	unk4A0;									// 4A0
-	UInt64	unk4A8;									// 4A8	
-	BGSPerkRanks addedPerks;						// 4B0
-	tArray<BGSPerk*> perks;							// 4C8
-	tArray<BGSPerk*> standingStonePerks;			// 4E0
-	tArray<UInt32>	unk4F8;							// 4F8
-	struct DataUnk510 { UInt32 a; UInt32 b; UInt32 c; UInt32 pad; };
-	tArray<DataUnk510>	unk510;						// 510
-	UnkArray		unk528;							// 528
-	tArray<void*>	unk540;							// 540
-	tArray<void*>	unk558;							// 558
-	void *			unk570;							// 570
-	void*			unk578;							// 578
-	tArray<void*>	unk580;							// 580
-	UInt32			unk598;							// 598
-	UInt32			unk59C;							// 59C
-	UInt32			unk5A0;							// 5A0
-	UInt32			unk5A4;							// 5A4
-	UInt32			unk5A8;							// 5A8
-	UInt32			unk5AC;							// 5AC
-	void*			unk5B0;							// 5B0
-	UInt64			unk5B8;							// 5B8
-	void*			unk5C0;							// 5C0
-	UInt32			unk5C8;							// 5C8
-	UInt32			unk5CC;							// 5CC
-	UInt32			unk5D0;							// 5D0
-	UInt32			unk5D4;							// 5D4
-	UInt32			unk5D8;							// 5D8
-	UInt32			unk5DC;							// 5DC
-	void*			unk5E0;							// 5E0
-	UInt8			unk5E8;							// 5E8
-	UInt8			pad5E9[7];						// 5E9
-	void*			unk5F0;							// 5F0
-	UInt32			unk5F8;							// 5F8
-	UInt32			pad5FC;							// 5FC
-	UInt64			unk600;							// 600
-	NiTMap<UInt64,UInt64>			unk608;			// 608
-	TESWorldSpace*	currentWorldSpace;				// 628
-	float			unk630;							// 630
-	float			unk634;							// 634
-	float			unk638;							// 638
-	UInt32			unk63C;							// 63C
-	UInt64			unk640;							// 640
-	UInt64			unk648;							// 648
-	float			unk650;							// 650
-	float			unk654;							// 654
-	float			unk658;							// 658
-	float			unk65C;							// 65C
-	float			unk660;							// 660
-	float			unk664;							// 664
-	UInt64			unk668;							// 668
-	UInt64			unk670;							// 670
-	UInt32			unk678;							// 678
-	UInt32			unk67C;							// 67C
-	UInt8			unk680;							// 680
-	UInt8			unk681;							// 681
-	UInt8			unk682;							// 682
-	UInt8			pad683;							// 683
-	UInt32			unk684;							// 684
-	UInt32			unk688;							// 688 - init'd to FFFFFFFF
-	UInt8			unk68C;							// 68C
-	UInt8			pad68D[3];						// 68D
-	UInt32			unk690;							// 690
-	UInt32			unk694;							// 694
-	UInt8			unk698;							// 698
-	UInt8			pad699[3];						// 699
-	UInt32			unk69C;							// 69C
-	UInt32			unk6A0;							// 6A0
-	UInt8			unk6A4;							// 6A4
-	UInt8			pad6A5[7];						// 6A5
-	UInt64			unk6B0;							// 6B0
-	UInt32			unk6B8;							// 6B8
-	UInt32			unk6BC;							// 6BC
-	UInt64			unk6C0;							// 6C0
-	UInt32			unk6C8;							// 6C8
-	float			unk6CC;							// 6CC - init'd to -1
-	UInt32			unk6D0;							// 6D0
-	float			unk6D4;							// 6D4 - init'd to -1
-	float			unk6D8;							// 6D8 - FF7FFFFF
-	UInt32			unk6DC;							// 6DC - probably pad
-	ImageSpaceModifierInstanceDOF* unk6E0;			// 6E0
-	ImageSpaceModifierInstanceDOF* unk6E8;			// 6E8
-	ImageSpaceModifierInstanceDOF* unk6F0;			// 6F0
-	UInt32			unk6F8;							// 6F8 - looks like a pointer along with next in debugger, but it isn't
-	UInt32			unk6FC;							// 6FC
-	UInt64			unk700[3];						// 700
-	UInt64			unk718;							// 718
-	UInt32			unk720;							// 720
-	UInt32			pad724;							// 724
-	UInt64			unk728;							// 728
-	UInt8			unk730[0xA0];					// 730 - memset to 0 in ctor
-	UInt32			unk7D0;							// 7D0
-	UInt32			unk7D4;							// 7D4
-	UInt32			unk7D8;							// 7D8
-
-	// C
-	struct Data7DC
+	enum Node
 	{
-		float	unk0; // init'd to -1
-		UInt32	unk4;
-		UInt32	unk8; // init'd to 16
+		kNode_PlayerWorldNode,
+		kNode_FollowNode,
+		kNode_FollowOffset,
+		kNode_HeightOffsetNode,
+		kNode_SnapWalkOffsetNode,
+		kNode_RoomNode,
+		kNode_BlackSphere,
+		kNode_UINode,
+		kNode_InWorldUIQuadGeometry,
+		kNode_UIPointerNode,
+		kNode_UIPointerGeometry,
+		kNode_DialogueUINode,
+		kNode_TeleportDestinationPreview,
+		kNode_TeleportDestinationFail,
+		kNode_TeleportSprintPreview,
+		kNode_SpellOrigin,
+		kNode_SpellDestination,
+		kNode_ArrowOrigin,
+		kNode_ArrowDestination,
+		kNode_QuestMarkers,
+		kNode_LeftWandNode,
+		kNode_LeftWandShakeNode,
+		kNode_LeftControllerNode, // This appears to be named after the controller? e.g. LEFT_{indexcontroller}valve_controller_knu_1_0_left
+		kNode_Unk1, // NULL
+		kNode_LeftWeaponOffsetNode,
+		kNode_LeftCrossbowOffsetNode,
+		kNode_LeftMeleeWeaponOffsetNode,
+		kNode_LeftStaffWeaponOffsetNode,
+		kNode_LeftShieldOffsetNode,
+		kNode_RightShieldOffsetNode,
+		kNode_SecondaryMagicOffsetNode,
+		kNode_SecondaryMagicAimNode,
+		kNode_SecondaryStaffMagicOffsetNode,
+		kNode_RightWandNode,
+		kNode_RightWandShakeNode,
+		kNode_RightControllerNode, // RIGHT_{indexcontroller}valve_controller_knu_1_0_right
+		kNode_Unk2, // NULL
+		kNode_RightWeaponOffsetNode,
+		kNode_RightCrossbowOffsetNode,
+		kNode_RightMeleeWeaponOffsetNode,
+		kNode_RightStaffWeaponOffsetNode,
+		kNode_PrimaryMagicOffsetNode,
+		kNode_PrimaryMagicAimNode,
+		kNode_PrimaryStaffMagicOffsetNode,
+		kNode_Unk3, // NULL
+		kNode_CrosshairParent,
+		kNode_CrosshairSecondaryParent,
+		kNode_TargetLockParent,
+		kNode_HmdNode,
+		kNode_LastSyncPos,
+		kNode_UprightHmdNode,
+		kNode_MapMarkers3D,
+		kNode_LeftHandBone, // NPC L Hand [LHnd]
+		kNode_RightHandBone, // NPC R Hand [RHnd]
+		kNode_LeftCavicle,  // NPC L Cavicle [LClv]
+		kNode_RightCavicle, // NPC R Cavicle [RClv]
+		kNode_Num
+	};
+	enum BowNode
+	{
+		kBowNode_Unk5, // NULL
+		kBowNode_Unk6, // NULL
+		kBowNode_BowAimNode,
+		kBowNode_BowRotationNode,
+		kBowNode_ArrowSnapNode,
+		kBowNode_ArrowNode,
+		kBowNode_ArrowFireNode,
+		kBowNode_Unk7, // NULL
+		kBowNode_ArrowHoldOffsetNode,
+		kBowNode_ArrowHoldNode,
+		kBowNode_Num
 	};
 
-	Data7DC			unk7DC[15];						// 7DC
-	UInt32			unk890;							// 890 - init'd to 15
-	UInt32			unk894;							// 894
-	UInt32			unk898;							// 898
-	UInt32			unk89C;							// 89C
-	UInt64			unk8A0[5];						// 8A0
-	UInt32			unk8C8;							// 8C8
-	UInt32			unk8CC;							// 8CC
-	UInt32			unk8D0;							// 8D0
-	float			unk8D4;							// 8D4 - init'd to -5
-	UInt64			unk8D8;							// 8D8
-	UInt32			unk8E0;							// 8E0
-	UInt32			unk8E4;							// 8E4
-	UInt64			unk8E8;							// 8E8
-	BSFadeNode*		firstPersonSkeleton;			// 8F0
-	float			unk8F8;							// 8F8
-	UInt32			pad8FC;							// 8FC
-	float			unk900;							// 900
-	UInt32			pad904;							// 904
-	UInt64			unk908;							// 908
-	UInt32			unk910;							// 910
-	UInt32			lastRiddenHorseHandle;			// 914
-	UInt32			unk918;							// 918
-	UInt32			unk91C;							// 91C
-	UInt64			unk920;							// 920
-	UInt64			unk928;							// 928
-	UInt32			unk930;							// 930
-	UInt32			unk934;							// 934
-	UInt64			unk938;							// 938
-	UInt64			unk940;							// 940
-	UInt32			unk948;							// 948
-	UInt32			unk94C;							// 94C
-	UInt32			unk950;							// 950
-	UInt32			unk954;							// 954
-	UInt32			unk958;							// 958
-	UInt32			unk95C;							// 95C
-	UInt32			unk960;							// 960
-	UInt32			unk964;							// 964
-	UInt64			unk968;							// 968
-	UInt64			unk970;							// 970 - init'd to GetTickCount() in ctor
-	UInt64			unk978;							// 978
-	UInt32			unk980;							// 980 - init'd to _time64(NULL) in ctor
-	UInt32			unk984;							// 984
-	TESWorldSpace*	sameWorldSpace;					// 988
-	UInt32			unk990;							// 990
-	UInt32			unk994;							// 994
-	UInt64			unk998;							// 998
-	UInt64			unk9A0;							// 9A0
-	UInt64			unk9A8;							// 9A8
-	PlayerSkills *	skills;							// 9B0
-	UInt32			targetHandle;					// 9B8 
-	UInt32			unk9BC;							// 9BC
-	UInt64			unk9C0;							// 9C0
-	BSFadeNode*		fadeNode9C8;					// 9C8
-	void*			unk9D0;							// 9D0
-	tArray<UInt32>	hostileHandles; 				// 9D8
-	UInt64			unk9F0;							// 9F0
-	UInt64			unk9F8;							// 9F8
-	TESForm*		tempPoison;						// A00
-	UInt32			numTeammates;					// A08
-	UInt32			unkA0C;							// A0C
-	UInt64			unkA10;							// A10
-	float			unkA18;							// A18
-	UInt32			unkA1C;							// A1C
-	UInt8			unkA20[0xA0];					// A20 - memset to 0 in ctor
-	UInt32			unkAC0;							// AC0
-	UInt32			unkAC4;							// AC4
-	BGSLocation*	locationAC8;					// AC8
-	float			unkAD0;							// AD0
-	UInt32			unkAD4;							// AD4
-	UInt32			unkAD8;							// AD8
-	UInt32			unkADC;							// ADC
-	UInt64			unkAE0;							// AE0
-	UInt32			unkAE8;							// AE8
-	UInt32			unkAEC;							// AEC
-	UInt32			unkAF0;							// AF0
-	UInt32			unkAF4;							// AF4
-	UInt32			unkAF8;							// AF8
-	UInt32			unkAFC;							// AFC
-	UInt8			unkB00;							// B00
-	UInt8			numPerkPoints;					// B01
-	UInt8			unkB02;							// B02
-	UInt8			unkB03;							// B03
-	UInt32			unkB04;							// B04
-	void*			unkB08;							// B08
-	tArray<TintMask *>	tintMasks;					// B10
-	tArray <TintMask *>	* overlayTintMasks;			// B28
-	BGSTextureSet*	texSetB30;						// B30
-	TESRace*		race;							// B38
-	TESRace*		raceAgain;						// B40 - transformed race maybe for vamps and werewolves?
-	UInt32			unkB48;							// B48
-	UInt32			unkB4C;							// B4C
-	UnkArray		unkB50;							// B50
-	UInt64			unkB68[5];						// B68
-	UInt64			unkB90;							// B90
-	UInt64			unkB98;							// B98
-	UInt32			unkBA0;							// BA0
-	UInt32			unkBA4;							// BA4
-	UInt64			unkBA8;							// BA8
-	UInt64			unkBB0[3];						// BB0
-	UInt32			unkBC8;							// BC8
-	UInt32			unkBCC;							// BCC
-	UInt64			unkBD0;							// BD0
-	UInt8			unkBD8;							// BD8
-	UInt8			unkBD9;							// BD9
-	UInt8			unkBDA;							// BDA
-	UInt8			unkBDB;							// BDB
-	UInt8			unkBDC;							// BDC
-	UInt8			unkBDD;							// BDD
-	UInt16			padBDE;							// BDE
-	// Object allocation size is 0xBE0. Anything >= this address wouldn't be part of this object!!!!
+	UInt64						unk3D8;								// 3D8
+	UInt64						unk3E0;								// 3E0
+	UInt32						unk3E8;								// 3E8
+	NiAVObjectPtr				unk3F0[kNode_Num];					// 3F0
+	UInt64						unk530;								// 530
+	NiAVObjectPtr				unk538[kBowNode_Num];				// 538
+	UInt64						unk608[(0x8B0 - 0x608) >> 3];		// 608
+	UInt32						lastRiddenHorseHandle;				// 8B0
+	UInt32						pad8B4;								// 8B4
+	UInt64						unk8C0[(0xAA0 - 0x8B8) >> 3];		// 8C0
+	BGSPerkRanks				addedPerks;							// AA0
+	tArray<BGSPerk*>			perks;								// AB8
+	tArray<BGSPerk*>			standingStonePerks;					// AD0
+	tArray<UInt32>				unkAE0;								// AE0
+	UInt64						unkB00[(0xBF8 - 0xB00) >> 3];		// B00
+	NiTMap<UInt64,UInt64>		unkBF8;								// BF8
+	TESWorldSpace*				currentWorldSpace;					// C18
+	UInt64						unkC20[(0xFF0 - 0xC20) >> 3];		// C20
+	BSFadeNode*					firstPersonSkeleton;				// FF0
+	UInt64						unkFF8[(0x10B0 - 0xFF8) >> 3];		// FF8
+	PlayerSkills*				skills;								// 10B0
+	UInt64						unk10B8[(0x11F8 - 0x10B8) >> 3];	// 11F8
+	UInt32						unk11F8;
+	UInt8						unk11FC;
+	UInt8						numPerkPoints;						// 11FD
+	UInt8						unk11FE;
+	UInt8						unk11FF;
+	UInt64						unk1200;
+	tArray<TintMask*>			tintMasks;							// 1208
+	tArray <TintMask *>*		overlayTintMasks;					// 1220
+	BGSTextureSet*				texSetB30;							// 1228
+	TESRace*					race;								// 1230
+	TESRace*					raceAgain;							// 1238
+	UInt64						unk1240[(0x12D8 - 0x1240) >> 3];	// 1240
+
 
 	// Overlayed tints should be the same as original tints
 	// occasionally they can have no type so index matching
 	// is required to set anything on the tint
 	TintMask * GetOverlayTintMask(TintMask * original);
 
-	// Confirmed - Same as ExtraContainerChanges::EntryData
-	// This type is used by scaleform to extend data
-	// It can be used to extend more of the "ExtraData"
-	/*struct ObjDesc
-	{
-		TESForm					* form;
-		tList<BaseExtraList>	* extraData;
-		SInt32					countDelta;
-
-		MEMBER_FN_PREFIX(ObjDesc);
-		//DEFINE_MEMBER_FN(GenerateName, const char *, 0x00475AA0);
-	};*/
-
-	// I've replaced the old GetTintList defined through DEFINE_MEMBER_FN by a regular method.
-	// GetTintList doesn't longer exist in Skyrim64. There is a function that fullfills same role at 0x680630 (1.4),
-	// but it cannot be used like it is because it assumes it is called with object at offsset 0xB10.
 	tArray <TintMask *> * GetTintList()
 	{
 		if (overlayTintMasks)
@@ -899,21 +741,17 @@ public:
 	DEFINE_MEMBER_FN(GetDamage, float, 0x0069C650, InventoryEntryData * pForm);
 	DEFINE_MEMBER_FN(GetArmorValue, float, 0x0069C2D0, InventoryEntryData * pForm);
 };
-
-STATIC_ASSERT(offsetof(PlayerCharacter, userEventEnabledEvent) == 0x2C0);
-STATIC_ASSERT(offsetof(PlayerCharacter, numPerkPoints) == 0xB01);
-STATIC_ASSERT(offsetof(PlayerCharacter, tintMasks) == 0xB10);
-STATIC_ASSERT(offsetof(PlayerCharacter, overlayTintMasks) == 0xB28);
-STATIC_ASSERT(offsetof(PlayerCharacter, unk3D8) == 0x3D8);
-STATIC_ASSERT(offsetof(PlayerCharacter, lastRiddenHorseHandle) == 0x914);
-STATIC_ASSERT(offsetof(PlayerCharacter, skills) == 0x9B0);
-STATIC_ASSERT(offsetof(PlayerCharacter, tempPoison) == 0xA00);
-STATIC_ASSERT(offsetof(PlayerCharacter, hostileHandles) == 0x9D8);
-STATIC_ASSERT(offsetof(PlayerCharacter, currentWorldSpace) == 0x628);
-STATIC_ASSERT(offsetof(PlayerCharacter, addedPerks) == 0x4B0);
-STATIC_ASSERT(offsetof(PlayerCharacter, sameWorldSpace) == 0x988);
-STATIC_ASSERT(offsetof(PlayerCharacter, unk890) == 0x890);
-STATIC_ASSERT(sizeof(PlayerCharacter) == 0xBE0);
+STATIC_ASSERT(offsetof(PlayerCharacter, unk3F0) == 0x3F0);
+STATIC_ASSERT(offsetof(PlayerCharacter, addedPerks) == 0xAA0);
+STATIC_ASSERT(offsetof(PlayerCharacter, perks) == 0xAB8);
+STATIC_ASSERT(offsetof(PlayerCharacter, standingStonePerks) == 0xAD0);
+STATIC_ASSERT(offsetof(PlayerCharacter, currentWorldSpace) == 0xC18);
+STATIC_ASSERT(offsetof(PlayerCharacter, firstPersonSkeleton) == 0xFF0);
+STATIC_ASSERT(offsetof(PlayerCharacter, skills) == 0x10B0);
+STATIC_ASSERT(offsetof(PlayerCharacter, numPerkPoints) == 0x11FD);
+STATIC_ASSERT(offsetof(PlayerCharacter, tintMasks) == 0x1208);
+STATIC_ASSERT(offsetof(PlayerCharacter, race) == 0x1230);
+STATIC_ASSERT(sizeof(PlayerCharacter) == 0x12D8);
 
 // 140 
 class Explosion : public TESObjectREFR

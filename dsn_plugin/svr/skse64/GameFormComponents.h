@@ -31,6 +31,10 @@ class TESPackage;
 class BGSMusicTrackFormWrapper;
 class BGSImpactDataSet;
 class BGSMaterialType;
+class NiNode;
+class NiAVObject;
+
+#include <functional>
 
 //// root
 
@@ -923,6 +927,16 @@ public:
 	//	void	** _vtbl;	// 00
 };
 
+
+struct BSContainer
+{
+	enum ForEachResult
+	{
+		kAbort = 0,
+		kContinue
+	};
+};
+
 class ActiveEffect;
 class Character;
 // 18 
@@ -937,7 +951,7 @@ public:
 	virtual bool					Unk_04(void);
 	virtual int						Unk_05(int);
 	virtual bool					Unk_06(void); // pure   030
-	virtual tList<ActiveEffect>		* GetActiveEffects(void); // pure     038
+	virtual void					GetActiveEffects(void); // This changed to return BSLocklessSimpleList<ActiveEffect *>, instead we will implement the Visitor and let the game do the work for traversal
 	virtual int						Unk_08(int);
 	virtual void					Unk_09(int);
 	virtual double					Unk_0A(int, int, int);
@@ -946,6 +960,74 @@ public:
 //	void	** _vtbl;	// 00
 	UInt64 unk04;		// 08
 	UInt64 unk08;		// 10
+
+	class ForEachActiveEffectVisitor
+	{
+	public:
+		virtual ~ForEachActiveEffectVisitor() { };
+
+		virtual BSContainer::ForEachResult Visit(ActiveEffect* effect) = 0;
+	};
+
+	class GetEffectCount : public MagicTarget::ForEachActiveEffectVisitor
+	{
+	public:
+		GetEffectCount() : m_count(0) { }
+
+		virtual BSContainer::ForEachResult Visit(ActiveEffect* effect) override
+		{
+			m_count++;
+			return BSContainer::ForEachResult::kContinue;
+		}
+
+		UInt32 GetCount() const { return m_count; }
+	private:
+		UInt32 m_count;
+	};
+
+	class GetNthEffect : public MagicTarget::ForEachActiveEffectVisitor
+	{
+	public:
+		GetNthEffect(UInt32 n) : m_result(nullptr), m_n(n), m_count(0) { }
+
+		virtual BSContainer::ForEachResult Visit(ActiveEffect* effect) override
+		{
+			if (m_count == m_n)
+			{
+				m_result = effect;
+				return BSContainer::ForEachResult::kAbort;
+			}
+			m_count++;
+			return BSContainer::ForEachResult::kContinue;
+		}
+
+		ActiveEffect* GetResult() { return m_result; }
+	private:
+		ActiveEffect* m_result;
+		UInt32 m_n;
+		UInt32 m_count;
+	};
+
+	class EffectVisitor : public MagicTarget::ForEachActiveEffectVisitor
+	{
+	public:
+		EffectVisitor(std::function<BSContainer::ForEachResult(ActiveEffect*)> func) : m_functor(func) { }
+
+		virtual BSContainer::ForEachResult Visit(ActiveEffect* effect) override
+		{
+			return m_functor(effect);
+		}
+
+	protected:
+		std::function<BSContainer::ForEachResult(ActiveEffect*)> m_functor;
+	};
+
+	void VisitActiveEffects(std::function<BSContainer::ForEachResult(ActiveEffect*)> func)
+	{
+		ForEachActiveEffect(EffectVisitor(func));
+	}
+
+	DEFINE_MEMBER_FN_1(ForEachActiveEffect, void, 0x00558580, MagicTarget::ForEachActiveEffectVisitor& visitor);
 };
 STATIC_ASSERT(sizeof(MagicTarget) == 0x18);
 
@@ -1041,29 +1123,42 @@ public:
 	UInt32 ToARGB();
 };
 
-// ??
-class ActorWeightData
+// 2778
+class Biped : public BSIntrusiveRefCounted
 {
 public:
-	volatile SInt32	refCount;		// 00 - Refcount?
-	UInt32	pad04;		// 04
-	void	* unk08;	// 08
-	void	* unk10;	// 10
+	NiNode	* root;	// 08
 
-	MEMBER_FN_PREFIX(ActorWeightData);
-	DEFINE_MEMBER_FN(UpdateWeightData, void, 0x001D6530);
-	DEFINE_MEMBER_FN(DeleteThis, void, 0x001D6200);
+	struct Data
+	{
+		TESForm*				armor;			// 00 - Can be ARMO or ARMA
+		TESForm*				addon;			// 08 - Usually always ARMA
+		TESModelTextureSwap*	model;			// 10
+		BGSTextureSet*			textureSet;		// 18
+		NiAVObject*				object;			// 20
+		UInt64					unk28[(0x78 - 0x28) >> 3];
+	};
+	Data	unk10[42];		// 10
+	Data	unk13C0[42];	// 13C0
+	UInt32	handle;			// 2770
+	UInt32	unk2774;		// 2774
+
+	DEFINE_MEMBER_FN_0(UpdateWeightData, void, 0x001D6530);
+	DEFINE_MEMBER_FN_0(DeleteThis, void, 0x001D6200);
 };
+STATIC_ASSERT(offsetof(Biped, unk10) == 0x10);
+STATIC_ASSERT(offsetof(Biped, unk13C0) == 0x13C0);
+STATIC_ASSERT(sizeof(Biped) == 0x2778);
 
 // ??
-class ActorWeightModel
+class BipedModel
 {
 public:
 	enum {
 		kWeightModel_Small = 0,
 		kWeightModel_Large = 1
 	};
-	ActorWeightData * weightData;
+	Biped * bipedData;
 };
 
 class BSFixedStringCI;

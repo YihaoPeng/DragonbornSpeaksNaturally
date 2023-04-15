@@ -202,24 +202,28 @@ EventResult InputEventHandler::ReceiveEvent(InputEvent ** evns, InputEventDispat
 					UInt32	keyMask = t->keyMask;
 
 					// Mouse
-					if (deviceType == kDeviceType_Mouse)
-						keyCode = InputMap::kMacro_MouseButtonOffset + keyMask; 
-					// Gamepad
-					else if (deviceType == kDeviceType_Gamepad)
+					if (deviceType == kDeviceType_Mouse) {
+						keyCode = InputMap::kMacro_MouseButtonOffset + keyMask;
+					} // Motion
+					else if (*g_isUsingMotionControllers && deviceType >= kDeviceType_VivePrimary && deviceType <= kDeviceType_WindowsMRSecondary) {
+						keyCode = InputManager::GetDeviceOffsetForDevice(deviceType) + keyMask;
+					}// Gamepad
+					else if (deviceType == kDeviceType_Gamepad) {
 						keyCode = InputMap::GamepadMaskToKeycode(keyMask);
-					// Keyboard
-					else
+					} // Keyboard
+					else {
 						keyCode = keyMask;
+					}
 
 					// Valid scancode?
 					if (keyCode >= InputMap::kMaxMacros)
 						continue;
 
 					BSFixedString	control	= *t->GetControlID();
-					float			timer	= t->timer;
+					float			timer = t->timer;
 
-					bool isDown	= t->flags != 0 && timer == 0.0;
-					bool isUp	= t->flags == 0 && timer != 0;
+					bool isDown = t->isDown == 1.0f && timer == 0.0;
+					bool isUp = t->isDown == 0.0f && timer != 0;
 
 					if (isDown)
 					{

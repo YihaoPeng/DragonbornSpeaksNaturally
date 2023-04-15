@@ -2,37 +2,165 @@
 
 #include "GameTypes.h"
 #include "GameEvents.h"
+#include "GameUtilities.h"
 #include "InputMap.h"
+#include "NiTypes.h"
+
+#include "openvr_1_0_12.h"
 
 class PlayerControls;
 class BGSEncounterZone;
 class MenuEventHandler;
+class ThumbstickEvent;
+struct MenuOpenCloseEvent;
+struct MenuModeChangeEvent;
+struct TESFurnitureEvent;
 
 // Note: These are different from those in Hooks_DI
 enum
 {
 	kDeviceType_Keyboard = 0,
 	kDeviceType_Mouse,
-	kDeviceType_Gamepad
+	kDeviceType_Gamepad,
+	kDeviceType_VivePrimary,
+	kDeviceType_ViveSecondary,
+	kDeviceType_OculusPrimary,
+	kDeviceType_OculusSecondary,
+	kDeviceType_WindowsMRPrimary,
+	kDeviceType_WindowsMRSecondary,
+	kDeviceType_VirtualKeyboard,
+	kDeviceType_Num
 };
 
-class BSInputDevice
+class BSIInputDevice
 {
 public:
+	virtual ~BSIInputDevice();
 
-	// SE: destructor is now at top
+	// add
+	virtual void	Initialize() = 0;
+	virtual	void	Process(float a_arg1) = 0;
+	virtual	void	Unk_03(void) = 0;
+	virtual	bool	GetKeyMapping(UInt32 a_key, BSFixedString& a_mapping) = 0;
+	virtual UInt32	GetMappingKey(BSFixedString a_mapping) = 0;
+	virtual void	Unk_06(void) = 0;
+	virtual bool	IsEnabled() const = 0;
+	virtual void	Reset() = 0;
+};
+STATIC_ASSERT(sizeof(BSIInputDevice) == 0x8);
+
+class HardwareToActionCode
+{
+public:
+	UInt32			code;
+
+	struct Mapping
+	{
+		BSFixedString	name;	// 00
+		float			timer;	// 08
+		UInt32			unk0C;	// 0C
+	};
+	STATIC_ASSERT(sizeof(Mapping) == 0x10);
+
+	Mapping*	mapping;
+
+	HardwareToActionCode(UInt32 a_key, Mapping* a_mapping)
+		: code(a_key), mapping(a_mapping) {}
+
+	bool operator==(const HardwareToActionCode & rhs) const { return code == rhs.code; }
+	bool operator==(const UInt32 a_key) const { return code == a_key; }
+	operator const UInt64() const { return code; }
+
+	static inline UInt32 GetHash(const UInt32 * key)
+	{
+		UInt32 hash;
+		CalculateCRC32_32(&hash, (UInt32)*key);
+		return hash;
+	}
+
+	void Dump(void)
+	{
+		_MESSAGE("\t\tcode: %d", code);
+		_MESSAGE("\t\taction: %s", mapping ? mapping->name.c_str() : "");
+	}
+};
+
+typedef tHashSet<HardwareToActionCode, const UInt32> HardwareToActionTable;
+
+class ActionToHardwareCode
+{
+public:
+	const char* action;
+	UInt64		code;
+
+	ActionToHardwareCode(const char* a_key, UInt64 a_code)
+		: action(a_key), code(a_code) {}
+
+	bool operator==(const ActionToHardwareCode & rhs) const { return action == rhs.action; }
+	bool operator==(const UInt64 a_key) const { return code == a_key; }
+	operator const UInt64() const { return code; }
+
+	static inline UInt32 GetHash(const UInt64 * key)
+	{
+		UInt32 hash;
+		CalculateCRC32_64(&hash, (UInt64)*key);
+		return hash;
+	}
+
+	void Dump(void)
+	{
+		_MESSAGE("\t\taction: %s", action);
+		_MESSAGE("\t\tcode: %d", code);
+	}
+};
+
+typedef tHashSet<ActionToHardwareCode, const char*> ActionToHardwareTable;
+
+class BSInputDevice : public BSIInputDevice
+{
+public:
 	virtual			~BSInputDevice();
-	virtual UInt32	Unk_01(void);		// pure
-	virtual	void	Unk_02(float unk1);	// pure
-	virtual	void	Unk_03(void);		// pure
 
-	// These 3 ones added in SE. The three of them do some call to CRC functions but I didn't do further research
-	virtual	bool	Unk_04(UInt32 unk0, void *unk1);
-	virtual bool	Unk_05(void *unk0);
-	virtual bool	Unk_06(UInt32 unk0, UInt32 *unk1);
+	virtual	bool	GetKeyMapping(UInt32 a_key, BSFixedString& a_mapping) override;
+	virtual UInt32	GetMappingKey(BSFixedString a_mapping) override;
+	virtual void	Unk_06(void) override;
+	virtual bool	IsEnabled() const override;
 
-	virtual bool	IsEnabled(void);	// Always 1 for non-gamepad?	
-	virtual void	Unk_08(void* unk1);		// pure 	
+	UInt64	unk08;							// 08
+	SInt32	controllerType;					// 10
+	UInt32	pad14;							// 14
+	HardwareToActionTable	hardwareMap;	// 18
+	ActionToHardwareTable	actionMap;		// 48
+};
+
+// 80
+class BSTrackedControllerDevice : public BSInputDevice
+{
+public:
+	UInt32	deviceHand;						// 78 - They add one to this when passing to OpenVR as ETrackedControllerRole
+	SInt32	trackedDeviceIndex;				// 7C
+};
+
+// 150
+class BSOpenVRControllerDevice : public BSTrackedControllerDevice
+{
+public:
+	vr_1_0_12::VRControllerState001_t	prevState;	// 80
+	vr_1_0_12::VRControllerState001_t	state;		// C0
+	UInt64	unk100;
+	UInt64	unk108;
+	UInt64	unk110;
+	UInt64	unk118;
+	UInt64	unk120;
+	UInt64	unk128;
+	UInt32	unk130;
+	float	unk134;
+	UInt32	unk138;
+	float	unk13C;
+	UInt32	unk140;
+	UInt32	unk144;
+	UInt32	unk148;
+	UInt32	unk14C;
 };
 
 //	00	ButtonEvent
@@ -55,7 +183,9 @@ public:
 		kEventType_Char,
 		kEventType_Thumbstick,
 		kEventType_DeviceConnect,
-		kEventType_Kinect
+		kEventType_Kinect,
+		kEventType_VrWandTouchpadPositionEvent,
+		kEventType_VrWandTouchpadSwipeEvent
 	};
 
 	virtual					~InputEvent();
@@ -66,6 +196,8 @@ public:
 	UInt32			deviceType;	// 08
 	UInt32			eventType;	// 0C
 	InputEvent		* next;		// 10
+
+	void LogEvent();
 };
 
 class IDEvent
@@ -74,7 +206,7 @@ public:
 	BSFixedString	controlID;	// 00
 };
 
-// 30
+// 38
 class ButtonEvent : public IDEvent, public InputEvent
 {
 public:
@@ -83,10 +215,12 @@ public:
 	virtual BSFixedString *	GetControlID();
 
 	// 18 -> controlID from IDEvent
-	UInt32			keyMask;	// 20 (00000038 when ALT is pressed, 0000001D when STRG is pressed)
+	SInt32			keyMask;	// 20 (00000038 when ALT is pressed, 0000001D when STRG is pressed)
 	UInt32			pad24;		// 24
-	UInt32			flags;		// 28 - isn't this a float?
-	float			timer;		// 2C (hold duration)
+	SInt32			flags;		// 28
+	UInt32			unk2C;		// 2C 
+	float			isDown;		// 30
+	float			timer;		// 34 (hold duration)
 };
 
 class MouseMoveEvent : public IDEvent, public InputEvent
@@ -109,8 +243,9 @@ public:
 
 	// 18 -> controlID from IDEvent
 	UInt32	keyMask;	// 20 - b for left stick, c for right stick
-	float	x;			// 24
-	float	y;			// 28
+	UInt32	pad24;		// 24
+	float	x;			// 28
+	float	y;			// 2C
 };
 
 class DeviceConnectEvent : public InputEvent
@@ -121,29 +256,41 @@ class KinectEvent : public IDEvent, public InputEvent
 {
 };
 
+class VrWandPositionEvent : public IDEvent, public InputEvent
+{
+public:
+	SInt64		unk20;	// 20
+	SInt64		unk28;	// 28
+	float		x;		// 30
+	float		y;		// 34
+	UInt32		unk38;	// 38
+	UInt32		unk3C;	// 3C
+};
+
+class VrWandTouchpadPositionEvent : public VrWandPositionEvent
+{
+public:
+
+};
+
+class VrWandTouchpadSwipeEvent : public VrWandPositionEvent
+{
+public:
+
+};
+
 // E8 
 class InputEventDispatcher : public EventDispatcher<InputEvent,InputEvent*>
 {
 public:
 	UInt32			unk058;			// 058
 	UInt32			pad05C;			// 05C
-	BSInputDevice	* keyboard;		// 060 
-	BSInputDevice	* mouse;		// 068
-	BSInputDevice	* gamepad;		// 070
-	BSInputDevice	* vkeyboard;	// 078	- New in SE  .?AVBSWin32VirtualKeyboardDevice@@
-	UInt8			unk080;			// 080
-	UInt8			unk081;			// 081
-	UInt8			pad082[6];		// 082
-	BSTEventSource<void *>	unk088;	// 088	- TODO: template type
-	UInt8			unk0E0;			// 0E0
-	UInt8			pad0E1[7];		// 0E1
+	BSInputDevice	* devices[kDeviceType_Num];		// 060 
 
 	bool	IsGamepadEnabled(void);
 
 	static InputEventDispatcher* GetSingleton();
 };
-STATIC_ASSERT(offsetof(InputEventDispatcher, gamepad) == 0x70);
-STATIC_ASSERT(sizeof(InputEventDispatcher) == 0xE8);
 
 template <>
 class BSTEventSink <InputEvent>
@@ -176,7 +323,11 @@ public:
 		kContext_MapDebug,
 		kContext_Lockpicking,
 		kContext_Favor,
-		kContextCount = 17
+		kContext_CraftingMenu,
+		kContext_BarterMenu,
+		kContext_RaceSexMenu,
+		kContext_DialogueMenu,
+		kContextCount
 	};
 
 	struct InputContext
@@ -191,25 +342,37 @@ public:
 			UInt32			pad14;		// 14
 		};
 
-		tArray<Mapping>	keyboardMap;
-		tArray<Mapping>	mouseMap;
-		tArray<Mapping>	gamepadMap;
+		tArray<Mapping>	deviceMap[kDeviceType_Num];
+	};
+
+	struct Unk1
+	{
+		const char*	unk00;
+		UInt32		unk08;
+		UInt32		unk0C;
+		UInt32		unk10;
+		UInt32		unk14;
+		const char*	unk18;
 	};
 
 
-	void*			unkPtr000;					// 000
-	BSTEventSource<void *>	unk008;				// 008 - TODO: template type
-	InputContext	* context[kContextCount];	// 060
-	tArray<void*>	unk0E8;						// 0E8
-	tArray<void*>	unk100;						// 100
-	UInt32			unk118;						// 118 - init'd to 0xFFFFFFFF
-	UInt32			unk11C;						// 11C - init'd to 0x80000000
-	UInt8			allowTextInput;				// 120
-	UInt8			unk121;						// 121
-	UInt8			unk122;						// 122
-	UInt8			pad[5];						// 123
+	void*			unkPtr000;
+	BSTEventSource<void *>	unk008;
+	InputContext	* context[kContextCount];
+	tArray<Unk1>	unk108;
+	tArray<UInt32>	unk120;
+	UInt64			unk138;
+	UInt8			allowTextInput;
+	UInt8			unk121;
+	UInt8			unk122;
+	UInt8			pad[5];
 
 	static InputManager *	GetSingleton(void);
+
+	static UInt32	GetDeviceOffsetForDevice(UInt32 deviceType);
+	static UInt32	GetDeviceTypeFromVR(bool primary);
+	static UInt32	GetDeviceTypeFromKeyCode(UInt32 keyCode);
+	static UInt32	GetDeviceType();
 
 	UInt8			AllowTextInput(bool allow);
 
@@ -217,7 +380,31 @@ public:
 
 	BSFixedString	GetMappedControl(UInt32 buttonID, UInt32 deviceType, UInt32 contextIdx);
 };
-STATIC_ASSERT(sizeof(InputManager) == 0x128);
+STATIC_ASSERT(offsetof(InputManager, allowTextInput) == 0x140);
+
+// 30
+struct MovementData
+{
+	NiPoint2	movement;		// 00
+	NiPoint2	unk08;			// 08
+	float		unk10;			// 10
+	float		unk14;			// 14
+	float		unk18;			// 18
+	float		unk1C;			// 1C
+	UInt32		unk20;			// 20
+	UInt8		autoRun;		// 24
+	UInt8		runMode;		// 25
+	UInt8		unk26;			// 26
+	bool		fovSlideMode;	// 27
+	bool		povScriptMode;	// 28
+	bool		povBeastMode;	// 29
+	UInt8		unk2A;			// 2A
+	UInt8		unk2B;			// 2B
+	bool		remapMode;		// 2C
+	UInt8		unk2D;			// 2D
+	UInt16		unk2E;			// 2E
+};
+STATIC_ASSERT(sizeof(MovementData) == 0x30);
 
 // 10
 class PlayerInputHandler
@@ -226,45 +413,39 @@ public:
 	PlayerInputHandler();
 	virtual ~PlayerInputHandler();
 
-	virtual void Unk_01();
-	virtual void Unk_02();
-	virtual void Unk_03();
-	virtual void Unk_04();
+	virtual bool CanProcess(InputEvent* a_event);
+	virtual void ProcessThumbstick(ThumbstickEvent* a_event, MovementData* a_movementData);
+	virtual void ProcessMouseMove(MouseMoveEvent* a_event, MovementData* a_movementData);
+	virtual void ProcessButton(ButtonEvent* a_event, MovementData* a_movementData);
+	virtual bool Unk_05(InputEvent* inputEvent, void* unk1);
+	virtual bool Unk_06(InputEvent* unk1);
+
 
 	UInt32	unk08;				// 08
 	UInt32	pad0C;				// 0C
 };
 
+class HeldStateHandler : public PlayerInputHandler
+{
+public:
+	virtual ~HeldStateHandler();
+
+	virtual void Unk_07(InputEvent* unk1);
+	virtual void Unk_08(bool unk1);
+};
+
 // 1D8 or 1E0
-class PlayerControls
+class PlayerControls 
+	: public BSTEventSink<InputEvent*>			// 000
+	, public BSTEventSink<MenuOpenCloseEvent>	// 008
+	, public BSTEventSink<MenuModeChangeEvent>	// 010
+	, public BSTEventSink<TESFurnitureEvent>	// 018
 {
 public:
 	virtual			~PlayerControls();
-	virtual UInt32	Unk_01();
 
-//	void			** _vtbl;		// 000
-	BSTEventSink<void*> menuOpenCloseEvent;	// 008
-	BSTEventSink<void*> menuModeChangeEvent;	// 010
-	BSTEventSink<void*> furnitureEvent;	// 018
 	UInt32			unk020;			// 020
-	float			unk024;			// 024
-	float			unk028;			// 028
-	float			unk02C;			// 02C
-	float			unk030;			// 030
-	float			unk034;			// 034
-	float			unk038;			// 038
-	float			unk03C;			// 03C
-	float			unk040;			// 040
-	UInt32			unk044;			// 044
-	UInt8			autoRun;		// 048
-	UInt8			runMode;		// 049
-	UInt8			unk04A;			// 04A
-	UInt8			unk04B;			// 04B
-	UInt16			unk04C;			// 04C
-	UInt8			unk04E;			// 04E
-	UInt8			unk04F;			// 04F
-	bool			remapMode;		// 050 - might be named differently
-	UInt8			pad51[7];		// 051
+	MovementData	movement;		// 024
 	tArray<void*>	unk058;			// 058
 	tArray<void*>	unk070;			// 070
 	tArray<void *>	unk088;			// 088
@@ -277,19 +458,28 @@ public:
 	tArray<void*>	unk150;			// 150
 	UInt64			unk168;			// 168
 
-	PlayerInputHandler*	movementHandler;	// 170
-	PlayerInputHandler*	lookHandler;		// 178
-	PlayerInputHandler*	sprintHandler;		// 180
-	PlayerInputHandler*	readyWeaponHandler; // 188
-	PlayerInputHandler*	autoMoveHandler;	// 190
-	PlayerInputHandler*	toggleRunHandler;	// 198
-	PlayerInputHandler*	activateHandler;	// 1A0
-	PlayerInputHandler*	jumpHandler;		// 1A8
-	PlayerInputHandler*	shoutHandler;		// 1B0
-	PlayerInputHandler*	attackBlockHandler; // 1B8
-	PlayerInputHandler*	runHandler;			// 1C0
-	PlayerInputHandler*	sneakHandler;		// 1C8
-	PlayerInputHandler*	togglePOVHandler;	// 1D0
+	enum InputHandler
+	{
+		kInputHandler_Movement,
+		kInputHandler_Look,
+		kInputHandler_Sprint,
+		kInputHandler_ReadyWeapon,
+		kInputHandler_AutoMove,
+		kInputHandler_ToggleRun,
+		kInputHandler_Activate,
+		kInputHandler_Jump,
+		kInputHandler_Shout,
+		kInputHandler_AttackBlock,
+		kInputHandler_Run,
+		kInputHandler_Sneak,
+		kInputHandler_TogglePOV,
+		kInputHandler_Teleport,
+		kInputHandler_VrSwim,
+		kInputHandler_DragonRiding,
+		kInputHandler_Num
+	};
+
+	PlayerInputHandler* inputHandlers[kInputHandler_Num];	// 170
 
 	static PlayerControls *	GetSingleton(void);
 
@@ -298,8 +488,8 @@ public:
 	MEMBER_FN_PREFIX(PlayerControls);
 	DEFINE_MEMBER_FN(ctor, PlayerControls *, 0x0072B900);
 };
-STATIC_ASSERT(offsetof(PlayerControls, runMode) == 0x049);
-STATIC_ASSERT(offsetof(PlayerControls, remapMode) == 0x050);
+STATIC_ASSERT(offsetof(PlayerControls, unk058) == 0x58);
+STATIC_ASSERT(offsetof(PlayerControls, inputHandlers) == 0x170);
 
 // 90
 class MenuControls
@@ -440,6 +630,31 @@ public:
 	BSFixedString	localMap;			// 328 "LocalMap"
 	BSFixedString	localMapMoveMode;	// 330 "LocalMapMoveMode"
 	BSFixedString	itemZoom;			// 338 "Item Zoom"
+	BSFixedString	sneakOrJump;		// 340 "Sneak Or Jump"
+	BSFixedString	switchTarget;		// 348 "Switch Target"
+	BSFixedString	activeOrFavorites;	// 350 "Activate Or Favorites"
+	BSFixedString	teleportOrActivate;	// 358 "Teleport Or Activate"
+	BSFixedString	turnLeft;			// 360 "Turn Left"
+	BSFixedString	turnRight;			// 368 "Turn Right"
+	BSFixedString	sceNavigationMode;	// 370 "Sce Navigation Mode"
+	BSFixedString	tabLeft;			// 378 "Tab Left"
+	BSFixedString	tabRight;			// 380 "Tab Right"
+	BSFixedString	tabByHandedness;	// 388 "Tab By Handedness"
+	BSFixedString	changePage;			// 390 "Change Page"
+	BSFixedString	leftEquipOrTake;	// 398 "Left Equip Or Take"
+	BSFixedString	rightEquipOrTake;	// 3A0 "Right Equip Or Take"
+	BSFixedString	takeAllOrStoreOrDropLeft; // 3A8 "Take All Or Store Or Drop Left"
+	BSFixedString	takeAllOrStoreOrDropRight; // 3B0 "Take All Or Store Or Drop Right"
+	BSFixedString	toggleFavorite2;	// 3B8 "Toggle Favorite"
+	BSFixedString	chargeOrUnlock;		// 3C0 "Charge Or Unlock"
+	BSFixedString	mapTeleport;		// 3C8 "Map Teleport"
+	BSFixedString	mapClick;			// 3D0 "Map Click"
+	BSFixedString	toggleOccCulling;	// 3D8 "ToggleOccCulling"
+	BSFixedString	deleteSave;			// 3E0 "Delete Save"
+	BSFixedString	cancelAlt;			// 3E8 "Cancel Alt"
+	BSFixedString	rightStick;			// 3F0 "Right Stick"
+	BSFixedString	tweenOrReadyWeapon; // 3F8 "Tween Or Ready Weapon"
+	BSFixedString	journalOrWait;		// 400 "Journal Or Wait"
 
 	static InputStringHolder *	GetSingleton(void)
 	{
@@ -448,4 +663,7 @@ public:
 		return *g_inputStringHolder;
 	}
 };
-STATIC_ASSERT(sizeof(InputStringHolder) == 0x340);
+STATIC_ASSERT(sizeof(InputStringHolder) == 0x408);
+
+extern RelocPtr<bool> g_isUsingMotionControllers;
+extern  RelocPtr<bool> g_leftHandedMode;

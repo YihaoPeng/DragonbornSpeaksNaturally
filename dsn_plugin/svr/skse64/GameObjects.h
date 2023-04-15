@@ -815,7 +815,7 @@ public:
 
 	// Computes RGB SkinTone from RGBA TintMask
 	// C74DE866EA2CBFADF8A164FC95A889A9DBA09091+C7
-	DEFINE_MEMBER_FN(SetSkinFromTint, void, 0x0036FD80, NiColorA * result, TintMask * tintMask, UInt32 compute, UInt32 unk1);
+	DEFINE_MEMBER_FN(SetSkinFromTint, void, 0x0036FD80, NiColorA * result, TintMask * tintMask, bool fromTint);
 
 	void SetFaceTexture(BGSTextureSet * textureSet);
 	void SetHairColor(BGSColorForm * hairColor);

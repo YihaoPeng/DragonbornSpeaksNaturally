@@ -48,8 +48,8 @@ template <typename T>
 class BSTEventSink
 {
 public:
-  virtual ~BSTEventSink() { };
-	virtual	EventResult	ReceiveEvent(T * evn, EventDispatcher<T> * dispatcher) { return kEvent_Continue; }; // pure
+	virtual ~BSTEventSink();
+	virtual	EventResult	ReceiveEvent(T * evn, EventDispatcher<T> * dispatcher); // pure
 //	void	** _vtbl;	// 00
 };
 
@@ -628,12 +628,15 @@ public:
 	EventDispatcher<void>								unk1028;				// 1028 - sink offset 180
 	EventDispatcher<void>								unk1080;				// 1080 - sink offset 188
 	EventDispatcher<void>								unk10D8;				// 10D8 - sink offset 190
-	EventDispatcher<void>								unk1130;				// 1130 - sink offset 198
+	EventDispatcher<TESUniqueIDChangeEvent>				uniqueIdChangeDispatcher;	// 1130 - sink offset 198
 	EventDispatcher<void>								unk1188;				// 1188 - sink offset 200
 	EventDispatcher<void>								unk11E0;				// 11E0 - sink offset 208
-	EventDispatcher<void>								unk1238;				// 1238 - sink offset 210
-	EventDispatcher<TESUniqueIDChangeEvent>				uniqueIdChangeDispatcher;	// 1290 - sink offset 218
 };
+STATIC_ASSERT(offsetof(EventDispatcherList, combatDispatcher) == 0x2C0);
+STATIC_ASSERT(offsetof(EventDispatcherList, deathDispatcher) == 0x370);
+STATIC_ASSERT(offsetof(EventDispatcherList, initScriptDispatcher) == 0x630);
+STATIC_ASSERT(offsetof(EventDispatcherList, objectLoadedDispatcher) == 0x840);
+STATIC_ASSERT(offsetof(EventDispatcherList, uniqueIdChangeDispatcher) == 0x10D8);
 
 typedef EventDispatcherList*(*_GetEventDispatcherList)();
 extern RelocAddr<_GetEventDispatcherList> GetEventDispatcherList;

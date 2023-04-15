@@ -57,6 +57,8 @@ RelocAddr<_UpdateHarvestModel> UpdateHarvestModel(0x001ACB80);
 
 RelocAddr<_GetRelationshipIndex> GetRelationshipIndex(0x00355790);
 
+RelocPtr<FacePresetList> g_facePresetList(0x01E93520);
+
 // C5B21010DCF340FCDDDC7866C50C3D78AEF34CB5+6B
 //RelocPtr <bool> g_isGameDataReady(0x058FEAB4);
 
@@ -213,11 +215,11 @@ MenuTopicManager * MenuTopicManager::GetSingleton(void)
 
 TESObjectREFR * MenuTopicManager::GetDialogueTarget()
 {
-	TESObjectREFR * refr = NULL;
+	NiPointer<TESObjectREFR> refr;
 	if (talkingHandle == (*g_invalidRefHandle) || talkingHandle == 0)
 		return NULL;
 
-	LookupREFRByHandle(&talkingHandle, &refr);
+	LookupREFRByHandle(talkingHandle, refr);
 	return refr;
 }
 
@@ -273,4 +275,9 @@ SInt32 RelationshipRanks::GetRelationshipRank(TESForm * form1, TESForm * form2)
 	}
 
 	return ranks->value[kRelationshipAcquaintance];
+}
+
+FacePresetList * FacePresetList::GetSingleton(void)
+{
+	return g_facePresetList;
 }

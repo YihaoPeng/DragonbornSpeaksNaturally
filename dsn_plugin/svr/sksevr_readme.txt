@@ -1,4 +1,4 @@
-Skyrim Script Extender VR v2.0.10 beta
+Skyrim Script Extender VR v2.0.12 beta
 by Ian Patterson and Stephen Abel (ianpatt and behippo)
 Thanks to: Paul Connelly (scruggsywuggsy the ferret), gibbed, Purple Lunchbox, snakster, AshAuryn
 Special thanks to eternity for the help getting the 64-bit port finished. Can't thank you enough.

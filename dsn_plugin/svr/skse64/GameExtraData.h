@@ -164,7 +164,7 @@ public:
 	UInt32	handle;		// 10
 	UInt32	pad;		// 14
 
-	TESObjectREFR * GetReference();
+	NiPointer<TESObjectREFR> GetReference();
 	static ExtraReferenceHandle* Create();
 };
 
@@ -290,7 +290,7 @@ public:
 	UInt8	pad11[3];	// 11
 	UInt32	handle;		// 14 handle?
 
-	TESObjectREFR * GetReference();
+	NiPointer<TESObjectREFR> GetReference();
 };
  //	ExtraEnableStateChildren
  //	ExtraItemDropper
@@ -593,7 +593,7 @@ public:
 	UInt32	pad;	// 14
 
 	static ExtraForcedTarget* Create();
-	TESObjectREFR * GetReference();
+	NiPointer<TESObjectREFR> GetReference();
 };
 STATIC_ASSERT(sizeof(ExtraForcedTarget) == 0x18);
 

@@ -4,30 +4,39 @@ RelocAddr <_CreateUIMessageData> CreateUIMessageData(0x00335740);
 
 IMenu::IMenu() :
 	view(NULL),
-	unk0C(3),
+	unk18(3),
 	flags(0),
-	unk14(0x12),
-	unk18(NULL)
+	unk20(0x12),
+	unk28(NULL),
+	unk30(-1),
+	unk34(0),
+	unk38("N/A")
 {
 }
 
-UInt32 IMenu::ProcessUnkData1(UnkData1* data)
+UInt32 IMenu::ProcessMessage(UIMessage* message)
 {
-	if (data->unk04 == 6)
-	{
-		if (view && data->data)
-		{
-			view->HandleEvent(data->data->unk08);
-			return 0;
-		}
+	if (message->message != UIMessage::kMessage_Scaleform) {
+		return GFxMovieView::kNotProcessed;
 	}
-	return 2;
+
+	if (!view) {
+		return GFxMovieView::kNotProcessed;
+	}
+
+	auto data = static_cast<BSUIScaleformData*>(message->objData);
+	if (!data) {
+		return GFxMovieView::kNotProcessed;
+	}
+
+	view->HandleEvent(*data->event);
+	return GFxMovieView::kProcessed;
 }
 
 void IMenu::Render(void)
 {
 	if (view)
-		view->Render();
+		view->Display();
 }
 
 bool MenuManager::IsMenuOpen(BSFixedString * menuName)
@@ -81,15 +90,9 @@ RaceMenuSlider::RaceMenuSlider(UInt32 _filterFlag, const char * _sliderName, con
 	pad135[2] = 0;
 }
 
-TESObjectREFR * EnemyHealth::GetTarget() const
+TESObjectREFR * EnemyHealth::GetTarget()
 {
-	TESObjectREFR * refr = NULL;
-	UInt32 refHandle = (*g_thePlayer)->targetHandle;
-	LookupREFRByHandle(&refHandle, &refr);
-	if(!refr) {
-		refHandle = handle;
-		LookupREFRByHandle(&refHandle, &refr);
-	}
-
+	NiPointer<TESObjectREFR> refr;
+	LookupREFRByHandle(handle, refr);
 	return refr;
 }
