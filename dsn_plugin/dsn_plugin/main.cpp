@@ -29,6 +29,7 @@ extern "C"	{
 		switch (fdwReason)
 		{
 		case DLL_PROCESS_ATTACH:
+			Log::info("\n***************************************\n");
 
 			if (!VersionCheck::IsCompatibleExeVersion()) {
 				return TRUE;

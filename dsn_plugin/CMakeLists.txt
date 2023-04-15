@@ -213,9 +213,9 @@ set_target_safeseh(dsn_plugin_ae)
 target_include_directories(dsn_plugin_ae PUBLIC dsn_plugin/)
 set_target_properties(dsn_plugin_ae PROPERTIES
   OUTPUT_NAME "dragonborn_speaks_naturally"
-  ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/SkyrimSE"
-  LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/SkyrimSE"
-  RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/SkyrimSE"
+  ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/SkyrimAE"
+  LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/SkyrimAE"
+  RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/SkyrimAE"
 )
 target_compile_definitions(dsn_plugin_ae PRIVATE
     IS_AE

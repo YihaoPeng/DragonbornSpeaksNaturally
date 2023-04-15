@@ -202,10 +202,8 @@ bool VersionCheck::IsCompatibleExeVersion() {
 		Log::info("DSN will continue to try to load, but the game may crash.");
 		Log::info("Please install the latest version of DSN once it's available or downgrade your Skyrim to " + SKYRIM_VERSION_STR[g_SkyrimType]);
 		Log::info("Skyrim downgrading guide: https://www.nexusmods.com/skyrimspecialedition/mods/19658");
-		Log::info("Skyrim Version: " + versionStr);
 	} else {
 		Log::info("Skyrim compatibility check passed");
-		Log::info("Skyrim version: " + versionStr);
 	}
 
 	return true;

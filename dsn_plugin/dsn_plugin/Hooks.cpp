@@ -327,9 +327,9 @@ static uintptr_t invokeReturn = 0x0;
 static uintptr_t loadEventEnter = 0x0;
 static uintptr_t loadEventTarget = 0x0;
 
-static uintptr_t LOOP_ENTER_ADDR[2];
-static uintptr_t LOOP_TARGET_ADDR[2];
-static uintptr_t LOAD_EVENT_ENTER_ADDR[2];
+static uintptr_t LOOP_ENTER_ADDR[3];
+static uintptr_t LOOP_TARGET_ADDR[3];
+static uintptr_t LOAD_EVENT_ENTER_ADDR[3];
 
 uintptr_t getCallTarget(uintptr_t callInstructionAddr) {
 	// x64 "call" instruction: E8 <32-bit target offset>

@@ -186,7 +186,6 @@ static DWORD WINAPI SpeechRecognitionClientThreadStart(void* ctx) {
 		.append(" --encoding UTF-8"); // Let the service set encoding of its stdin/stdout to UTF-8.
                                     // This can avoid non-ASCII characters (such as Chinese characters) garbled.
 
-	Log::info("\n***************************************\n");
 	Log::info("Starting speech recognition service at ");
 	Log::info(exePath);
 
