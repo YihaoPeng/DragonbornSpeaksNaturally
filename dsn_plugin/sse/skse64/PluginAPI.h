@@ -9,6 +9,19 @@ class InventoryEntryData;
 class SKSEDelayFunctorManager;
 class SKSEObjectRegistry;
 class SKSEPersistentObjectStorage;
+class BranchTrampoline;
+
+struct PluginInfo
+{
+	enum
+	{
+		kInfoVersion = 1
+	};
+
+	UInt32			infoVersion;
+	const char *	name;
+	UInt32			version;
+};
 
 enum
 {
@@ -24,6 +37,7 @@ enum
 	kInterface_Task,
 	kInterface_Messaging,
 	kInterface_Object,
+	kInterface_Trampoline,
 	kInterface_Max,
 };
 
@@ -37,10 +51,14 @@ struct SKSEInterface
 
 	// call during your Query or Load functions to get a PluginHandle uniquely identifying your plugin
 	// invalid if called at any other time, so call it once and save the result
-	PluginHandle	(* GetPluginHandle)(void);
+	PluginHandle		(* GetPluginHandle)(void);
 	
 	// returns the SKSE build's release index
-	UInt32			(* GetReleaseIndex)(void);
+	UInt32				(* GetReleaseIndex)(void);
+
+	// Minimum SKSE version 2.0.18
+	// returns the plugin info structure for a plugin by name, only valid to be called after PostLoad message
+	const PluginInfo*	(* GetPluginInfo)(const char* name);
 };
 
 struct SKSEScaleformInterface
@@ -231,20 +249,21 @@ struct SKSEObjectInterface
 	SKSEPersistentObjectStorage & (* GetPersistentObjectStorage)();
 };
 
-struct PluginInfo
+struct SKSETrampolineInterface
 {
 	enum
 	{
-		kInfoVersion = 1
+		kInterfaceVersion = 1
 	};
 
-	UInt32			infoVersion;
-	const char *	name;
-	UInt32			version;
+	UInt32	interfaceVersion;
+
+	void* (*AllocateFromBranchPool)(PluginHandle plugin, size_t size);
+	void* (*AllocateFromLocalPool)(PluginHandle plugin, size_t size);
 };
 
-typedef bool (* _SKSEPlugin_Query)(const SKSEInterface * skse, PluginInfo * info);
-typedef bool (* _SKSEPlugin_Load)(const SKSEInterface * skse);
+typedef bool(*_SKSEPlugin_Query)(const SKSEInterface * skse, PluginInfo * info);
+typedef bool(*_SKSEPlugin_Load)(const SKSEInterface * skse);
 
 /**** plugin API docs **********************************************************
  *	

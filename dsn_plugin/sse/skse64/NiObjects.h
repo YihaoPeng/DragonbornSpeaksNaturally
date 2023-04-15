@@ -32,6 +32,7 @@ class BSTriShape;
 class TESObjectCELL;
 class TESModelTri;
 class BSFaceGenMorphData;
+class TESObjectREFR;
 
 extern RelocPtr<float> g_worldToCamMatrix;
 extern RelocPtr<NiRect<float>> g_viewPort;
@@ -211,8 +212,7 @@ public:
 	float		unkEC;					// EC
 	float		unkF0;					// F0
 	UInt32		m_flags;				// F4 - bitfield
-	float		unkF8;					// F8
-	UInt32		unkFC;					// FC
+	TESObjectREFR*	m_owner;			// F8
 	float		unk100;					// 100 - New in SE? init's to 1.0
 	UInt32		unk104;					// 104 - New in SE? init'd to 0
 	UInt8		unk108;					// 108

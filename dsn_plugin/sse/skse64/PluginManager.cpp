@@ -5,18 +5,21 @@
 #include "skse64/Serialization.h"
 #include "skse64_common/skse_version.h"
 #include "skse64/PapyrusEvents.h"
+#include "skse64_common/BranchTrampoline.h"
 
 PluginManager	g_pluginManager;
 
 PluginManager::LoadedPlugin *	PluginManager::s_currentLoadingPlugin = NULL;
 PluginHandle					PluginManager::s_currentPluginHandle = 0;
-
+UInt32							s_trampolineLog = 1;
 
 extern EventDispatcher<SKSEModCallbackEvent>	g_modCallbackEventDispatcher;
 extern EventDispatcher<SKSECameraEvent>			g_cameraEventDispatcher;
 extern EventDispatcher<SKSECrosshairRefEvent>	g_crosshairRefEventDispatcher;
 extern EventDispatcher<SKSEActionEvent>			g_actionEventDispatcher;
 
+BranchTrampolineManager g_branchTrampolineManager(g_branchTrampoline);
+BranchTrampolineManager g_localTrampolineManager(g_localTrampoline);
 
 static const SKSEInterface g_SKSEInterface =
 {
@@ -34,7 +37,8 @@ static const SKSEInterface g_SKSEInterface =
 
 	PluginManager::QueryInterface,
 	PluginManager::GetPluginHandle,
-	PluginManager::GetReleaseIndex
+	PluginManager::GetReleaseIndex,
+	PluginManager::GetPluginInfo
 };
 
 #ifdef RUNTIME
@@ -85,6 +89,13 @@ static const SKSEObjectInterface g_SKSEObjectInterface =
 	SKSEDelayFunctorManagerInstance,
 	SKSEObjectRegistryInstance,
 	SKSEObjectStorageInstance
+};
+
+static const SKSETrampolineInterface g_SKSETrampolineInterface =
+{
+	SKSETrampolineInterface::kInterfaceVersion,
+	AllocateFromSKSEBranchPool,
+	AllocateFromSKSELocalPool
 };
 #endif
 
@@ -185,6 +196,9 @@ void * PluginManager::QueryInterface(UInt32 id)
 	case kInterface_Object:
 		result = (void *)&g_SKSEObjectInterface;
 		break;
+	case kInterface_Trampoline:
+		result = (void *)&g_SKSETrampolineInterface;
+		break;
 
 	default:
 		_WARNING("unknown QueryInterface %08X", id);
@@ -207,6 +221,11 @@ PluginHandle PluginManager::GetPluginHandle(void)
 UInt32 PluginManager::GetReleaseIndex( void )
 {
 	return SKSE_VERSION_RELEASEIDX;
+}
+
+const PluginInfo*	PluginManager::GetPluginInfo(const char* name)
+{
+	return g_pluginManager.GetInfoByName(name);
 }
 
 bool PluginManager::FindPluginDirectory(void)
@@ -278,12 +297,13 @@ void PluginManager::InstallPlugins(void)
 
 				ASSERT(loadStatus);
 
-				_MESSAGE("plugin %s (%08X %s %08X) %s",
+				_MESSAGE("plugin %s (%08X %s %08X) %s (handle %d)",
 					pluginPath.c_str(),
 					plugin.info.infoVersion,
 					plugin.info.name ? plugin.info.name : "<NULL>",
 					plugin.info.version,
-					loadStatus);
+					loadStatus,
+					s_currentPluginHandle);
 			}
 			else
 			{
@@ -622,4 +642,42 @@ PluginHandle PluginManager::LookupHandleFromName(const char* pluginName)
 		idx++;
 	}
 	return kPluginHandle_Invalid;
+}
+
+inline void * BranchTrampolineManager::Allocate(PluginHandle plugin, size_t size)
+{
+	auto mem = m_trampoline.Allocate(size);
+	if (mem) {
+		std::lock_guard<decltype(m_lock)> locker(m_lock);
+
+		auto findIt = m_stats.find(plugin);
+		if (findIt != m_stats.end()) {
+			findIt->second += size;
+		}
+		else {
+			auto insIt = m_stats.insert(std::make_pair(plugin, size));
+			ASSERT(insIt.second);   // insertion failed
+		}
+	}
+	else {
+		ASSERT(false);  // alloc failed
+	}
+	return mem;
+}
+
+
+void * AllocateFromSKSEBranchPool(PluginHandle plugin, size_t size)
+{
+	if (s_trampolineLog) {
+		_DMESSAGE("plugin %d allocated %lld bytes from branch pool", plugin, size);
+	}
+	return g_branchTrampolineManager.Allocate(plugin, size);
+}
+
+void * AllocateFromSKSELocalPool(PluginHandle plugin, size_t size)
+{
+	if (s_trampolineLog) {
+		_DMESSAGE("plugin %d allocated %lld bytes from local pool", plugin, size);
+	}
+	return g_localTrampolineManager.Allocate(plugin, size);
 }

@@ -7,9 +7,9 @@ BranchTrampoline g_localTrampoline;
 
 BranchTrampoline::BranchTrampoline()
 	:m_base(nullptr)
-	,m_len(0)
-	,m_allocated(0)
-	,m_curAlloc(nullptr)
+	, m_len(0)
+	, m_allocated(0)
+	, m_curAlloc(nullptr)
 {
 	//
 }
@@ -21,7 +21,7 @@ BranchTrampoline::~BranchTrampoline()
 
 bool BranchTrampoline::Create(size_t len, void * module)
 {
-	if(!module) module = GetModuleHandle(NULL);
+	if (!module) module = GetModuleHandle(NULL);
 
 	// search backwards from module base
 	uintptr_t moduleBase = uintptr_t(module);
@@ -30,26 +30,26 @@ bool BranchTrampoline::Create(size_t len, void * module)
 	uintptr_t lowestOKAddress = (moduleBase >= maxDisplacement) ? moduleBase - maxDisplacement : 0;
 	addr--;
 
-	while(!m_base)
+	while (!m_base)
 	{
 		MEMORY_BASIC_INFORMATION info;
 
-		if(!VirtualQuery((void *)addr, &info, sizeof(info)))
+		if (!VirtualQuery((void *)addr, &info, sizeof(info)))
 		{
 			_ERROR("VirtualQuery failed: %08X", GetLastError());
 			break;
 		}
 
-		if(info.State == MEM_FREE)
+		if (info.State == MEM_FREE)
 		{
 			// free block, big enough?
-			if(info.RegionSize >= len)
+			if (info.RegionSize >= len)
 			{
 				// try to allocate it
 				addr = ((uintptr_t)info.BaseAddress) + info.RegionSize - len;
 
 				m_base = (void *)VirtualAlloc((void *)addr, len, MEM_COMMIT | MEM_RESERVE, PAGE_EXECUTE_READWRITE);
-				if(m_base)
+				if (m_base)
 				{
 					m_len = len;
 					m_allocated = 0;
@@ -62,12 +62,12 @@ bool BranchTrampoline::Create(size_t len, void * module)
 		}
 
 		// move back and try again
-		if(!m_base)
+		if (!m_base)
 		{
 			addr = ((uintptr_t)info.BaseAddress) - 1;
 		}
 
-		if(addr < lowestOKAddress)
+		if (addr < lowestOKAddress)
 		{
 			_ERROR("couldn't allocate trampoline, no free space before image");
 			break;
@@ -79,11 +79,20 @@ bool BranchTrampoline::Create(size_t len, void * module)
 
 void BranchTrampoline::Destroy()
 {
-	if(m_base)
+	if (m_base)
 	{
 		VirtualFree(m_base, 0, MEM_RELEASE);
 		m_base = nullptr;
 	}
+}
+
+void BranchTrampoline::SetBase(size_t len, void * base)
+{
+	ASSERT(!m_base);
+	m_base = base;
+	m_len = len;
+	m_allocated = 0;
+	m_curAlloc = nullptr;
 }
 
 void * BranchTrampoline::StartAlloc()
@@ -114,7 +123,7 @@ void * BranchTrampoline::Allocate(size_t size)
 
 	void * result = nullptr;
 
-	if(size <= Remain())
+	if (size <= Remain())
 	{
 		result = ((UInt8 *)m_base) + m_allocated;
 		m_allocated += size;
@@ -148,13 +157,13 @@ bool BranchTrampoline::Write6Branch_Internal(uintptr_t src, uintptr_t dst, UInt8
 	bool result = false;
 
 	uintptr_t * trampoline = (uintptr_t *)Allocate();
-	if(trampoline)
+	if (trampoline)
 	{
 		uintptr_t	trampolineAddr = (uintptr_t)trampoline;
 		uintptr_t	nextInstr = src + 6;
 		ptrdiff_t	trampolineDispl = trampolineAddr - nextInstr;
 
-		if((trampolineDispl >= _I32_MIN) && (trampolineDispl <= _I32_MAX))
+		if ((trampolineDispl >= _I32_MIN) && (trampolineDispl <= _I32_MAX))
 		{
 			UInt8	code[6];
 
@@ -219,7 +228,7 @@ bool BranchTrampoline::Write5Branch_Internal(uintptr_t src, uintptr_t dst, UInt8
 	STATIC_ASSERT(sizeof(HookCode) == 5);
 
 	TrampolineCode * trampolineCode = (TrampolineCode *)Allocate(sizeof(TrampolineCode));
-	if(trampolineCode)
+	if (trampolineCode)
 	{
 		trampolineCode->Init(dst);
 

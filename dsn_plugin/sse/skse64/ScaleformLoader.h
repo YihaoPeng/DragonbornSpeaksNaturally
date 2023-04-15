@@ -37,5 +37,5 @@ public:
 	DEFINE_MEMBER_FN(ctor, GFxLoader *, 0x00ECE0D0);
 
 	// Note: Probably in subclass
-	DEFINE_MEMBER_FN(LoadMovie, bool, 0x00ECE790, IMenu* menu, GFxMovieView** viewOut, const char* name, int arg4, float arg5);
+	DEFINE_MEMBER_FN(LoadMovie, bool, 0x00ECE790, IMenu* menu, GFxMovieView** viewOut, const char* name, int scaleMode, float backGroundAlpha);
 };

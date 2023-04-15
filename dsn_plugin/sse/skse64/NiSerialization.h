@@ -45,6 +45,10 @@ public:
 	UInt64						unk418[(0x518 - 0x418) >> 3]; // 418
 	char						unk518[MAX_PATH];	// 518
 };
+STATIC_ASSERT(offsetof(NiStream, m_objects) == 0x218);
+STATIC_ASSERT(offsetof(NiStream, m_objectSizes) == 0x238);
+STATIC_ASSERT(offsetof(NiStream, m_rootObjects) == 0x258);
+STATIC_ASSERT(offsetof(NiStream, m_stringTable) == 0x278);
 
 // 638
 class BSStream : public NiStream
@@ -71,7 +75,3 @@ public:
 	DEFINE_MEMBER_FN(LoadStream, bool, 0x00C59EC0, char * buffer, UInt32 length);
 };
 
-//STATIC_ASSERT(offsetof(NiStream, m_objects) == 0x1F4);
-//STATIC_ASSERT(offsetof(NiStream, m_objectSizes) == 0x20C);
-//STATIC_ASSERT(offsetof(NiStream, m_rootObjects) == 0x224);
-//STATIC_ASSERT(offsetof(NiStream, m_stringTable) == 0x23C);

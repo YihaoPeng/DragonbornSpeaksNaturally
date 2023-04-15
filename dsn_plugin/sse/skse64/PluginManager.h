@@ -2,6 +2,8 @@
 
 #include <string>
 #include <vector>
+#include <mutex>
+#include <unordered_map>
 
 #include "skse64/PluginAPI.h"
 
@@ -22,9 +24,10 @@ public:
 
 	UInt32			GetNumPlugins(void);
 
-	static void *		QueryInterface(UInt32 id);
-	static PluginHandle	GetPluginHandle(void);
-	static UInt32		GetReleaseIndex(void);
+	static void *				QueryInterface(UInt32 id);
+	static PluginHandle			GetPluginHandle(void);
+	static UInt32				GetReleaseIndex(void);
+	static const PluginInfo*	GetPluginInfo(const char* name);
 
 	static void * GetEventDispatcher(UInt32 dispatcherId);
 
@@ -58,5 +61,26 @@ private:
 	static LoadedPlugin		* s_currentLoadingPlugin;
 	static PluginHandle		s_currentPluginHandle;
 };
+
+class BranchTrampolineManager
+{
+public:
+	inline BranchTrampolineManager(BranchTrampoline& trampoline) :
+		m_trampoline(trampoline)
+	{}
+
+	inline void* Allocate(PluginHandle plugin, size_t size);
+
+private:
+	BranchTrampoline& m_trampoline;
+	std::mutex m_lock;
+	std::unordered_map<PluginHandle, size_t> m_stats;
+};
+
+extern BranchTrampolineManager g_branchTrampolineManager;
+extern BranchTrampolineManager g_localTrampolineManager;
+
+void* AllocateFromSKSEBranchPool(PluginHandle plugin, size_t size);
+void* AllocateFromSKSELocalPool(PluginHandle plugin, size_t size);
 
 extern PluginManager	g_pluginManager;

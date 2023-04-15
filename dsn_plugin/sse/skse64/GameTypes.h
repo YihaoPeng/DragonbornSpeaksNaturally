@@ -725,7 +725,7 @@ public:
 
 		NodePos pos = GetNthNode(index);
 		_Node* pTargetNode = pos.node;
-		_Node* newNode = (_Node*)Heap_Allocate(sizeof(newNode));
+		_Node* newNode = (_Node*)Heap_Allocate(sizeof(_Node));
 		if (newNode && pTargetNode) {
 			if (index == eListEnd) {
 				pTargetNode->next = newNode;
@@ -915,7 +915,6 @@ public:
 template <typename Item, typename Key = Item>
 class tHashSet
 {
-public:
 	class _Entry
 	{
 	public:

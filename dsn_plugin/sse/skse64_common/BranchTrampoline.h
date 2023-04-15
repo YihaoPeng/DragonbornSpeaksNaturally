@@ -8,14 +8,15 @@ public:
 
 	bool Create(size_t len, void * module = NULL);
 	void Destroy();
+	void SetBase(size_t len, void* base);
 
-	// allocate unsized 
+	// allocate unsized
 	void * StartAlloc();
 	void EndAlloc(const void * end);
 
 	void * Allocate(size_t size = sizeof(void *));
 
-	size_t Remain()	{ return m_len - m_allocated; }
+	size_t Remain() { return m_len - m_allocated; }
 
 	// takes 6 bytes of space at src, 8 bytes in trampoline
 	bool Write6Branch(uintptr_t src, uintptr_t dst);

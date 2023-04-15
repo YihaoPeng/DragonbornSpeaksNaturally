@@ -280,7 +280,6 @@ namespace Serialization
 	bool ResolveFormId(UInt32 formId, UInt32 * formIdOut)
 	{
 		UInt32	modID = formId >> 24;
-
 		if (modID == 0xFF)
 		{
 			*formIdOut = formId;
@@ -308,8 +307,7 @@ namespace Serialization
 
 	bool ResolveHandle(UInt64 handle, UInt64 * handleOut)
 	{
-		UInt8	modID = handle >> 24;
-
+		UInt32	modID = (handle & 0xFF000000) >> 24;
 		if (modID == 0xFF)
 		{
 			*handleOut = handle;
@@ -346,6 +344,9 @@ namespace Serialization
 	void HandleSaveGlobalData(void)
 	{
 		_MESSAGE("creating co-save");
+
+		DeleteFile(s_savePath.c_str());
+
 		if(!s_currentFile.Create(s_savePath.c_str()))
 		{
 			_ERROR("HandleSaveGlobalData: couldn't create save file (%s)", s_savePath.c_str());

@@ -4,6 +4,7 @@
 #include "skse64/GameFormComponents.h"
 //#include "skse/GamePathing.h"
 //#include "skse/NiInterpolators.h"
+#include "skse64/NiObjects.h"
 #include "skse64/NiTypes.h"
 
 class TESForm;
@@ -356,7 +357,7 @@ public:
 	enum {
 		kFlagIsDeleted = 0x20,
 		kFlagPlayerKnows = 0x40,
-		kFlagUnk_0x800 = 0x800
+		kFlagUnk_0x800 = 0x800,
 	};
 
 	virtual void			Unk_04(void);		// reset/init? would leak pointers if called on a live object
@@ -365,8 +366,8 @@ public:
 	virtual bool			Unk_07(UInt32 arg);
 	virtual bool			Unk_08(UInt32 arg);	// calls LoadForm
 	virtual TESForm *		Unk_09(UInt32 arg1, void * arg2);
-	virtual bool			MarkChanged(UInt32 changed);	// mark as changed?
-	virtual void			Unk_0B(UInt32 arg);
+	virtual bool			MarkChanged(UInt32 changed);
+	virtual void			ClearChanged(UInt32 changed);
 	virtual bool			Unk_0C(UInt32 arg);
 	virtual void			Unk_0D(UInt32 arg);
 	virtual void			Unk_0E(UInt32 arg);
@@ -986,30 +987,111 @@ class BGSLocation : public TESForm
 public:
 	enum { kTypeID = kFormType_Location };
 
+	struct UnloadedRefData
+	{
+	public:
+		union CellKey
+		{
+			struct XY
+			{
+				UInt16 x;
+				UInt16 y;
+			} xy;
+			UInt32	raw;
+		};
+		STATIC_ASSERT(sizeof(CellKey) == 0x4);
+
+
+		// members
+		UInt32	refID;			// 0
+		UInt32	parentSpaceID;	// 4
+		CellKey cellKey;		// 8
+	};
+	STATIC_ASSERT(sizeof(UnloadedRefData) == 0xC);
+
+	struct SpecialRefData  // LCSR
+	{
+	public:
+		// members
+		BGSLocationRefType* type;	  // 00
+		UnloadedRefData		refData;  // 08
+		UInt32				pad14;	  // 14
+	};
+	STATIC_ASSERT(sizeof(SpecialRefData) == 0x18);
+
+	struct UniqueNPCData  // LCUN
+	{
+	public:
+		// members
+		Actor*			actor;	  // 00
+		UInt32			refID;	  // 08
+		UInt32			pad0C;	  // 0C
+		BGSLocation*	editorLoc;  // 10
+	};
+	STATIC_ASSERT(sizeof(UniqueNPCData) == 0x18);
+
+	struct OverrideData
+	{
+	public:
+		// members
+		tArray<UnloadedRefData> addedData;		// 00 - ACPR
+		tHashSet<UInt32>		removedData;	// 18 - RCPR
+	};
+	STATIC_ASSERT(sizeof(OverrideData) == 0x48);
+
+	struct ChangeFlags
+	{
+		enum ChangeFlag : UInt32
+		{
+			kKeywordData = 1 << 30,
+			kCleared = (UInt32)1 << 31
+		};
+	};
+
+	struct RecordFlags
+	{
+		enum RecordFlag : UInt32
+		{
+			kDeleted = 1 << 5,
+			kIgnored = 1 << 12,
+			kCleared = (UInt32)1 << 31
+		};
+	};
+
+
+	struct KEYWORD_DATA
+	{
+	public:
+		// members
+		BGSKeyword*		keyword;	// 00
+		float			data;		// 08
+		UInt32			pad0C;		// 0C
+	};
+	STATIC_ASSERT(sizeof(KEYWORD_DATA) == 0x10);
+
 	// parents
 	TESFullName		fullName;	// 20
 	BGSKeywordForm	keyword;	// 30
 
-	// members
-	UInt64						unk48;		// 48 - init'd to 0
-	UInt64						unk50;		// 50 - init'd to 0
-	UInt64						unk58;		// 58 - init'd to 0
-	UInt32						unk60;		// 60 - init'd to 0
-	UInt32						unk64;		// 64 - init'd to 0
-	UInt32						unk68;		// 68 - init'd to 0
-	UInt32						pad6C;		// 6C
-	UnkArray					unk70;		// 70
-	UnkArray					unk88;		// 88
-	UInt64						unkA0;		// A0 - init'd to 0
-	UInt64						unkA8;		// A8 - init'd to 0
-	UnkArray					unkB0;		// B0
-	UInt32						unkC8;		// C8 - init'd to 0
-	UInt32						unkCC;		// CC - init'd to 0
-	UnkArray					unkD0;		// D0
-	UInt32						unkE8;		// E8 - init'd to 0
-	UInt8						unkEC;		// EC - init'd to 0
-	UInt8						unkED;		// ED - init'd to 0
-	UInt8						padEE[2];	// 86-EE
+	BGSLocation*								parentLoc;				// 48 - PNAM
+	TESFaction*									unreportedCrimeFaction;	// 50 - FNAM
+	BGSMusicType*								musicType;				// 58 - NAM1
+	UInt32										worldLocMarker;			// 60 - MNAM
+	float										worldLocRadius;			// 64 - RNAM
+	UInt32										horseLocMarker;			// 68 - NAM0
+	UInt32										pad6C;					// 6C
+	tArray<SpecialRefData>						specialRefs;			// 70 - LCSR
+	tArray<UniqueNPCData>						uniqueNPCs;				// 88 - LCUN
+	OverrideData*								overrideData;			// A0
+	NiPointer<NiObject>							promoteRefsTask;		// A8
+	tArray<UInt32>								promotedRefs;			// B0
+	SInt32										loadedCount;			// C8
+	UInt32										fileOffset;				// CC
+	tArray<KEYWORD_DATA>						keywordData;			// D0
+	UInt32										lastChecked;			// E8
+	bool										cleared;				// EC
+	bool										everCleared;			// ED
+	UInt16										padEE;					// EE
 };
 STATIC_ASSERT(sizeof(BGSLocation) == 0xF0);
 
@@ -2469,25 +2551,25 @@ public:
 	// ExtraCellAcousticSpace
 	// ExtraSeenData
 	// ExtraHavok
-	Data048						unk048;			// 048
-	TVDT *						* unk060;		// 060 
-	void						* unk068;		// 068
-	float						waterLevel;		// 070 - init'd to 7F7FFFFFh, max float
-	void						* unk078;		// 078
+	Data048						unk048;				// 048
+	TVDT *						* unk060;			// 060 
+	void						* unk068;			// 068
+	float						waterLevel;			// 070 - init'd to 7F7FFFFFh, max float
+	void						* unk078;			// 078
 
-	void						* unk080;		// 080
-	ReferenceData				refData;		// 088 - New in SE
-	TESForm						* unk0B0;		// 0B0 - REFR owner of cell?
+	void						* unk080;			// 080
+	ReferenceData				refData;			// 088 - New in SE
+	TESForm						* unk0B0;			// 0B0 - REFR owner of cell?
 
-	tArray<TESObjectREFR*> objectList;		// 0B8 - SE: not always valid
-	UnkArray					unk0D0;			// 0D0
-	UnkArray					unk0F8;			// 0F8
-	UnkArray					unk100;			// 100
-	Data						unk118;			// 118
-	TESWorldSpace				* unk120;		// 120
-	UInt64						unk128;		// 128
+	tArray<TESObjectREFR*> objectList;				// 0B8 - SE: not always valid
+	UnkArray					unk0D0;				// 0D0
+	UnkArray					unk0F8;				// 0F8
+	UnkArray					unk100;				// 100
+	Data						unk118;				// 118
+	TESWorldSpace				* worldSpace;		// 120
+	UInt64						unk128;				// 128
 	BGSLightingTemplate			* lightingTemplate;	// 130
-	UInt64						unk138;		// 138
+	UInt64						unk138;				// 138
 
 	MEMBER_FN_PREFIX(TESObjectCELL);
 	DEFINE_MEMBER_FN(GetNorthRotation, double, 0x0026D510);
@@ -3264,6 +3346,13 @@ public:
 		Entry	unkC0;
 	};
 
+	struct LandData	// DNAM
+	{
+		float	defaultLandHeight;	// 0
+		float	defaultWaterHeight;	// 4
+	};
+	STATIC_ASSERT(sizeof(LandData) == 0x8);
+
 
 	TESModel	unk030;			// 030	
 
@@ -3341,9 +3430,7 @@ public:
 	UInt64		unk1F0;	// 1F0
 	void*		unk1F8;	// 1F8
 	BSString	editorId;	// 200
-
-	float		unk210;	// 210
-	float		unk214;	// 214
+	LandData	landData;	// 210
 	float		unk218;	// 218
 	UInt32		pad21C;	// 21C
 

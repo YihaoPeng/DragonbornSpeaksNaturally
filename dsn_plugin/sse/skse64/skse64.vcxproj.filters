@@ -413,6 +413,9 @@
     <ClCompile Include="BSModelDB.cpp">
       <Filter>netimmerse</Filter>
     </ClCompile>
+    <ClCompile Include="PapyrusLocation.cpp">
+      <Filter>papyrus\functions</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GameAPI.h">
@@ -831,6 +834,9 @@
     </ClInclude>
     <ClInclude Include="BSModelDB.h">
       <Filter>netimmerse</Filter>
+    </ClInclude>
+    <ClInclude Include="PapyrusLocation.h">
+      <Filter>papyrus\functions</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

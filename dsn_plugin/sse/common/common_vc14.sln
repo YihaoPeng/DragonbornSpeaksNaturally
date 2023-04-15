@@ -19,10 +19,4 @@ Global
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
-	GlobalSection(SourceCodeControl) = preSolution
-		SccNumberOfProjects = 2
-		SccLocalPath0 = .
-		SccProjectUniqueName1 = common_vc14.vcxproj
-		SccLocalPath1 = .
-	EndGlobalSection
 EndGlobal

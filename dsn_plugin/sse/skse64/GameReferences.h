@@ -124,6 +124,8 @@ public:
 	enum
 	{
 		kFlag_Harvested = 0x2000,
+
+		kChange_IsEmpty = 0x00200000,
 	};
 
 	// currently none of these have been analyzed
@@ -196,8 +198,8 @@ public:
 	virtual void	Unk_7B(void);
 	virtual void	Unk_7C(void);
 	virtual void	Unk_7D(void);
-	virtual ActorWeightModel	* GetWeightModel(UInt32 weightModel); // 0 Small 1 Large
-	virtual void	Unk_7F(void);
+	virtual BipedModel* GetBiped(UInt32 weightModel); // 0 Small 1 Large
+	virtual BipedModel*	GetBipedSmall(void);
 	virtual void	Unk_80(void);
 	virtual void	Unk_81(void);
 	virtual void	Unk_82(void);

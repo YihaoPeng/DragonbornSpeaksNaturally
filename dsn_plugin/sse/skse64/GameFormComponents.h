@@ -20,6 +20,7 @@ class BGSVoiceType;
 class BGSEquipSlot;
 class Actor;
 class TESObjectARMO;
+class TESObjectARMA;
 class TESIdleForm;
 class BGSPerk;
 class ActorValueInfo;
@@ -31,6 +32,8 @@ class TESPackage;
 class BGSMusicTrackFormWrapper;
 class BGSImpactDataSet;
 class BGSMaterialType;
+class NiNode;
+class NiAVObject;
 
 //// root
 
@@ -712,14 +715,14 @@ public:
 	virtual ~ActorValueOwner();
 
 	// Argument is the ActorValue ID
-	virtual float	GetCurrent(UInt32 arg);
-	virtual float	GetMaximum(UInt32 arg);
-	virtual float	GetBase(UInt32 arg);
-	virtual void	SetBase(UInt32 arg0, float arg1);
-	virtual void	ModBase(UInt32 arg0, float arg1);
-	virtual void	Unk_06(UInt32 arg0, UInt32 arg1, UInt32 arg2); // Force/Mod AV?
-	virtual void	SetCurrent(UInt32 arg0, float arg1);
-	virtual bool	Unk_08(void);
+	virtual float	GetCurrent(UInt32 a_akValue);
+	virtual float	GetMaximum(UInt32 a_akValue);
+	virtual float	GetBase(UInt32 a_akValue);
+	virtual void	SetBase(UInt32 a_akValue, float a_value);
+	virtual void	ModBase(UInt32 a_akValue, float a_value);
+	virtual void	ModCurrent(UInt32 a_arg1, UInt32 a_akValue, float a_value);
+	virtual void	SetCurrent(UInt32 a_akValue, float a_value);
+	virtual bool	UsePCAVMult() const;
 
 	//	void	** _vtbl;	// 00
 };
@@ -1041,29 +1044,42 @@ public:
 	UInt32 ToARGB();
 };
 
-// ??
-class ActorWeightData
+// 2778
+class Biped : public BSIntrusiveRefCounted
 {
 public:
-	volatile SInt32	refCount;		// 00 - Refcount?
-	UInt32	pad04;		// 04
-	void	* unk08;	// 08
-	void	* unk10;	// 10
+	NiNode	* root;	// 08
 
-	MEMBER_FN_PREFIX(ActorWeightData);
-	DEFINE_MEMBER_FN(UpdateWeightData, void, 0x001C61A0);
-	DEFINE_MEMBER_FN(DeleteThis, void, 0x001C60A0);
+	struct Data
+	{
+		TESForm*				armor;			// 00 - Can be ARMO or ARMA
+		TESForm*				addon;			// 08 - Usually always ARMA
+		TESModelTextureSwap*	model;			// 10
+		BGSTextureSet*			textureSet;		// 18
+		NiAVObject*				object;			// 20
+		UInt64					unk28[(0x78 - 0x28) >> 3];
+	};
+	Data	unk10[42];		// 10
+	Data	unk13C0[42];	// 13C0
+	UInt32	handle;			// 2770
+	UInt32	unk2774;		// 2774
+
+	DEFINE_MEMBER_FN_0(UpdateWeightData, void, 0x001C61A0);
+	DEFINE_MEMBER_FN_0(DeleteThis, void, 0x001C60A0);
 };
+STATIC_ASSERT(offsetof(Biped, unk10) == 0x10);
+STATIC_ASSERT(offsetof(Biped, unk13C0) == 0x13C0);
+STATIC_ASSERT(sizeof(Biped) == 0x2778);
 
 // ??
-class ActorWeightModel
+class BipedModel
 {
 public:
 	enum {
 		kWeightModel_Small = 0,
 		kWeightModel_Large = 1
 	};
-	ActorWeightData * weightData;
+	Biped * bipedData;
 };
 
 class BSFixedStringCI;
@@ -1358,7 +1374,7 @@ public:
 
 	StatData * data;
 
-	SInt32 ResolveAdvanceableSkillId(SInt32 actorValue);
+	static SInt32 ResolveAdvanceableSkillId(SInt32 actorValue);
 
 	float GetSkillPoints(BSFixedString actorValue);
 	void SetSkillPoints(BSFixedString actorValue, float points);

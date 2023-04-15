@@ -4,10 +4,10 @@
 // these have to be macros so they can be used in the .rc
 #define SKSE_VERSION_INTEGER		2
 #define SKSE_VERSION_INTEGER_MINOR	0
-#define SKSE_VERSION_INTEGER_BETA	17
-#define SKSE_VERSION_VERSTRING		"0, 2, 0, 17"
+#define SKSE_VERSION_INTEGER_BETA	20
+#define SKSE_VERSION_VERSTRING		"0, 2, 0, 20"
 #define SKSE_VERSION_PADDEDSTRING	"0001"
-#define SKSE_VERSION_RELEASEIDX		64
+#define SKSE_VERSION_RELEASEIDX		65
 
 #define MAKE_EXE_VERSION_EX(major, minor, build, sub)	((((major) & 0xFF) << 24) | (((minor) & 0xFF) << 16) | (((build) & 0xFFF) << 4) | ((sub) & 0xF))
 #define MAKE_EXE_VERSION(major, minor, build)			MAKE_EXE_VERSION_EX(major, minor, build, 0)
@@ -40,6 +40,6 @@
 // information about the state of the game at the time of release
 #define SKSE_TARGETING_BETA_VERSION	0
 #define CURRENT_RELEASE_RUNTIME		RUNTIME_VERSION_1_5_97
-#define CURRENT_RELEASE_SKSE_STR	"2.0.17"
+#define CURRENT_RELEASE_SKSE_STR	"2.0.20"
 
 #endif /* __SKSE_VERSION_H__ */

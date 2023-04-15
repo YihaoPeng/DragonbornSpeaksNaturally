@@ -88,9 +88,6 @@ void PackValue(VMValue * dst, T * src, VMClassRegistry * registry);
 template <typename T>
 void UnpackValue(T * dst, VMValue * src);
 
-template <typename T>
-UInt64 GetTypeID(VMClassRegistry * registry);
-
 template <> void PackValue <void>(VMValue * dst, void * src, VMClassRegistry * registry);
 template <> void PackValue <UInt32>(VMValue * dst, UInt32 * src, VMClassRegistry * registry);
 template <> void PackValue <SInt32>(VMValue * dst, SInt32 * src, VMClassRegistry * registry);
@@ -143,6 +140,30 @@ void UnpackArray(VMArray<T> * dst, VMValue * src, const UInt64 type)
 
 UInt64 GetTypeIDFromFormTypeID(UInt32 formTypeID, VMClassRegistry * registry);
 
+template<typename T>
+struct IsArrayType
+{
+	enum { value = 0 };
+	typedef T TypedArg;
+};
+
+template<typename T>
+struct IsArrayType<VMArray<T*>>
+{
+	enum { value = 1 };
+	typedef T TypedArg;
+};
+
+template<typename T>
+struct IsArrayType<VMResultArray<T*>>
+{
+	enum { value = 1 };
+	typedef T TypedArg;
+};
+
+template <typename T>
+auto GetTypeID(VMClassRegistry* registry) -> std::enable_if_t<!std::is_pointer<T>::value && !IsArrayType<T>::value, UInt64>;
+
 template <> UInt64 GetTypeID <void>(VMClassRegistry * registry);
 template <> UInt64 GetTypeID <UInt32>(VMClassRegistry * registry);
 template <> UInt64 GetTypeID <SInt32>(VMClassRegistry * registry);
@@ -166,39 +187,17 @@ template <> UInt64 GetTypeID <VMResultArray<bool>>(VMClassRegistry * registry);
 template <> UInt64 GetTypeID <VMResultArray<BSFixedString>>(VMClassRegistry * registry);
 
 template<typename T>
-struct IsArrayType
+auto GetTypeID(VMClassRegistry * registry)
+-> std::enable_if_t<IsArrayType<T>::value, UInt64>
 {
-	enum { value = 0 };
-	typedef T TypedArg;
-};
+	return GetTypeIDFromFormTypeID(IsArrayType<T>::TypedArg::kTypeID, registry) | VMValue::kType_Identifier;
+}
 
 template<typename T>
-struct IsArrayType<VMArray<T*>>
+auto GetTypeID(VMClassRegistry * registry)
+-> std::enable_if_t<std::is_pointer<T>::value && !IsArrayType<std::remove_pointer<T>>::value, UInt64>
 {
-	enum { value = 1 };
-	typedef T TypedArg;
-};
-
-template<typename T>
-struct IsArrayType<VMResultArray<T*>>
-{
-	enum { value = 1 };
-	typedef T TypedArg;
-};
-
-template <typename T>
-UInt64 GetTypeID <T *>(VMClassRegistry * registry)
-{
-	UInt64		result;
-
-	typedef std::remove_pointer <IsArrayType<T>::TypedArg>::type	BaseType;
-	if(!IsArrayType<T>::value) {
-		result = GetTypeIDFromFormTypeID(BaseType::kTypeID, registry);
-	} else { // Arrays are ClassInfo ptr + 1
-		result = GetTypeIDFromFormTypeID(BaseType::kTypeID, registry) | VMValue::kType_Identifier;
-	}
-
-	return result;
+	return GetTypeIDFromFormTypeID(std::remove_pointer<T>::type::kTypeID, registry);
 }
 
 template <class T>

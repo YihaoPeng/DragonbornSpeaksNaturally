@@ -47,9 +47,37 @@ public:
 	IMenu();
 	virtual ~IMenu() { CALL_MEMBER_FN(this, dtor)(); } // TODO
 
-	enum {
-		kType_PauseGame = 1,
-		kType_ShowCursor = 2
+	enum
+	{
+		kFlag_None = 0,
+		kFlag_PausesGame = 1 << 0,
+		kFlag_AlwaysOpen = 1 << 1,
+		kFlag_UsesCursor = 1 << 2,
+		kFlag_UsesMenuContext = 1 << 3,
+		kFlag_Modal = 1 << 4,  // prevents lower movies with this flag from advancing
+		kFlag_FreezeFrameBackground = 1 << 5,
+		kFlag_OnStack = 1 << 6,
+		kFlag_DisablePauseMenu = 1 << 7,
+		kFlag_RequiresUpdate = 1 << 8,
+		kFlag_TopmostRenderedMenu = 1 << 9,
+		kFlag_UpdateUsesCursor = 1 << 10,
+		kFlag_AllowSaving = 1 << 11,
+		kFlag_RendersOffscreenTargets = 1 << 12,
+		kFlag_InventoryItemMenu = 1 << 13,
+		kFlag_DontHideCursorWhenTopmost = 1 << 14,
+		kFlag_CustomRendering = 1 << 15,
+		kFlag_AssignCursorToRenderer = 1 << 16,
+		kFlag_ApplicationMenu = 1 << 17,
+		kFlag_HasButtonBar = 1 << 18,
+		kFlag_IsTopButtonBar = 1 << 19,
+		kFlag_AdvancesUnderPauseMenu = 1 << 20,
+		kFlag_RendersUnderPauseMenu = 1 << 21,
+		kFlag_UsesBlurredBackground = 1 << 22,
+		kFlag_CompanionAppAllowed = 1 << 23,
+		kFlag_FreezeFramePause = 1 << 24,
+		kFlag_SkipRenderDuringFreezeFrameScreenshot = 1 << 25,
+		kFlag_LargeScaleformRenderCacheMode = 1 << 26,
+		kFlag_UsesMovementToDirection = 1 << 27
 	};
 
 	virtual void	Accept(CallbackProcessor * processor) {}
@@ -991,7 +1019,7 @@ class MenuTableItem
 public:
 	BSFixedString	name;				// 000
 	IMenu			* menuInstance;		// 008	0 if the menu is not currently open
-	IMenu		*(*menuConstructor)();	// 010
+	void			* menuConstructor;	// 010
 
 	bool operator==(const MenuTableItem & rhs) const { return name == rhs.name; }
 	bool operator==(const BSFixedString a_name) const { return name == a_name; }
@@ -1014,7 +1042,6 @@ public:
 // 1C8
 class MenuManager
 {
-public:
 	typedef tHashSet<MenuTableItem, BSFixedString> MenuTable;
 
 	// 030-040
@@ -1041,7 +1068,7 @@ public:
 	};
 	STATIC_ASSERT(sizeof(Unknown3) == 0x40);
 
-//private:
+private:
 	UInt64					unk_000;	// 000
 
 	EventDispatcher<MenuOpenCloseEvent>		menuOpenCloseEventDispatcher;	// 008

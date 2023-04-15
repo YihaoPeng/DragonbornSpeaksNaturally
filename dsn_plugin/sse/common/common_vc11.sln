@@ -4,10 +4,6 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "common_vc11", "common_vc11.vcxproj", "{D4C128A1-73DC-4941-A453-CE55AF239BA8}"
 EndProject
 Global
-	GlobalSection(SourceCodeControl) = preSolution
-		SccNumberOfProjects = 1
-		SccLocalPath0 = .
-	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
 		Release|x64 = Release|x64
