@@ -1,4 +1,4 @@
-Dragonborn Speaks Naturally
+Dragonborn Speaks Naturally ([NexusMods](https://www.nexusmods.com/skyrimspecialedition/mods/16514))
 ==============================
 
 DSN is composed of two projects, a plugin and a background service.
