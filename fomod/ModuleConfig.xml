@@ -13,7 +13,7 @@
           <plugins order="Explicit">
 
             <plugin name="Skyrim Anniversary Edition">
-              <description><![CDATA[This plugin is compatible and only compatible with Skyrim Anniversary Edition 1.6.640.0.
+              <description><![CDATA[This plugin is compatible and only compatible with Skyrim Anniversary Edition 1.6.1170.0.
 
 NOTE: Whether to purchase or enable DLC does not affect your Skyrim Special Edition to automatically upgrade to the Anniversary Edition.
 If you installed a recent Steam update, you must select this version.

@@ -19,7 +19,7 @@ UInt64 SKYRIM_VERSION[3] = {
 };
 
 std::string SKYRIM_VERSION_STR[3] = {
-	"1.6.640.0",
+	"1.6.1170.0",
 	"1.5.97.0",
 	"1.4.15.0"
 };
