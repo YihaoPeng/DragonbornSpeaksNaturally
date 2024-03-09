@@ -65,20 +65,21 @@
 #include "PapyrusInput.h"
 #include "PapyrusTree.h"
 #include "PapyrusWeather.h"
+#include "PapyrusLocation.h"
 
 #include "xbyak/xbyak.h"
 
 typedef void(*_RegisterPapyrusFunctions)(VMClassRegistry ** registry);
-RelocAddr<_RegisterPapyrusFunctions> RegisterPapyrusFunctions(0x009BB6F0);
-RelocAddr <uintptr_t> RegisterPapyrusFunctions_Start(0x0095F6E0 + 0xCC3);
+RelocAddr<_RegisterPapyrusFunctions> RegisterPapyrusFunctions(0x00A19B20);
+RelocAddr <uintptr_t> RegisterPapyrusFunctions_Start(0x009BDE90 + 0xCC3);
 
-RelocAddr<uintptr_t> UnregisterFromSleep_Enter(0x009648F0 + 0x14B);
-RelocAddr<uintptr_t> RevertGlobalData_Enter(0x0096B8C0 + 0x22);
-RelocAddr<uintptr_t> RevertGlobalData_Enter2(0x0096BE00 + 0x288);
-RelocAddr<uintptr_t> SaveRegsSleep_Enter(0x0096E340 + 0x390);
-RelocAddr<uintptr_t> LoadRegsSleep_Enter(0x0096F420 + 0x2FB);
+RelocAddr<uintptr_t> UnregisterFromSleep_Enter(0x009C30A0 + 0x14B);
+RelocAddr<uintptr_t> RevertGlobalData_Enter(0x009CA070 + 0x22);
+RelocAddr<uintptr_t> RevertGlobalData_Enter2(0x009CA5B0 + 0x288);
+RelocAddr<uintptr_t> SaveRegsSleep_Enter(0x009CCAF0 + 0x390);
+RelocAddr<uintptr_t> LoadRegsSleep_Enter(0x009CDBD0 + 0x2FB);
 
-RelocAddr<uintptr_t> kDFQueueHook_Base(0x009719D0);
+RelocAddr<uintptr_t> kDFQueueHook_Base(0x009D0180);
 uintptr_t  kDFQueueHook_HookAddr = kDFQueueHook_Base + 0x6E;
 uintptr_t kDFQueueHook_Entry_retn = kDFQueueHook_Base + 0x73;
 
@@ -273,6 +274,9 @@ void RegisterPapyrusFunctions_Hook(VMClassRegistry ** registryPtr)
 
 	// GameData
 	papyrusGameData::RegisterFuncs(registry);
+
+	// Location
+	papyrusLocation::RegisterFuncs(registry);
 
 //#ifdef _PPAPI
 	// Plugins

@@ -24,7 +24,7 @@ IMenu * DSNMenuManager::GetOrCreateMenu(const char *menuName) {
 				BSFixedString *name = &item->name;
 				if ((uintptr_t)name > 1 && name->data && std::strncmp(name->data, menuName, 10) == 0) {
 					if (!item->menuInstance && item->menuConstructor) {
-						item->menuInstance = item->menuConstructor();
+						item->menuInstance = ((IMenu*(*)())item->menuConstructor)();
 					}
 
 					return item->menuInstance;

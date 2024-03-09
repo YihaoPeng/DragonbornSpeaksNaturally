@@ -18,9 +18,9 @@ public:
 	~VMArgList();
 
 	MEMBER_FN_PREFIX(VMArgList);
-	DEFINE_MEMBER_FN(GetOffset, UInt32, 0x0136C8A0, VMState * state);
+	DEFINE_MEMBER_FN(GetOffset, UInt32, 0x014327E0, VMState * state);
 	// FB33603AEC8921D8A9361F52478B667E583E54A1+20
-	DEFINE_MEMBER_FN(Get, VMValue *, 0x0136C910, VMState * state, UInt32 idx, UInt32 offset);
+	DEFINE_MEMBER_FN(Get, VMValue *, 0x01432850, VMState * state, UInt32 idx, UInt32 offset);
 };
 
 template <typename T>
@@ -45,7 +45,7 @@ public:
 	{
 		// Copy the contents from the reference array to the VM array
 		UInt32 i = 0;
-		for(std::vector<T>::iterator it = begin(); it != end(); ++it, i++) {
+		for(auto it = this->begin(); it != this->end(); ++it, i++) {
 			VMValue * value = data->GetData() + i;
 			PackValue(value, (T*)&(*it), registry);
 			value->type = GetTypeID<T>(registry); // Always pack the type, even if empty data
@@ -110,7 +110,7 @@ public:
 	void PackArray(VMValue::ArrayData * data, VMClassRegistry * registry)
 	{
 		UInt32 i = 0;
-		for (std::vector<bool>::iterator it = begin(); it != end(); ++it, i++) {
+		for (auto it = this->begin(); it != this->end(); ++it, i++) {
 			VMValue * value = data->GetData() + i;
 			bool _data = *it;
 			PackValue<bool>(value, &_data, registry);
