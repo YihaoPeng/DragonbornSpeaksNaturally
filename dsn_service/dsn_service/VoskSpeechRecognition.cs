@@ -226,22 +226,23 @@ namespace DSN {
 
         private void SetGrammar(List<RecognitionGrammar> grammars) {
             var id = Interlocked.Increment(ref sessionId);
-            string jsgf = "";
+            string grammarString = "[";
             int i = 0;
             foreach (RecognitionGrammar grammar in grammars) {
                 try {
-                    jsgf += GrammarToJSGF(grammar, id, i);
+                    grammarString += GrammarToString(grammar, id, i);
                 } catch (Exception ex) {
                     Trace.TraceError("Load grammar '{0}' failed:\n{1}", grammar.Name, ex.ToString());
                 }
                 i++;
             }
+            grammarString += "]";
 
-            //Trace.TraceInformation("JSGF:\n{0}", jsgf);
-            this.DSN.LoadJSGF(jsgf);
+            Trace.TraceInformation("Grammar:\n{0}", grammarString);
+            this.DSN.LoadGrammar(grammarString);
         }
 
-        private string GrammarToJSGF(RecognitionGrammar grammar, long sessionId, int index) {
+        private string GrammarToString(RecognitionGrammar grammar, long sessionId, int index) {
             string jsgf = "[dsn_" + sessionId + "_" + index + "]\n" + grammar.ToJSGF() + "\n\n";
             return jsgf;
         }
