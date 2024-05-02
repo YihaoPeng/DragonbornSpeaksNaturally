@@ -109,3 +109,9 @@ If you met assembly missing, please restore and reinstall NuGet packages manuall
    ```
 
 4. Then you can build `dsn_service` normally.
+
+## License
+
+We have a [MIT License](LICENSE). Any reasonable exploitation of this project is welcome, including commercial use and porting to other games.
+
+Except: The SKSE source code embedded in this project (in the dsn_plugin/[sae](dsn_plugin/sae)|[sse](dsn_plugin/sse)|[svr](dsn_plugin/svr) dir) is not suitable for the MIT license. Please refer to the SKSE official website for understand the licensing policies for these codes.
